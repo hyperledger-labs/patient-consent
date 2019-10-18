@@ -1,0 +1,171 @@
+syntax = "proto3";
+
+message TrialTransactionPayload {
+
+    enum PayloadType {
+        TYPE_UNSET = 0;
+        CREATE_SPONSOR = 1;
+        CREATE_INVESTIGATOR = 2;
+        CREATE_PATIENT = 3;
+//        CREATE_CLAIM = 4;
+//        ASSIGN_DOCTOR = 5;
+//        FIRST_VISIT = 6;
+//        PASS_TESTS = 7;
+//        ATTEND_PROCEDURES = 8;
+//        EAT_PILLS = 9;
+//        NEXT_VISIT = 10;
+//        ADD_LAB_TEST = 11;
+//        ADD_PULSE = 12;
+//        CREATE_LAB = 13;
+//        UPDATE_CLAIM = 14;
+//        CLOSE_CLAIM = 15;
+    }
+
+    PayloadType payload_type = 1;
+
+    Sponsor create_sponsor = 2;
+    Investigator create_investigator = 3;
+    Patient create_patient = 4;
+//    Claim create_claim = 5;
+//    ActionOnClaim assign_doctor = 6;
+//    ActionOnClaim first_visit = 7;
+//    ActionOnClaim pass_tests = 8;
+//    ActionOnClaim attend_procedures = 9;
+//    ActionOnClaim eat_pills = 10;
+//    ActionOnClaim next_visit = 11;
+//    AddLabTest lab_test = 12;
+//    AddPulse pulse = 13;
+//    CreateLab create_lab = 14;
+//    Claim close_claim = 15;
+//    Claim update_claim = 16;
+}
+
+message Sponsor {
+    string public_key = 1;
+    string name = 2;
+}
+
+message Investigator {
+    string public_key = 1;
+    string name = 2;
+    string surname = 3;
+}
+
+message Patient {
+    string public_key = 1;
+    string name = 2;
+    string surname = 3;
+}
+
+//message CreateLab {
+//    string public_key = 1;
+//    string name = 2;
+////    repeated Permission permissions = 2;
+//}
+//
+//message AddLabTest {
+//    string height=1;
+//    string weight=2;
+//    string gender=3;
+//    string a_g_ratio=4;
+//    string albumin=5;
+//    string alkaline_phosphatase=6;
+//    string appearance=7;
+//    string bilirubin=8;
+//    string casts=9;
+//    string color=10;
+//    string event_time=11;
+//    string id=12;
+//    string client_pkey=13;
+//}
+//
+//message AddLabTestWithUser {
+//    string height=1;
+//    string weight=2;
+//    string gender=3;
+//    string a_g_ratio=4;
+//    string albumin=5;
+//    string alkaline_phosphatase=6;
+//    string appearance=7;
+//    string bilirubin=8;
+//    string casts=9;
+//    string color=10;
+//    string event_time=11;
+//    string id=12;
+//    string client_pkey=13;
+//    string name=14;
+//    string surname=15;
+//}
+//
+//message AddPulse {
+////    string public_key=1;
+//    string id=1;
+//    string pulse=2;
+//    string timestamp=3;
+//    string client_pkey=4;
+//}
+//
+//message AddPulseWithUser {
+////    string public_key=1;
+//    string id=1;
+//    string pulse=2;
+//    string timestamp=3;
+//    string client_pkey=4;
+//    string name=5;
+//    string surname=6;
+//}
+//
+//message CreateClaim {
+//    string claim_id = 1;
+//    string clinic_pkey = 2;
+//    string patient_pkey = 3;
+//}
+//
+//message Claim {
+//
+//    enum State {
+//        OPENED = 0;
+//        CLOSED = 1;
+//    }
+//
+//    string id = 1;
+//    string client_pkey = 2;
+//    string description = 3;
+//    string provided_service = 4;
+//    State state = 5;
+//    string contract_id = 6;
+//}
+//
+//message ClaimWithUser {
+//
+//    enum State {
+//        OPENED = 0;
+//        CLOSED = 1;
+//    }
+//
+//    string id = 1;
+//    string client_pkey = 2;
+//    string description = 3;
+//    string provided_service = 4;
+//    State state = 5;
+//    string contract_id = 6;
+//    string name = 7;
+//    string surname = 8;
+//}
+//
+//message ActionOnClaim {
+//    enum Event {
+//        ASSIGN = 0;
+//        FIRST_VISIT = 1;
+//        PASS_TEST = 2;
+//        PASS_PROCEDURE = 3;
+//        EAT_PILLS = 4;
+//        NEXT_VISIT = 5;
+//    }
+//
+//    string claim_id = 1;
+//    string clinic_pkey = 2;
+//    string description = 3;
+//    Event event = 4;
+//    string event_time = 5;
+//}
