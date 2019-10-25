@@ -7,9 +7,9 @@ message TrialTransactionPayload {
         CREATE_SPONSOR = 1;
         CREATE_INVESTIGATOR = 2;
         CREATE_PATIENT = 3;
-//        CREATE_CLAIM = 4;
-//        ASSIGN_DOCTOR = 5;
-//        FIRST_VISIT = 6;
+        CREATE_HOSPITAL = 4;
+        CREATE_EHR = 5;
+        CREATE_DATA_PROVIDER = 6;
 //        PASS_TESTS = 7;
 //        ATTEND_PROCEDURES = 8;
 //        EAT_PILLS = 9;
@@ -23,9 +23,12 @@ message TrialTransactionPayload {
 
     PayloadType payload_type = 1;
 
-    Sponsor create_sponsor = 2;
-    Investigator create_investigator = 3;
-    Patient create_patient = 4;
+    Patient create_patient = 2;
+    Hospital create_hospital = 3;
+    EHR create_ehr = 4;
+    DataProvider create_data_provider = 5;
+    Sponsor create_sponsor = 6;
+    Investigator create_investigator = 7;
 //    Claim create_claim = 5;
 //    ActionOnClaim assign_doctor = 6;
 //    ActionOnClaim first_visit = 7;
@@ -40,7 +43,48 @@ message TrialTransactionPayload {
 //    Claim update_claim = 16;
 }
 
-message Sponsor {
+message Patient {
+    string public_key = 1;
+    string name = 2;
+    string surname = 3;
+}
+
+message Hospital {
+    string public_key = 1;
+    string name = 2;
+}
+
+message EHR {
+    string id=1;
+    string client_pkey=2;
+    string field_1=3;
+    string field_2=4;
+    string event_time=5;
+}
+
+message EHRWithUser {
+    string id=1;
+    string client_pkey=2;
+    string field_1=3;
+    string field_2=4;
+    string event_time=5;
+    string name=6;
+    string surname=7;
+}
+
+message DataProvider {
+    string public_key = 1;
+    string name = 2;
+}
+
+message Sponsor { //  Study management
+
+    enum Type {
+        CRO = 0;
+        Pharma = 1;
+        Medtech = 2;
+    }
+
     string public_key = 1;
     string name = 2;
 }
@@ -51,11 +95,7 @@ message Investigator {
     string surname = 3;
 }
 
-message Patient {
-    string public_key = 1;
-    string name = 2;
-    string surname = 3;
-}
+
 
 //message CreateLab {
 //    string public_key = 1;

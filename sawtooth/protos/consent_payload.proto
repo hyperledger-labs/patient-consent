@@ -4,16 +4,20 @@ message ConsentTransactionPayload {
 
     enum PayloadType {
         TYPE_UNSET = 0;
-        GRANT_ACCESS = 1;
-        REVOKE_ACCESS = 2;
+        GRANT_READ_EHR_ACCESS = 1;
+        REVOKE_READ_EHR_ACCESS = 2;
         ADD_CLIENT = 3;
+        GRANT_WRITE_EHR_ACCESS = 4;
+        REVOKE_WRITE_EHR_ACCESS = 5;
     }
 
     PayloadType payload_type = 1;
 
-    ActionOnAccess grant_access = 2;
-    ActionOnAccess revoke_access = 3;
-    Client create_client = 4;
+    ActionOnAccess grant_read_ehr_access = 2;
+    ActionOnAccess revoke_read_ehr_access = 3;
+    ActionOnAccess grant_write_ehr_access = 4;
+    ActionOnAccess revoke_write_ehr_access = 5;
+    Client create_client = 6;
 }
 
 message ActionOnAccess {
@@ -30,45 +34,44 @@ message Permission {
     enum PermissionType {
       PERMISSION_TYPE_UNSET = 0;
 
-      READ_CLINIC = 100;
-      READ_OWN_CLINIC = 101;
+      READ_HOSPITAL = 100;
+      READ_OWN_HOSPITAL = 101;
 
-      READ_DOCTOR = 200;
-      READ_OWN_DOCTOR = 201;
+      READ_PATIENT = 200;
+      READ_OWN_PATIENT = 201;
 
-      READ_PATIENT = 300;
-      READ_OWN_PATIENT = 301;
+      READ_DATA_PROVIDER = 300;
+      READ_OWN_DATA_PROVIDER = 301;
 
-      READ_LAB = 800;
-      READ_OWN_LAB = 801;
+      READ_FORMATTED_EHR = 400;
+      WRITE_FORMATTED_EHR = 402;
 
-      READ_LAB_TEST = 600;
-      READ_OWN_LAB_TEST = 601;
-      WRITE_LAB_TEST = 602;
+      REVOKE_WRITE_EHR_ACCESS = 500;
+      GRANT_WRITE_EHR_ACCESS = 501;
 
-      READ_PULSE = 700;
-      READ_OWN_PULSE = 701;
-      WRITE_PULSE = 702;
+      READ_INVESTIGATOR = 600;
+      READ_OWN_INVESTIGATOR = 601;
 
-      READ_CLAIM = 400;
-      READ_OWN_CLAIM = 401;
-      WRITE_CLAIM = 402;
-      UPDATE_CLAIM = 403;
-      CLOSE_CLAIM = 404;
+      READ_EHR = 700;
+      READ_OWN_EHR = 701;
+      WRITE_EHR = 702;
 
-      REVOKE_ACCESS = 500;
-      GRANT_ACCESS = 501;
+      READ_SPONSOR = 800;
+      READ_OWN_SPONSOR = 801;
 
-      READ_INSURANCE_COMPANY = 900;
-      READ_OWN_INSURANCE_COMPANY = 901;
+      GRANT_READ_EHR_ACCESS = 900;
+      REVOKE_READ_EHR_ACCESS = 901;
 
-      READ_CONTRACT = 1000;
-      READ_OWN_CONTRACT = 1001;
-      WRITE_CONTRACT = 1002;
-
-      READ_PAYMENT = 1100;
-      READ_OWN_PAYMENT = 1101;
-      WRITE_PAYMENT = 1102;
+//      READ_INSURANCE_COMPANY = 900;
+//      READ_OWN_INSURANCE_COMPANY = 901;
+//
+//      READ_CONTRACT = 1000;
+//      READ_OWN_CONTRACT = 1001;
+//      WRITE_CONTRACT = 1002;
+//
+//      READ_PAYMENT = 1100;
+//      READ_OWN_PAYMENT = 1101;
+//      WRITE_PAYMENT = 1102;
     }
 
     PermissionType type = 1;
