@@ -126,3 +126,7 @@ dmypy.json
 .pyre/
 
 /.idea/
+/consent_processor/consent_processor/consent_common/
+/consent_processor/consent_processor.egg-info/
+/consent_processor/dist/
+/consent_common/protobuf/

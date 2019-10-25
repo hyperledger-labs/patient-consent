@@ -2,28 +2,28 @@ version: '3'
 
 services:
 
-  ehr-processor:
-    build:
-      context: .
-      dockerfile: processor/Dockerfile
-      args:
-        - http_proxy
-        - https_proxy
-        - no_proxy
-    image: healthcare-tp
-    container_name: ehr-processor
-    volumes:
-      - ./:/project/sawtooth_healthcare
-#    depends_on:
-#      - healthcare-cli
-    command: |
-      bash -c "
-        sleep 1 &&
-        echo '--- Building healthcare-tp by docker-compose---\n' &&
-        init-healthcare-tp.sh &&
-        healthcare-tp -v -C tcp://validator:4004 &&
-        tail -f /dev/null
-               "
+#  ehr-processor:
+#    build:
+#      context: .
+#      dockerfile: ehr_processor/Dockerfile
+#      args:
+#        - http_proxy
+#        - https_proxy
+#        - no_proxy
+#    image: trial-tp
+#    container_name: ehr-processor
+#    volumes:
+#      - ./:/project/sawtooth_healthcare
+##    depends_on:
+##      - healthcare-cli
+#    command: |
+#      bash -c "
+#        sleep 1 &&
+#        echo '--- Building ehr-tp by docker-compose---\n' &&
+#        init-ehr-tp.sh &&
+#        ehr-tp -v -C tcp://validator:4004 &&
+#        tail -f /dev/null
+#               "
 
   consent-processor:
     build:
