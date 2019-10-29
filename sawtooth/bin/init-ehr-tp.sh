@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
-bin/healthcare-protogen
-cp -R common ehr_processor/ehr_processor
+bin/healthcare-protogen make_ehr_protobuf
+cp -R ehr_common ehr_processor/ehr_processor
 cd ehr_processor || exit
-#python3 setup.py clean --bdist-base ./processor/bdist.linux-x86_64 --build-lib ./processor/lib --all
-#python3 setup.py build -b ./processor install
 python3 setup.py clean --all
 python3 setup.py build
 python3 setup.py install
-#healthcare-tp

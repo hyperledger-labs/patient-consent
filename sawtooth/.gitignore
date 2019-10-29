@@ -130,3 +130,5 @@ dmypy.json
 /consent_processor/consent_processor.egg-info/
 /consent_processor/dist/
 /consent_common/protobuf/
+/ehr_processor/ehr_processor/ehr_common/
+/ehr_common/protobuf/
