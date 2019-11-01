@@ -21,6 +21,9 @@ if [[ ! -f /root/.sawtooth/keys/patientWEB.priv ]]; then
     sawtooth keygen patientWEB
 fi;
 
+if [[ ! -f /root/.sawtooth/keys/dataproviderWEB.priv ]]; then
+    sawtooth keygen dataproviderWEB
+fi;
 #if [[ ! -f /root/.sawtooth/keys/labWEB.priv ]]; then
 #    sawtooth keygen labWEB
 #fi;

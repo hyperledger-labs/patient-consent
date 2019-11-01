@@ -28,7 +28,7 @@ async def get_all_clients(request):
     patient_pkey = request.app.config.SIGNER_PATIENT.get_public_key().as_hex()
     # lab_pkey = request.app.config.SIGNER_LAB.get_public_key().as_hex()
     # insurance_pkey = request.app.config.SIGNER_INSURANCE.get_public_key().as_hex()
-    data_provider_pkey = request.app.config.SIGNER_DATA_PROVIDER.get_public_key().as_hex()
+    data_provider_pkey = request.app.config.SIGNER_DATAPROVIDER.get_public_key().as_hex()
     clients = {'hospital': hospital_pkey, 'patient': patient_pkey, 'data_provider': data_provider_pkey}
     return response.json(body={'data': clients},
                          headers=general.get_response_headers())

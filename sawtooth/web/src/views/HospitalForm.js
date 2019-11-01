@@ -1,5 +1,5 @@
 var m = require("mithril")
-var Clinic = require("../models/Hospital")
+var Hospital = require("../models/Hospital")
 
 module.exports = {
 //    oninit: function(vnode) {User.load(vnode.attrs.id)},
