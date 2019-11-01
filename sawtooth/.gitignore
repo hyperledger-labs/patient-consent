@@ -132,3 +132,5 @@ dmypy.json
 /consent_common/protobuf/
 /ehr_processor/ehr_processor/ehr_common/
 /ehr_common/protobuf/
+/rest_api/rest_api/consent_common/
+/rest_api/rest_api/ehr_common/

@@ -163,12 +163,12 @@ def create_client(txn_signer, batch_signer, permissions):
         batch_signer=batch_signer)
 
 
-def grant_read_ehr_permission(txn_signer, batch_signer, doctor_pkey):
+def grant_read_ehr_permission(txn_signer, batch_signer, dest_pkey):
     patient_pkey = txn_signer.get_public_key().as_hex()
-    consent_hex = helper.make_consent_read_ehr_address(dest_pkey=doctor_pkey, src_pkey=patient_pkey)
+    consent_hex = helper.make_consent_read_ehr_address(dest_pkey=dest_pkey, src_pkey=patient_pkey)
 
     access = ActionOnAccess(
-        dest_pkey=doctor_pkey,
+        dest_pkey=dest_pkey,
         src_pkey=patient_pkey
     )
 
@@ -184,12 +184,12 @@ def grant_read_ehr_permission(txn_signer, batch_signer, doctor_pkey):
         batch_signer=batch_signer)
 
 
-def revoke_read_ehr_permission(txn_signer, batch_signer, doctor_pkey):
+def revoke_read_ehr_permission(txn_signer, batch_signer, dest_pkey):
     patient_pkey = txn_signer.get_public_key().as_hex()
-    consent_hex = helper.make_consent_read_ehr_address(dest_pkey=doctor_pkey, src_pkey=patient_pkey)
+    consent_hex = helper.make_consent_read_ehr_address(dest_pkey=dest_pkey, src_pkey=patient_pkey)
 
     access = ActionOnAccess(
-        dest_pkey=doctor_pkey,
+        dest_pkey=dest_pkey,
         src_pkey=patient_pkey
     )
 
@@ -205,12 +205,12 @@ def revoke_read_ehr_permission(txn_signer, batch_signer, doctor_pkey):
         batch_signer=batch_signer)
 
 
-def grant_write_ehr_permission(txn_signer, batch_signer, doctor_pkey):
+def grant_write_ehr_permission(txn_signer, batch_signer, dest_pkey):
     patient_pkey = txn_signer.get_public_key().as_hex()
-    consent_hex = helper.make_consent_write_ehr_address(dest_pkey=doctor_pkey, src_pkey=patient_pkey)
+    consent_hex = helper.make_consent_write_ehr_address(dest_pkey=dest_pkey, src_pkey=patient_pkey)
 
     access = ActionOnAccess(
-        dest_pkey=doctor_pkey,
+        dest_pkey=dest_pkey,
         src_pkey=patient_pkey
     )
 
@@ -226,12 +226,12 @@ def grant_write_ehr_permission(txn_signer, batch_signer, doctor_pkey):
         batch_signer=batch_signer)
 
 
-def revoke_write_ehr_permission(txn_signer, batch_signer, doctor_pkey):
+def revoke_write_ehr_permission(txn_signer, batch_signer, dest_pkey):
     patient_pkey = txn_signer.get_public_key().as_hex()
-    consent_hex = helper.make_consent_write_ehr_address(dest_pkey=doctor_pkey, src_pkey=patient_pkey)
+    consent_hex = helper.make_consent_write_ehr_address(dest_pkey=dest_pkey, src_pkey=patient_pkey)
 
     access = ActionOnAccess(
-        dest_pkey=doctor_pkey,
+        dest_pkey=dest_pkey,
         src_pkey=patient_pkey
     )
 

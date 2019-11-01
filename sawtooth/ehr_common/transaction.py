@@ -194,25 +194,25 @@ def create_hospital(txn_signer, batch_signer, name):
 #         batch_signer=batch_signer)
 
 
-def add_ehr(txn_signer, batch_signer, ehr_obj):
+def add_ehr(txn_signer, batch_signer, uid, client_pkey, field_1, field_2):
     hospital_pkey = txn_signer.get_public_key().as_hex()
-    patient_pkey = ehr_obj.client_pkey
+    patient_pkey = client_pkey
     # patient_hex = helper.make_patient_address(patient_pkey=client_pkey)
-    ehr_hex = helper.make_ehr_address(ehr_id=ehr_obj.id)
-    ehr_patient_rel_hex = helper.make_ehr_patient__relation_address(ehr_obj.id, patient_pkey)
-    patient_ehr_rel_hex = helper.make_patient_ehr__relation_address(patient_pkey, ehr_obj.id)
+    ehr_hex = helper.make_ehr_address(ehr_id=uid)
+    ehr_patient_rel_hex = helper.make_ehr_patient__relation_address(uid, patient_pkey)
+    patient_ehr_rel_hex = helper.make_patient_ehr__relation_address(patient_pkey, uid)
 
-    ehr_hospital_rel_hex = helper.make_ehr_hospital__relation_address(ehr_obj.id, hospital_pkey)
-    hospital_ehr_rel_hex = helper.make_hospital_ehr__relation_address(hospital_pkey, ehr_obj.id)
+    ehr_hospital_rel_hex = helper.make_ehr_hospital__relation_address(uid, hospital_pkey)
+    hospital_ehr_rel_hex = helper.make_hospital_ehr__relation_address(hospital_pkey, uid)
 
     current_times_str = helper.get_current_timestamp()
     # clinic_hex = helper.make_clinic_address(clinic_pkey=clinic_pkey)
 
     ehr = EHR(
-        id=ehr_obj.id,
-        client_pkey=ehr_obj.client_pkey,
-        field_1=ehr_obj.field_1,
-        field_2=ehr_obj.field_2,
+        id=uid,
+        client_pkey=client_pkey,
+        field_1=field_1,
+        field_2=field_2,
         event_time=current_times_str
     )
 
