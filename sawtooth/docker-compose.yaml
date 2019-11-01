@@ -184,27 +184,27 @@ services:
       - validator
     entrypoint: devmode-engine-rust -C tcp://validator:5050
 
-#  healthcare-web-app:
-#    build:
-#      context: .
-#      dockerfile: web/Dockerfile
-#    image: healthcare-web-app
-#    user: "node"
-#    container_name: healthcare-web-app
-##    volumes:
-##      - .:/project/sawtooth_healthcare
+  ehr-web-app:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    image: ehr-web-app
+    user: "node"
+    container_name: ehr-web-app
 #    volumes:
-#      - ./web:/home/node/app
-#      - /home/node/app/node_modules
-#    expose:
-#      - 8080
-#    ports:
-#      - '8041:8080'
-##    depends_on:
-##      - ehr-rest-api
-#    command: |
-#      sh -c "
-#        echo '--- Starting healthcare-web-app by docker-compose---' &&
-#        npm start
-#      "
-##        tail -f /dev/null
+#      - .:/project/sawtooth_healthcare
+    volumes:
+      - ./web:/home/node/app
+      - /home/node/app/node_modules
+    expose:
+      - 8080
+    ports:
+      - '8041:8080'
+#    depends_on:
+#      - ehr-rest-api
+    command: |
+      sh -c "
+        echo '--- Starting ehr-web-app by docker-compose---' &&
+        npm start
+      "
+#        tail -f /dev/null

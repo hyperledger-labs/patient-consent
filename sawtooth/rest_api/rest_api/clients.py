@@ -23,12 +23,12 @@ CLIENTS_BP = Blueprint('clients')
 @CLIENTS_BP.get('clients')
 async def get_all_clients(request):
     """Fetches complete details of all Accounts in state"""
-    clinic_pkey = request.app.config.SIGNER_CLINIC.get_public_key().as_hex()
-    doctor_pkey = request.app.config.SIGNER_DOCTOR.get_public_key().as_hex()
+    hospital_pkey = request.app.config.SIGNER_HOSPITAL.get_public_key().as_hex()
+    # doctor_pkey = request.app.config.SIGNER_DOCTOR.get_public_key().as_hex()
     patient_pkey = request.app.config.SIGNER_PATIENT.get_public_key().as_hex()
-    lab_pkey = request.app.config.SIGNER_LAB.get_public_key().as_hex()
-    insurance_pkey = request.app.config.SIGNER_INSURANCE.get_public_key().as_hex()
-    clients = {'clinic': clinic_pkey, 'doctor': doctor_pkey, 'patient': patient_pkey,
-               'lab': lab_pkey, 'insurance': insurance_pkey}
+    # lab_pkey = request.app.config.SIGNER_LAB.get_public_key().as_hex()
+    # insurance_pkey = request.app.config.SIGNER_INSURANCE.get_public_key().as_hex()
+    data_provider_pkey = request.app.config.SIGNER_DATA_PROVIDER.get_public_key().as_hex()
+    clients = {'hospital': hospital_pkey, 'patient': patient_pkey, 'data_provider': data_provider_pkey}
     return response.json(body={'data': clients},
                          headers=general.get_response_headers())
