@@ -14,15 +14,15 @@ module.exports = {
             m("input.input[type=text][placeholder=Client public key][disabled=false]", {
                 value: Client.list['patient']
             }),
-            m("a.user-list-item", {href: "/clinic_list/?client_key=" + Client.list['patient'], oncreate: m.route.link}, "Clinics List"),
+            m("a.user-list-item", {href: "/hospital_list/?client_key=" + Client.list['patient'], oncreate: m.route.link}, "Hospital List"),
 //            m("a.user-list-item", {href: "/doctor_list/?client_key=" + Client.list['patient'], oncreate: m.route.link}, "Doctors List"),
             m("a.user-list-item", {href: "/patient_list/?client_key=" + Client.list['patient'], oncreate: m.route.link}, "Patients List"),
-//            m("a.user-list-item", {href: "/lab_list/?client_key=" + Client.list['patient'], oncreate: m.route.link}, "Labs List"),
+            m("a.user-list-item", {href: "/data_provider_list/?client_key=" + Client.list['patient'], oncreate: m.route.link}, "Data Provider List"),
 //            m("a.user-list-item", {href: "/insurance_list/?client_key=" + Client.list['patient'], oncreate: m.route.link}, "Insurance List"),
 //            m("a.user-list-item", {href: "/payment_list/?client_key=" + Client.list['patient'], oncreate: m.route.link}, "Invoice List"),
             m("a.user-list-item", "---"),
             m("a.user-list-item", {href: "/patient/new/", oncreate: m.route.link}, "New Patient"),
-            m("a.user-list-item", "---"),
+//            m("a.user-list-item", "---"),
 //            m("a.user-list-item", {href: "/lab_test_list/new/?client_key=" + Client.list['patient'], oncreate: m.route.link}, "Add Lab Test"),
 //            m("a.user-list-item", {href: "/lab_test_list/?client_key=" + Client.list['patient'], oncreate: m.route.link}, "Lab Test List"),
 //            m("a.user-list-item", "---"),

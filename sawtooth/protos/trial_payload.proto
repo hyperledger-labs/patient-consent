@@ -77,6 +77,13 @@ message DataProvider {
     string name = 2;
 }
 
+message Data {
+    string id=1;
+    string field_1=3;
+    string field_2=4;
+    string event_time=5;
+}
+
 message Sponsor { //  Study management
 
     enum Type {

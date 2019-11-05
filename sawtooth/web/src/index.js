@@ -14,8 +14,8 @@ var PatientForm = require("./views/PatientForm")
 var HospitalList = require("./views/HospitalList")
 var HospitalForm = require("./views/HospitalForm")
 
-//var InsuranceList = require("./views/InsuranceList")
-//var InsuranceForm = require("./views/InsuranceForm")
+var DataProviderList = require("./views/DataProviderList")
+var DataProviderForm = require("./views/DataProviderForm")
 
 var EHRList = require("./views/EHRList")
 var EHRNewForm = require("./views/EHRNewForm")
@@ -46,7 +46,7 @@ var EHRNewForm = require("./views/EHRNewForm")
 var HospitalActionsList = require("./views/HospitalActionsList")
 var PatientActionsList = require("./views/PatientActionsList")
 //var LabActionsList = require("./views/LabActionsList")
-//var InsuranceActionsList = require("./views/InsuranceActionsList")
+var DataProviderActionsList = require("./views/DataProviderActionsList")
 var Layout = require("./views/Layout")
 
 m.route(document.body, "/hospital", {
@@ -87,16 +87,16 @@ m.route(document.body, "/hospital", {
             return m(Layout, m(HospitalForm))
         }
     },
-//    "/insurance_list/": {
-//        render: function(vnode) {
-//            return m(Layout, m(InsuranceList, vnode.attrs))
-//        }
-//    },
-//    "/insurance/new/": {
-//        render: function() {
-//            return m(Layout, m(InsuranceForm))
-//        }
-//    },
+    "/data_provider_list/": {
+        render: function(vnode) {
+            return m(Layout, m(DataProviderList, vnode.attrs))
+        }
+    },
+    "/data_provider/new/": {
+        render: function() {
+            return m(Layout, m(DataProviderForm))
+        }
+    },
     "/ehr_list": {
         render: function(vnode) {
             return m(Layout, m(EHRList, vnode.attrs))
@@ -196,17 +196,17 @@ m.route(document.body, "/hospital", {
         render: function() {
             return m(Layout, m(PatientActionsList))
         }
-    }
+    },
 //    "/lab": {
 //        render: function() {
 //            return m(Layout, m(LabActionsList))
 //        }
 //    },
-//    "/insurance": {
-//        render: function() {
-//            return m(Layout, m(InsuranceActionsList))
-//        }
-//    },
+    "/data_provider": {
+        render: function() {
+            return m(Layout, m(DataProviderActionsList))
+        }
+    },
 //    "/lab_list/": {
 //        render: function(vnode) {
 //            return m(Layout, m(LabList, vnode.attrs))

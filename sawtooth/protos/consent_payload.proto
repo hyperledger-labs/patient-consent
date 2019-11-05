@@ -9,6 +9,10 @@ message ConsentTransactionPayload {
         ADD_CLIENT = 3;
         GRANT_WRITE_EHR_ACCESS = 4;
         REVOKE_WRITE_EHR_ACCESS = 5;
+        GRANT_SHARE_EHR_ACCESS = 6;
+        REVOKE_SHARE_EHR_ACCESS = 7;
+        GRANT_SHARE_SHARED_EHR_ACCESS = 8;
+        REVOKE_SHARE_SHARED_EHR_ACCESS = 9;
     }
 
     PayloadType payload_type = 1;
@@ -18,6 +22,10 @@ message ConsentTransactionPayload {
     ActionOnAccess grant_write_ehr_access = 4;
     ActionOnAccess revoke_write_ehr_access = 5;
     Client create_client = 6;
+    ActionOnAccess grant_share_ehr_access = 7;
+    ActionOnAccess revoke_share_ehr_access = 8;
+    ActionOnAccess grant_share_shared_ehr_access = 9;
+    ActionOnAccess revoke_share_shared_ehr_access = 10;
 }
 
 message ActionOnAccess {
@@ -36,15 +44,18 @@ message Permission {
 
       READ_HOSPITAL = 100;
       READ_OWN_HOSPITAL = 101;
+      GRANT_TRANSFER_SHARED_EHR_ACCESS = 102;
+      REVOKE_TRANSFER_SHARED_EHR_ACCESS = 103;
 
       READ_PATIENT = 200;
       READ_OWN_PATIENT = 201;
 
       READ_DATA_PROVIDER = 300;
       READ_OWN_DATA_PROVIDER = 301;
+      READ_TRANSFERRED_SHARED_DATA = 302;
 
       READ_FORMATTED_EHR = 400;
-      WRITE_FORMATTED_EHR = 402;
+      WRITE_FORMATTED_EHR = 401;
 
       REVOKE_WRITE_EHR_ACCESS = 500;
       GRANT_WRITE_EHR_ACCESS = 501;

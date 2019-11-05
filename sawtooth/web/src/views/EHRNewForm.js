@@ -17,8 +17,8 @@ module.exports = {
             }),
             m("label.label", "id"),
             m("input.input[placeholder=id]", {
-                oninput: m.withAttr("value", function(value) {EHR.current.ehr_id = value}),
-                value: EHR.current.ehr_id
+                oninput: m.withAttr("value", function(value) {EHR.current.id = value}),
+                value: EHR.current.id
             }),
             m("label.label", "Field 1"),
             m("input.input[placeholder=Field 1]", {

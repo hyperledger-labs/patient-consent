@@ -10,8 +10,8 @@ class EHRPayload(object):
     def create_hospital(self):
         return self._transaction.create_hospital
 
-    # def create_doctor(self):
-    #     return self._transaction.create_doctor
+    def create_data_provider(self):
+        return self._transaction.create_data_provider
 
     def create_patient(self):
         return self._transaction.create_patient
@@ -55,8 +55,8 @@ class EHRPayload(object):
     def is_create_hospital(self):
         return self._transaction.payload_type == TrialTransactionPayload.CREATE_HOSPITAL
 
-    # def is_create_doctor(self):
-    #     return self._transaction.payload_type == payload_pb2.TransactionPayload.CREATE_DOCTOR
+    def is_create_data_provider(self):
+        return self._transaction.payload_type == TrialTransactionPayload.CREATE_DATA_PROVIDER
 
     def is_create_patient(self):
         return self._transaction.payload_type == TrialTransactionPayload.CREATE_PATIENT

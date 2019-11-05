@@ -139,7 +139,7 @@ async def register_new_patient(request):
 
 
 @PATIENTS_BP.get('patients/revoke_read_ehr/<dest_pkey>')
-async def revoke_read_ehr_permission(request, dest_pkey):
+async def revoke_read_ehr_access(request, dest_pkey):
     """Updates auth information for the authorized account"""
     client_key = general.get_request_key_header(request)
     client_signer = general.get_signer(request, client_key)
@@ -150,7 +150,7 @@ async def revoke_read_ehr_permission(request, dest_pkey):
 
     batch, batch_id = ehr_transaction.make_batch_and_id([revoke_read_ehr_permission_txn], client_signer)
 
-    await security_messaging.revoke_read_ehr_permission(
+    await security_messaging.revoke_read_ehr_access(
         request.app.config.VAL_CONN,
         request.app.config.TIMEOUT,
         [batch], client_key)
@@ -168,7 +168,7 @@ async def revoke_read_ehr_permission(request, dest_pkey):
 
 
 @PATIENTS_BP.get('patients/grant_read_ehr/<dest_pkey>')
-async def grant_read_ehr_permission(request, dest_pkey):
+async def grant_read_ehr_access(request, dest_pkey):
     """Updates auth information for the authorized account"""
     client_key = general.get_request_key_header(request)
     client_signer = general.get_signer(request, client_key)
@@ -179,7 +179,7 @@ async def grant_read_ehr_permission(request, dest_pkey):
 
     batch, batch_id = ehr_transaction.make_batch_and_id([grant_read_ehr_permission_txn], client_signer)
 
-    await security_messaging.grant_read_ehr_permission(
+    await security_messaging.grant_read_ehr_access(
         request.app.config.VAL_CONN,
         request.app.config.TIMEOUT,
         [batch], client_key)
@@ -197,7 +197,7 @@ async def grant_read_ehr_permission(request, dest_pkey):
 
 
 @PATIENTS_BP.get('patients/revoke_write_ehr/<dest_pkey>')
-async def revoke_write_ehr_permission(request, dest_pkey):
+async def revoke_write_ehr_access(request, dest_pkey):
     """Updates auth information for the authorized account"""
     client_key = general.get_request_key_header(request)
     client_signer = general.get_signer(request, client_key)
@@ -208,7 +208,7 @@ async def revoke_write_ehr_permission(request, dest_pkey):
 
     batch, batch_id = ehr_transaction.make_batch_and_id([revoke_write_ehr_permission_txn], client_signer)
 
-    await security_messaging.revoke_write_ehr_permission(
+    await security_messaging.revoke_write_ehr_access(
         request.app.config.VAL_CONN,
         request.app.config.TIMEOUT,
         [batch], client_key)
@@ -226,7 +226,7 @@ async def revoke_write_ehr_permission(request, dest_pkey):
 
 
 @PATIENTS_BP.get('patients/grant_write_ehr/<dest_pkey>')
-async def grant_write_ehr_permission(request, dest_pkey):
+async def grant_write_ehr_access(request, dest_pkey):
     """Updates auth information for the authorized account"""
     client_key = general.get_request_key_header(request)
     client_signer = general.get_signer(request, client_key)
@@ -237,7 +237,7 @@ async def grant_write_ehr_permission(request, dest_pkey):
 
     batch, batch_id = ehr_transaction.make_batch_and_id([grant_write_ehr_permission_txn], client_signer)
 
-    await security_messaging.grant_write_ehr_permission(
+    await security_messaging.grant_write_ehr_access(
         request.app.config.VAL_CONN,
         request.app.config.TIMEOUT,
         [batch], client_key)

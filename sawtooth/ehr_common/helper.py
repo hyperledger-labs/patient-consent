@@ -22,7 +22,7 @@ HOSPITAL_ENTITY_CODE = '01'
 # DOCTOR_ENTITY_CODE = '02'
 PATIENT_ENTITY_CODE = '03'
 EHR_ENTITY_CODE = '04'
-# EVENT_ENTITY_CODE = '05'
+DATA_PROVIDER_ENTITY_CODE = '05'
 # LAB_TEST_ENTITY_CODE = '06'
 # PULSE_ENTITY_CODE = '07'
 # LAB_ENTITY_CODE = '08'
@@ -106,6 +106,13 @@ def make_hospital_address(hospital_pkey):
 def make_hospital_list_address():
     return TP_PREFFIX_HEX6 + HOSPITAL_ENTITY_CODE
 
+
+def make_data_provider_address(data_provider_pkey):
+    return TP_PREFFIX_HEX6 + DATA_PROVIDER_ENTITY_CODE + _hash(data_provider_pkey)[:62]
+
+
+def make_data_provider_list_address():
+    return TP_PREFFIX_HEX6 + DATA_PROVIDER_ENTITY_CODE
 
 # def make_doctor_address(doctor_pkey):
 #     return TP_PREFFIX_HEX6 + DOCTOR_ENTITY_CODE + _hash(doctor_pkey)[:62]

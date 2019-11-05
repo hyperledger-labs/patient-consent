@@ -1,8 +1,6 @@
 from ehr_processor.ehr_common import helper
-from ehr_processor.ehr_common.protobuf.trial_payload_pb2 import Hospital, Patient, EHR
+from ehr_processor.ehr_common.protobuf.trial_payload_pb2 import Hospital, Patient, EHR, DataProvider
 import logging
-
-# from processor.common.protobuf.payload_pb2 import Claim
 
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)
@@ -26,11 +24,11 @@ class EHRState(object):
         if hp is None:
             self._store_hospital(hospital)
 
-    # def create_doctor(self, doctor):
-    #     op = self._load_doctor(public_key=doctor.public_key)
-    #
-    #     if op is None:
-    #         self._store_doctor(doctor)
+    def create_data_provider(self, provider):
+        dp = self._load_data_provider(public_key=provider.public_key)
+
+        if dp is None:
+            self._store_data_provider(provider)
 
     def create_patient(self, patient):
         pat = self._load_patient(public_key=patient.public_key)
@@ -69,7 +67,7 @@ class EHRState(object):
     #     self._store_event(claim_id=claim_id, clinic_pkey=clinic_pkey, description=description,
     #                       event_time=event_time, event=payload_pb2.ActionOnClaim.NEXT_VISIT)
 
-    def add_ehr(self, signer, ehr):
+    def create_ehr(self, signer, ehr):
         ehr_obj = self._load_ehr(ehr.id)
         if ehr_obj is None:
             self._store_ehr(signer=signer, ehr=ehr)
@@ -90,9 +88,9 @@ class EHRState(object):
         hospital = self._load_hospital(public_key=public_key)
         return hospital
 
-    # def get_doctor(self, public_key):
-    #     doctor = self._load_doctor(public_key=public_key)
-    #     return doctor
+    def get_data_provider(self, public_key):
+        provider = self._load_data_provider(public_key=public_key)
+        return provider
 
     def get_patient(self, public_key):
         patient = self._load_patient(public_key=public_key)
@@ -153,17 +151,17 @@ class EHRState(object):
             hospital.ParseFromString(state_entries[0].data)
         return hospital
 
-    # def _load_doctor(self, public_key):
-    #     doctor = None
-    #     doctor_hex = helper.make_doctor_address(public_key)
-    #     state_entries = self._context.get_state(
-    #         [doctor_hex],
-    #         timeout=self.TIMEOUT)
-    #     if state_entries:
-    #         doctor = payload_pb2.CreateDoctor()
-    #         doctor.ParseFromString(state_entries[0].data)
-    #     return doctor
-    #
+    def _load_data_provider(self, public_key):
+        provider = None
+        provider_hex = helper.make_data_provider_address(public_key)
+        state_entries = self._context.get_state(
+            [provider_hex],
+            timeout=self.TIMEOUT)
+        if state_entries:
+            provider = DataProvider()
+            provider.ParseFromString(state_entries[0].data)
+        return provider
+
     # def _load_lab(self, public_key):
     #     lab = None
     #     lab_hex = helper.make_lab_address(public_key)
@@ -247,27 +245,18 @@ class EHRState(object):
     def _store_hospital(self, hospital):
         address = helper.make_hospital_address(hospital.public_key)
 
-        # clinic = payload_pb2.CreateClinic()
-        # clinic.public_key = public_key
-        # clinic.name = name
-
         state_data = hospital.SerializeToString()
         self._context.set_state(
             {address: state_data},
             timeout=self.TIMEOUT)
 
-    # def _store_doctor(self, doctor):
-    #     address = helper.make_doctor_address(doctor.public_key)
-    #
-    #     # doctor = payload_pb2.CreateDoctor()
-    #     # doctor.public_key = public_key
-    #     # doctor.name = name
-    #     # doctor.surname = surname
-    #
-    #     state_data = doctor.SerializeToString()
-    #     self._context.set_state(
-    #         {address: state_data},
-    #         timeout=self.TIMEOUT)
+    def _store_data_provider(self, provider):
+        address = helper.make_data_provider_address(provider.public_key)
+
+        state_data = provider.SerializeToString()
+        self._context.set_state(
+            {address: state_data},
+            timeout=self.TIMEOUT)
 
     def _store_patient(self, patient):
         address = helper.make_patient_address(patient.public_key)

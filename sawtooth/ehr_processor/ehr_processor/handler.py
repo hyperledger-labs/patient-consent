@@ -51,15 +51,15 @@ class EHRTransactionHandler(TransactionHandler):
                         'Invalid action: Hospital already exists: ' + hospital.name)
 
                 state.create_hospital(hospital)
-            # elif healthcare_payload.is_create_doctor():
-            #     doctor = healthcare_payload.create_doctor()
-            #
-            #     do = healthcare_state.get_doctor(doctor.public_key)
-            #     if do is not None:
-            #         raise InvalidTransaction(
-            #             'Invalid action: Doctor already exists: ' + doctor.name)
-            #
-            #     healthcare_state.create_doctor(doctor)
+            elif payload.is_create_data_provider():
+                data_provider = payload.create_data_provider()
+
+                dp = state.get_data_provider(data_provider.public_key)
+                if dp is not None:
+                    raise InvalidTransaction(
+                        'Invalid action: Data Provider already exists: ' + data_provider.name)
+
+                state.create_data_provider(data_provider)
             elif payload.is_create_patient():
                 patient = payload.create_patient()
 
@@ -222,7 +222,7 @@ class EHRTransactionHandler(TransactionHandler):
                 #     raise InvalidTransaction(
                 #         'Invalid action: Patient does not exist: ' + signer)
 
-                state.create_ehr(ehr)
+                state.create_ehr(signer, ehr)
             else:
                 raise InvalidTransaction('Unhandled action: {}'.format(payload.transaction_type()))
         except Exception as e:

@@ -76,7 +76,7 @@ async def add_ehr(request):
 
     batch, batch_id = ehr_transaction.make_batch_and_id([ehr_txn], client_signer)
 
-    await security_messaging.add_claim(
+    await security_messaging.add_ehr(
         request.app.config.VAL_CONN,
         request.app.config.TIMEOUT,
         [batch], hospital_pkey, patient_pkey)

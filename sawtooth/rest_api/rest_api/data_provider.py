@@ -20,47 +20,47 @@ from rest_api.consent_common import transaction as consent_transaction
 from rest_api import general, security_messaging
 from rest_api.errors import ApiBadRequest, ApiInternalError
 
-HOSPITALS_BP = Blueprint('hospitals')
+DATA_PROVIDERS_BP = Blueprint('data_providers')
 
 
-@HOSPITALS_BP.get('hospitals')
-async def get_all_hospitals(request):
+@DATA_PROVIDERS_BP.get('data_providers')
+async def get_all_data_providers(request):
     """Fetches complete details of all Accounts in state"""
     client_key = general.get_request_key_header(request)
-    hospital_list = await security_messaging.get_hospitals(request.app.config.VAL_CONN, client_key)
+    data_provider_list = await security_messaging.get_data_providers(request.app.config.VAL_CONN, client_key)
 
-    hospital_list_json = []
-    for address, hp in hospital_list.items():
-        hospital_list_json.append({
-            'public_key': hp.public_key,
-            'name': hp.name
+    data_provider_list_json = []
+    for address, dp in data_provider_list.items():
+        data_provider_list_json.append({
+            'public_key': dp.public_key,
+            'name': dp.name
         })
-    return response.json(body={'data': hospital_list_json},
+    return response.json(body={'data': data_provider_list_json},
                          headers=general.get_response_headers())
 
 
-@HOSPITALS_BP.post('hospitals')
-async def register_hospital(request):
+@DATA_PROVIDERS_BP.post('data_providers')
+async def register_data_provider(request):
     """Updates auth information for the authorized account"""
     required_fields = ['name']
     general.validate_fields(required_fields, request.json)
 
     name = request.json.get('name')
 
-    clinic_signer = request.app.config.SIGNER_HOSPITAL  # .get_public_key().as_hex()
+    clinic_signer = request.app.config.SIGNER_DATAPROVIDER  # .get_public_key().as_hex()
 
-    client_txn = consent_transaction.create_hospital_client(
+    client_txn = consent_transaction.create_data_provider_client(
         txn_signer=clinic_signer,
         batch_signer=clinic_signer
     )
-    clinic_txn = ehr_transaction.create_hospital(
+    clinic_txn = ehr_transaction.create_data_provider(
         txn_signer=clinic_signer,
         batch_signer=clinic_signer,
         name=name
     )
     batch, batch_id = ehr_transaction.make_batch_and_id([client_txn, clinic_txn], clinic_signer)
 
-    await security_messaging.add_hospital(
+    await security_messaging.add_data_provider(
         request.app.config.VAL_CONN,
         request.app.config.TIMEOUT,
         [batch])
@@ -74,25 +74,5 @@ async def register_hospital(request):
         raise err
 
     return response.json(body={'status': general.DONE},
-                         headers=general.get_response_headers())
-
-
-@HOSPITALS_BP.get('hospitals/get_shared_data/<hospital_pkey>')
-async def get_data(request, hospital_pkey):
-    """Updates auth information for the authorized account"""
-    data_provider_pkey = general.get_request_key_header(request)
-    data_list = await security_messaging.get_shared_data(request.app.config.VAL_CONN,
-                                                         hospital_pkey, data_provider_pkey)
-
-    data_list_json = []
-    for address, data in data_list.items():
-        data_list_json.append({
-            'id': data.id,
-            'field_1': data.field_1,
-            'field_2': data.field_2,
-            'event_time': data.event_time
-        })
-
-    return response.json(body={'data': data_list_json},
                          headers=general.get_response_headers())
 

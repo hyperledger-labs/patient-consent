@@ -5,7 +5,7 @@ from sawtooth_sdk.protobuf.batch_pb2 import BatchHeader, Batch
 from sawtooth_sdk.protobuf.transaction_pb2 import Transaction, TransactionHeader
 
 from . import helper as helper
-from .protobuf.trial_payload_pb2 import EHR, TrialTransactionPayload, Hospital, Patient
+from .protobuf.trial_payload_pb2 import EHR, TrialTransactionPayload, Hospital, Patient, DataProvider
 
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)
@@ -141,6 +141,27 @@ def create_hospital(txn_signer, batch_signer, name):
         batch_signer=batch_signer)
 
 
+def create_data_provider(txn_signer, batch_signer, name):
+    data_provider_pkey = txn_signer.get_public_key().as_hex()
+    LOGGER.debug('data_provider_pkey: ' + str(data_provider_pkey))
+    inputs = outputs = helper.make_data_provider_address(data_provider_pkey=data_provider_pkey)
+    LOGGER.debug('inputs: ' + str(inputs))
+    data_provider = DataProvider(
+        public_key=data_provider_pkey,
+        name=name)
+
+    payload = TrialTransactionPayload(
+        payload_type=TrialTransactionPayload.CREATE_DATA_PROVIDER,
+        create_data_provider=data_provider)
+
+    return _make_transaction(
+        payload=payload,
+        inputs=[inputs],
+        outputs=[outputs],
+        txn_signer=txn_signer,
+        batch_signer=batch_signer)
+
+
 # def create_lab(txn_signer, batch_signer, name):
 #     lab_pkey = txn_signer.get_public_key().as_hex()
 #     LOGGER.debug('lab_pkey: ' + str(lab_pkey))
@@ -213,7 +234,7 @@ def add_ehr(txn_signer, batch_signer, uid, client_pkey, field_1, field_2):
         client_pkey=client_pkey,
         field_1=field_1,
         field_2=field_2,
-        event_time=current_times_str
+        event_time=str(current_times_str)
     )
 
     LOGGER.debug('ehr: ' + str(ehr))

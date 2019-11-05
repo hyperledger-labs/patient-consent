@@ -14,17 +14,17 @@ class ConsentState(object):
 
         self._context = context
 
-    def grant_read_ehr_access(self, doctor_pkey, patient_pkey):
-        self._store_read_ehr_access(doctor_pkey, patient_pkey)
+    def grant_read_ehr_access(self, dest_pkey, src_pkey):
+        self._store_read_ehr_access(dest_pkey, src_pkey)
 
-    def revoke_read_ehr_access(self, doctor_pkey, patient_pkey):
-        self._revoke_read_ehr_access(doctor_pkey, patient_pkey)
+    def revoke_read_ehr_access(self, dest_pkey, src_pkey):
+        self._revoke_read_ehr_access(dest_pkey, src_pkey)
 
-    def grant_write_ehr_access(self, doctor_pkey, patient_pkey):
-        self._store_write_ehr_access(doctor_pkey, patient_pkey)
+    def grant_write_ehr_access(self, dest_pkey, src_pkey):
+        self._store_write_ehr_access(dest_pkey, src_pkey)
 
-    def revoke_write_ehr_access(self, doctor_pkey, patient_pkey):
-        self._revoke_write_ehr_access(doctor_pkey, patient_pkey)
+    def revoke_write_ehr_access(self, dest_pkey, src_pkey):
+        self._revoke_write_ehr_access(dest_pkey, src_pkey)
 
     def has_read_ehr_access(self, dest_pkey, src_pkey):
         return self._load_read_ehr_access(dest_pkey=dest_pkey, src_pkey=src_pkey)

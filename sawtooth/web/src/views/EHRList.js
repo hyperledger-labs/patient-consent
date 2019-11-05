@@ -11,11 +11,11 @@ module.exports = {
             return m("a.user-list-item", // {href: "/claim/" + claim.clinic_pkey + "/" + claim.claim_id, oncreate: m.route.link},
                 "NAME: " + ehr.name +
                 "; SURNAME: " + ehr.surname +
-                "; ID: " + ehr.ehr_id +
+                "; ID: " + ehr.id +
                 "; CLIENT PKEY: " + ehr.client_pkey +
                 "; FIELD 1: " + ehr.field_1 +
                 "; FIELD 2: " + ehr.field_2 +
-                "; TIMESTAMP: " + ehr.timestamp +
+                "; TIMESTAMP: " + ehr.event_time +
                 ";"
 //                ,
 //                m("div"),

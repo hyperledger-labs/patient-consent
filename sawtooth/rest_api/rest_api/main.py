@@ -31,6 +31,8 @@ from sawtooth_signing import CryptoFactory
 # from sawtooth_signing.secp256k1 import Secp256k1PrivateKey
 
 from zmq.asyncio import ZMQEventLoop
+
+from rest_api.data_provider import DATA_PROVIDERS_BP
 from rest_api.ehrs import EHRS_BP
 from rest_api.hospitals import HOSPITALS_BP
 # from rest_api.workflow.contract import CONTRACT_BP
@@ -251,7 +253,7 @@ def main():
     # CORS(app)
 
     app.blueprint(HOSPITALS_BP)
-    # app.blueprint(DOCTORS_BP)
+    app.blueprint(DATA_PROVIDERS_BP)
     app.blueprint(PATIENTS_BP)
     app.blueprint(EHRS_BP)
     # app.blueprint(CLAIM_DETAILS_BP)
