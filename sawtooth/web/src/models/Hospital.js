@@ -2,6 +2,7 @@ var m = require("mithril")
 
 var Hospital = {
     list: [],
+    sharedDataList: [],
     error: "",
     loadList: function(clientKey) {
         return m.request({
@@ -28,6 +29,26 @@ var Hospital = {
         })
     },
 
+    get_shared_data: function(hospitalPKey, dataProviderPKey) {   //i.e Data Provider
+        return m.request({
+            method: "GET",
+            url: "/api/hospitals/get_shared_data/" + hospitalPKey,
+            headers: {
+                'ClientKey': dataProviderPKey
+            }
+        })
+        .then(function(result) {
+            console.log("Get shared data")
+            Hospital.error = ""
+            Hospital.sharedDataList = result.data
+        })
+        .catch(function(e) {
+            console.log(e)
+            Hospital.error = e.message
+            Hospital.sharedDataList = []
+        })
+    },
+
     current: {},
 
     register: function() {
@@ -48,10 +69,10 @@ var Hospital = {
         })
     },
 
-    grant_read_ehr: function(clinicPKey, clientKey) {
+    grant_read_ehr: function(hospitalPKey, clientKey) {
         return m.request({
             method: "GET",
-            url: "/api/patients/grant_read_ehr/" + clinicPKey,
+            url: "/api/patients/grant_read_ehr/" + hospitalPKey,
             headers: {
                 'ClientKey': clientKey
             }
@@ -69,10 +90,10 @@ var Hospital = {
         })
     },
 
-    revoke_read_ehr: function(clinicPKey, clientKey) {
+    revoke_read_ehr: function(hospitalPKey, clientKey) {
         return m.request({
             method: "GET",
-            url: "/api/patients/revoke_read_ehr/" + clinicPKey,
+            url: "/api/patients/revoke_read_ehr/" + hospitalPKey,
             headers: {
                 'ClientKey': clientKey
             }
@@ -90,10 +111,10 @@ var Hospital = {
         })
     },
 
-    grant_write_ehr: function(clinicPKey, clientKey) {
+    grant_write_ehr: function(hospitalPKey, clientKey) {
         return m.request({
             method: "GET",
-            url: "/api/patients/grant_write_ehr/" + clinicPKey,
+            url: "/api/patients/grant_write_ehr/" + hospitalPKey,
             headers: {
                 'ClientKey': clientKey
             }
@@ -111,10 +132,52 @@ var Hospital = {
         })
     },
 
-    revoke_write_ehr: function(clinicPKey, clientKey) {
+    revoke_write_ehr: function(hospitalPKey, clientKey) {
         return m.request({
             method: "GET",
-            url: "/api/patients/revoke_write_ehr/" + clinicPKey,
+            url: "/api/patients/revoke_write_ehr/" + hospitalPKey,
+            headers: {
+                'ClientKey': clientKey
+            }
+//            data: Doctor.current,
+//            useBody: true,
+//            withCredentials: true,
+        })
+        .then(function(items) {
+//            Data.todos.list = items
+            Hospital.error = ""
+        })
+        .catch(function(e) {
+            console.log(e)
+            Hospital.error = e.message
+        })
+    },
+
+    grant_3rd_party_access: function(hospitalPKey, clientKey) {
+        return m.request({
+            method: "GET",
+            url: "/api/patients/grant_share_ehr/" + hospitalPKey,
+            headers: {
+                'ClientKey': clientKey
+            }
+//            data: Doctor.current,
+//            useBody: true,
+//            withCredentials: true,
+        })
+        .then(function(items) {
+//            Data.todos.list = items
+            Hospital.error = ""
+        })
+        .catch(function(e) {
+            console.log(e)
+            Hospital.error = e.message
+        })
+    },
+
+    revoke_3rd_party_access: function(hospitalPKey, clientKey) {
+        return m.request({
+            method: "GET",
+            url: "/api/patients/revoke_share_ehr/" + hospitalPKey,
             headers: {
                 'ClientKey': clientKey
             }

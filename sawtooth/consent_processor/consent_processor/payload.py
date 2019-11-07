@@ -31,6 +31,32 @@ class ConsentPayload(object):
     def is_revoke_write_ehr_access(self):
         return self._transaction.payload_type == consent_payload_pb2.ConsentTransactionPayload.REVOKE_WRITE_EHR_ACCESS
 
+    def grant_share_ehr_access(self):
+        return self._transaction.grant_share_ehr_access
+
+    def revoke_share_ehr_access(self):
+        return self._transaction.revoke_share_ehr_access
+
+    def is_grant_share_ehr_access(self):
+        return self._transaction.payload_type == consent_payload_pb2.ConsentTransactionPayload.GRANT_SHARE_EHR_ACCESS
+
+    def is_revoke_share_ehr_access(self):
+        return self._transaction.payload_type == consent_payload_pb2.ConsentTransactionPayload.REVOKE_SHARE_EHR_ACCESS
+
+    def grant_share_shared_ehr_access(self):
+        return self._transaction.grant_share_shared_ehr_access
+
+    def revoke_share_shared_ehr_access(self):
+        return self._transaction.revoke_share_shared_ehr_access
+
+    def is_grant_share_shared_ehr_access(self):
+        return self._transaction.payload_type == \
+               consent_payload_pb2.ConsentTransactionPayload.GRANT_SHARE_SHARED_EHR_ACCESS
+
+    def is_revoke_share_shared_ehr_access(self):
+        return self._transaction.payload_type == \
+               consent_payload_pb2.ConsentTransactionPayload.REVOKE_SHARE_SHARED_EHR_ACCESS
+
     def transaction_type(self):
         return self._transaction.payload_type
 

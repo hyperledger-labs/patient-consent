@@ -46,6 +46,48 @@ var DataProvider = {
             console.log(e)
             DataProvider.error = e.message
         })
+    },
+
+    grant_access_to_share_data: function(dataProviderPKey, clientKey) {
+        return m.request({
+            method: "GET",
+            url: "/api/hospitals/grant_access_to_share_data/" + dataProviderPKey,
+            headers: {
+                'ClientKey': clientKey
+            }
+//            data: Doctor.current,
+//            useBody: true,
+//            withCredentials: true,
+        })
+        .then(function(items) {
+//            Data.todos.list = items
+            DataProvider.error = ""
+        })
+        .catch(function(e) {
+            console.log(e)
+            DataProvider.error = e.message
+        })
+    },
+
+    revoke_access_to_share_data: function(dataProviderPKey, clientKey) {
+        return m.request({
+            method: "GET",
+            url: "/api/hospitals/revoke_access_to_share_data/" + dataProviderPKey,
+            headers: {
+                'ClientKey': clientKey
+            }
+//            data: Doctor.current,
+//            useBody: true,
+//            withCredentials: true,
+        })
+        .then(function(items) {
+//            Data.todos.list = items
+            DataProvider.error = ""
+        })
+        .catch(function(e) {
+            console.log(e)
+            DataProvider.error = e.message
+        })
     }
 
 }

@@ -12,23 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ------------------------------------------------------------------------------
-# import base64
-
-# from sawtooth_sdk.protobuf import client_batch_submit_pb2
 import logging
 
 from sawtooth_rest_api.protobuf import client_state_pb2
 from sawtooth_rest_api.protobuf import validator_pb2
 
-# from rest_api.common.protobuf import payload_pb2
 from rest_api.ehr_common import helper as ehr_helper
-from rest_api.ehr_common.protobuf.trial_payload_pb2 import Hospital, Patient, EHRWithUser, Data
-
-# from rest_api.insurance_common import helper as insurance_helper
-# from rest_api.insurance_common.protobuf.insurance_payload_pb2 import Insurance, ContractWithUser
-#
-# from rest_api.payment_common import helper as payment_helper
-# from rest_api.payment_common.protobuf.payment_payload_pb2 import Payment
+from rest_api.ehr_common.protobuf.trial_payload_pb2 import Hospital, Patient, EHRWithUser, DataProvider, Data
 
 from rest_api.consent_common import helper as consent_helper
 from rest_api.consent_common.protobuf.consent_payload_pb2 import Client, Permission, ActionOnAccess
@@ -59,15 +49,6 @@ async def get_state_by_address(conn, address_suffix):
     # resp = status_response
 
     return status_response  # resp.entries
-
-    # batch_status = status_response.batch_statuses[0].status
-    # if batch_status == client_batch_submit_pb2.ClientBatchStatus.INVALID:
-    #     invalid = status_response.batch_statuses[0].invalid_transactions[0]
-    #     raise ApiBadRequest(invalid.message)
-    # elif batch_status == client_batch_submit_pb2.ClientBatchStatus.PENDING:
-    #     raise ApiInternalError("Transaction submitted but timed out")
-    # elif batch_status == client_batch_submit_pb2.ClientBatchStatus.UNKNOWN:
-    #     raise ApiInternalError("Something went wrong. Try again later")
 
 
 async def add_hospital(conn, timeout, batches):
@@ -100,7 +81,16 @@ async def get_data_providers(conn, client_key):
         list_data_provider_address = ehr_helper.make_data_provider_list_address()
         list_data_provider_resources = await messaging.get_state_by_address(conn, list_data_provider_address)
         for entity in list_data_provider_resources.entries:
-            dp = Data()
+            dp = DataProvider()
+            dp.ParseFromString(entity.data)
+            LOGGER.debug('data_provider: ' + str(dp))
+            data_provider_list[entity.address] = dp
+        return data_provider_list
+    elif Permission(type=Permission.READ_OWN_DATA_PROVIDER) in client.permissions:
+        list_data_provider_address = ehr_helper.make_data_provider_address(client_key)
+        list_data_provider_resources = await messaging.get_state_by_address(conn, list_data_provider_address)
+        for entity in list_data_provider_resources.entries:
+            dp = DataProvider()
             dp.ParseFromString(entity.data)
             LOGGER.debug('data_provider: ' + str(dp))
             data_provider_list[entity.address] = dp
@@ -301,9 +291,53 @@ async def revoke_write_ehr_access(conn, timeout, batches, client_key):
     raise ApiForbidden("Insufficient permission")
 
 
+async def revoke_share_ehr_access(conn, timeout, batches, client_key):
+    client = await get_client(conn, client_key)
+    if Permission(type=Permission.REVOKE_3RD_PARTY_ACCESS) in client.permissions:
+        LOGGER.debug('has permission: True')
+        await _send(conn, timeout, batches)
+        return
+    else:
+        LOGGER.debug('has permission: False')
+    raise ApiForbidden("Insufficient permission")
+
+
+async def revoke_access_to_share_data(conn, timeout, batches, client_key):
+    client = await get_client(conn, client_key)
+    if Permission(type=Permission.REVOKE_TRANSFER_SHARED_EHR_ACCESS) in client.permissions:
+        LOGGER.debug('has permission: True')
+        await _send(conn, timeout, batches)
+        return
+    else:
+        LOGGER.debug('has permission: False')
+    raise ApiForbidden("Insufficient permission")
+
+
 async def grant_write_ehr_access(conn, timeout, batches, client_key):
     client = await get_client(conn, client_key)
     if Permission(type=Permission.GRANT_WRITE_EHR_ACCESS) in client.permissions:
+        LOGGER.debug('has permission: True')
+        await _send(conn, timeout, batches)
+        return
+    else:
+        LOGGER.debug('has permission: False')
+    raise ApiForbidden("Insufficient permission")
+
+
+async def grant_share_ehr_access(conn, timeout, batches, client_key):
+    client = await get_client(conn, client_key)
+    if Permission(type=Permission.GRANT_3RD_PARTY_ACCESS) in client.permissions:
+        LOGGER.debug('has permission: True')
+        await _send(conn, timeout, batches)
+        return
+    else:
+        LOGGER.debug('has permission: False')
+    raise ApiForbidden("Insufficient permission")
+
+
+async def grant_access_to_share_data(conn, timeout, batches, client_key):
+    client = await get_client(conn, client_key)
+    if Permission(type=Permission.GRANT_TRANSFER_SHARED_EHR_ACCESS) in client.permissions:
         LOGGER.debug('has permission: True')
         await _send(conn, timeout, batches)
         return
@@ -636,8 +670,10 @@ async def get_shared_data(conn, hospital_pkey, data_provider_pkey):
     data_list = {}
     ehr_list = {}
     # get consent to share data by hospital to data_provider
-    if Permission(type=Permission.READ_TRANSFERRED_SHARED_DATA) in data_provider_client.permissions and \
-            has_share_shared_ehr_consent(conn, data_provider_pkey, hospital_pkey):
+    if Permission(type=Permission.READ_TRANSFERRED_SHARED_DATA) in data_provider_client.permissions:
+        consent = await has_share_shared_ehr_consent(conn, data_provider_pkey, hospital_pkey)
+        if not consent:
+            return data_list
         # get ehr by hospital
         if Permission(type=Permission.READ_EHR) in hospital_client.permissions:
             ehr_list_address = ehr_helper.make_ehr_list_address()

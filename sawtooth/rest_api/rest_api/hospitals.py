@@ -96,3 +96,60 @@ async def get_data(request, hospital_pkey):
     return response.json(body={'data': data_list_json},
                          headers=general.get_response_headers())
 
+
+@HOSPITALS_BP.get('hospitals/revoke_access_to_share_data/<data_provider_pkey>')
+async def revoke_access_to_share_data(request, data_provider_pkey):
+    """Updates auth information for the authorized account"""
+    hospital_key = general.get_request_key_header(request)
+    client_signer = general.get_signer(request, hospital_key)
+    revoke_access_to_share_data_txn = consent_transaction.revoke_transfer_ehr_permission(
+        txn_signer=client_signer,
+        batch_signer=client_signer,
+        dest_pkey=data_provider_pkey)
+
+    batch, batch_id = ehr_transaction.make_batch_and_id([revoke_access_to_share_data_txn], client_signer)
+
+    await security_messaging.revoke_access_to_share_data(
+        request.app.config.VAL_CONN,
+        request.app.config.TIMEOUT,
+        [batch], hospital_key)
+
+    try:
+        await security_messaging.check_batch_status(
+            request.app.config.VAL_CONN, [batch_id])
+    except (ApiBadRequest, ApiInternalError) as err:
+        # await auth_query.remove_auth_entry(
+        #     request.app.config.DB_CONN, request.json.get('email'))
+        raise err
+
+    return response.json(body={'status': general.DONE},
+                         headers=general.get_response_headers())
+
+
+@HOSPITALS_BP.get('hospitals/grant_access_to_share_data/<data_provider_pkey>')
+async def grant_access_to_share_data(request, data_provider_pkey):
+    """Updates auth information for the authorized account"""
+    hospital_key = general.get_request_key_header(request)
+    client_signer = general.get_signer(request, hospital_key)
+    grant_access_to_share_data_txn = consent_transaction.grant_transfer_ehr_permission(
+        txn_signer=client_signer,
+        batch_signer=client_signer,
+        dest_pkey=data_provider_pkey)
+
+    batch, batch_id = ehr_transaction.make_batch_and_id([grant_access_to_share_data_txn], client_signer)
+
+    await security_messaging.grant_access_to_share_data(
+        request.app.config.VAL_CONN,
+        request.app.config.TIMEOUT,
+        [batch], hospital_key)
+
+    try:
+        await security_messaging.check_batch_status(
+            request.app.config.VAL_CONN, [batch_id])
+    except (ApiBadRequest, ApiInternalError) as err:
+        # await auth_query.remove_auth_entry(
+        #     request.app.config.DB_CONN, request.json.get('email'))
+        raise err
+
+    return response.json(body={'status': general.DONE},
+                         headers=general.get_response_headers())

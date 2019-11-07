@@ -253,6 +253,65 @@ async def grant_write_ehr_access(request, dest_pkey):
     return response.json(body={'status': general.DONE},
                          headers=general.get_response_headers())
 
+
+@PATIENTS_BP.get('patients/revoke_share_ehr/<dest_pkey>')
+async def revoke_share_ehr_access(request, dest_pkey):
+    """Updates auth information for the authorized account"""
+    client_key = general.get_request_key_header(request)
+    client_signer = general.get_signer(request, client_key)
+    revoke_share_ehr_permission_txn = consent_transaction.revoke_share_ehr_permission(
+        txn_signer=client_signer,
+        batch_signer=client_signer,
+        dest_pkey=dest_pkey)
+
+    batch, batch_id = ehr_transaction.make_batch_and_id([revoke_share_ehr_permission_txn], client_signer)
+
+    await security_messaging.revoke_share_ehr_access(
+        request.app.config.VAL_CONN,
+        request.app.config.TIMEOUT,
+        [batch], client_key)
+
+    try:
+        await security_messaging.check_batch_status(
+            request.app.config.VAL_CONN, [batch_id])
+    except (ApiBadRequest, ApiInternalError) as err:
+        # await auth_query.remove_auth_entry(
+        #     request.app.config.DB_CONN, request.json.get('email'))
+        raise err
+
+    return response.json(body={'status': general.DONE},
+                         headers=general.get_response_headers())
+
+
+@PATIENTS_BP.get('patients/grant_share_ehr/<dest_pkey>')
+async def grant_share_ehr_access(request, dest_pkey):
+    """Updates auth information for the authorized account"""
+    client_key = general.get_request_key_header(request)
+    client_signer = general.get_signer(request, client_key)
+    grant_share_ehr_permission_txn = consent_transaction.grant_share_ehr_permission(
+        txn_signer=client_signer,
+        batch_signer=client_signer,
+        dest_pkey=dest_pkey)
+
+    batch, batch_id = ehr_transaction.make_batch_and_id([grant_share_ehr_permission_txn], client_signer)
+
+    await security_messaging.grant_share_ehr_access(
+        request.app.config.VAL_CONN,
+        request.app.config.TIMEOUT,
+        [batch], client_key)
+
+    try:
+        await security_messaging.check_batch_status(
+            request.app.config.VAL_CONN, [batch_id])
+    except (ApiBadRequest, ApiInternalError) as err:
+        # await auth_query.remove_auth_entry(
+        #     request.app.config.DB_CONN, request.json.get('email'))
+        raise err
+
+    return response.json(body={'status': general.DONE},
+                         headers=general.get_response_headers())
+
+
 # @ACCOUNTS_BP.get('accounts/<key>')
 # async def get_account(request, key):
 #     """Fetches the details of particular Account in state"""
