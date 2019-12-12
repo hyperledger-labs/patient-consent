@@ -1,0 +1,898 @@
+#  Dr Kent G Lau
+#  kenty@kenty.com
+#  December 2019
+#
+#  Hyperledger Healthcare Special Interest Group (SIG)
+#  Patient Consent
+#  Clinical Trial Protocol
+#
+#  http://github.com/hyperledger-labs/patient-consent
+#  Fabric_DrKentLau
+#  CouchDB
+#  Kafka
+#  Zookeeper
+#  6orgs12peers3channels
+#  docker-compose-kafka-couchdb.yaml
+#
+version: '2'
+
+volumes:
+  orderer.patient.com:
+  peer0.patient.com:
+  peer1.patient.com:
+  peer0.datamanagement.com:
+  peer1.datamanagement.com:
+  peer0.oversight.com:
+  peer1.oversight.com:
+  peer0.investigator.com:
+  peer1.investigator.com:
+  peer0.cro.com:
+  peer1.cro.com:
+  peer0.sponsor.com:
+  peer1.sponsor.com:
+
+networks:
+  clinicaltrialprotocol:
+
+services:
+
+# ORDERER
+# ------------------------------------------------------------
+  orderer.patient.com:
+    container_name: orderer.patient.com
+    image: hyperledger/fabric-orderer:$IMAGE_TAG
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+      # enabled TLS
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_KAFKA_TOPIC_REPLICATIONFACTOR=1
+      - ORDERER_KAFKA_VERBOSE=true
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
+    command: orderer
+    volumes:
+        - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+        - ./crypto-config/ordererOrganizations/patient.com/orderers/orderer.patient.com/msp:/var/hyperledger/orderer/msp
+        - ./crypto-config/ordererOrganizations/patient.com/orderers/orderer.patient.com/tls/:/var/hyperledger/orderer/tls
+        - orderer.patient.com:/var/hyperledger/production/orderer
+    ports:
+      - 7050:7050
+    networks:
+      - clinicaltrialprotocol
+
+
+# CouchDB
+# ----------------------------------------------------
+  couchdb.peer0.patient.com:
+    container_name: couchdb.peer0.patient.com
+    image: hyperledger/fabric-couchdb
+    environment:
+      - COUCHDB_USER=​peer0.patient.com
+      - COUCHDB_PASSWORD=​password
+    ports:
+      - "5984:5984"
+    networks:
+      - clinicaltrialprotocol
+#-------------------------
+  couchdb.peer1.patient.com:
+    container_name: couchdb.peer1.patient.com
+    image: hyperledger/fabric-couchdb
+    environment:
+      - COUCHDB_USER=​peer1.patient.com
+      - COUCHDB_PASSWORD=​password
+    ports:
+      - "6984:5984"
+    networks:
+      - clinicaltrialprotocol
+
+
+
+  couchdb.peer0.datamanagement.com:
+    container_name: couchdb.peer0.datamanagement.com
+    image: hyperledger/fabric-couchdb
+    environment:
+      - COUCHDB_USER=​peer0.datamanagement.com
+      - COUCHDB_PASSWORD=​password
+    ports:
+      - "7984:5984"
+    networks:
+      - clinicaltrialprotocol
+#-------------------------
+  couchdb.peer1.datamanagement.com:
+    container_name: couchdb.peer1.datamanagement.com
+    image: hyperledger/fabric-couchdb
+    environment:
+      - COUCHDB_USER=​peer1.datamanagement.com
+      - COUCHDB_PASSWORD=​password
+    ports:
+      - "8984:5984"
+    networks:
+      - clinicaltrialprotocol
+
+
+
+  couchdb.peer0.oversight.com:
+    container_name: couchdb.peer0.oversight.com
+    image: hyperledger/fabric-couchdb
+    environment:
+      - COUCHDB_USER=​peer0.oversight.com
+      - COUCHDB_PASSWORD=​password
+    ports:
+      - "9984:5984"
+    networks:
+      - clinicaltrialprotocol
+#-------------------------
+  couchdb.peer1.oversight.com:
+    container_name: couchdb.peer1.oversight.com
+    image: hyperledger/fabric-couchdb
+    environment:
+      - COUCHDB_USER=​peer1.oversight.com
+      - COUCHDB_PASSWORD=​password
+    ports:
+      - "10984:5984"
+    networks:
+      - clinicaltrialprotocol
+
+
+  couchdb.peer0.investigator.com:
+    container_name: couchdb.peer0.investigator.com
+    image: hyperledger/fabric-couchdb
+    environment:
+      - COUCHDB_USER=​peer0.investigator.com
+      - COUCHDB_PASSWORD=​password
+    ports:
+      - "11984:5984"
+    networks:
+      - clinicaltrialprotocol
+#-------------------------
+  couchdb.peer1.investigator.com:
+    container_name: couchdb.peer1.investigator.com
+    image: hyperledger/fabric-couchdb
+    environment:
+      - COUCHDB_USER=​peer1.investigator.com
+      - COUCHDB_PASSWORD=​password
+    ports:
+      - "12984:5984"
+    networks:
+      - clinicaltrialprotocol
+
+
+  couchdb.peer0.cro.com:
+    container_name: couchdb.peer0.cro.com
+    image: hyperledger/fabric-couchdb
+    environment:
+      - COUCHDB_USER=​peer0.cro.com
+      - COUCHDB_PASSWORD=​password
+    ports:
+      - "13984:5984"
+    networks:
+      - clinicaltrialprotocol
+#-------------------------
+  couchdb.peer1.cro.com:
+    container_name: couchdb.peer1.cro.com
+    image: hyperledger/fabric-couchdb
+    environment:
+      - COUCHDB_USER=​peer1.cro.com
+      - COUCHDB_PASSWORD=​password
+    ports:
+      - "14984:5984"
+    networks:
+      - clinicaltrialprotocol
+
+
+
+  couchdb.peer0.sponsor.com:
+    container_name: couchdb.peer0.sponsor.com
+    image: hyperledger/fabric-couchdb
+    environment:
+      - COUCHDB_USER=​peer0.sponsor.com
+      - COUCHDB_PASSWORD=​password
+    ports:
+      - "15984:5984"
+    networks:
+      - clinicaltrialprotocol
+#-------------------------
+  couchdb.peer1.sponsor.com:
+    container_name: couchdb.peer1.sponsor.com
+    image: hyperledger/fabric-couchdb
+    environment:
+      - COUCHDB_USER=​peer1.sponsor.com
+      - COUCHDB_PASSWORD=​password
+    ports:
+      - "16984:5984"
+    networks:
+      - clinicaltrialprotocol
+
+
+# PEER
+# -------------------------------------------------
+  peer0.patient.com:
+    container_name: peer0.patient.com
+    image: hyperledger/fabric-peer:$IMAGE_TAG
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=clinicaltrialprotocol
+      - FABRIC_LOGGING_SPEC=INFO
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer0.patient.com
+      - CORE_PEER_ADDRESS=peer0.patient.com:7051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.patient.com:7052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.patient.com:8051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.patient.com:7051
+      - CORE_PEER_LOCALMSPID=PatientMSP
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb.peer0.patient.com:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=peer0.patient.com
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=password
+
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/patient.com/peers/peer0.patient.com/msp:/etc/hyperledger/fabric/msp
+        - ./crypto-config/peerOrganizations/patient.com/peers/peer0.patient.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.patient.com:/var/hyperledger/production
+    ports:
+      - 7051:7051
+      - 7053:7053
+    depends_on:
+      - couchdb.peer0.patient.com
+    networks:
+      - clinicaltrialprotocol
+
+  peer1.patient.com:
+    container_name: peer1.patient.com
+    image: hyperledger/fabric-peer:$IMAGE_TAG
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=clinicaltrialprotocol
+      - FABRIC_LOGGING_SPEC=INFO
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer1.patient.com
+      - CORE_PEER_ADDRESS=peer1.patient.com:8051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:8051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.patient.com:8052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.patient.com:8051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.patient.com:7051
+      - CORE_PEER_LOCALMSPID=PatientMSP
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb.peer1.patient:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=peer1.patient.com
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=password
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/patient.com/peers/peer1.patient.com/msp:/etc/hyperledger/fabric/msp
+        - ./crypto-config/peerOrganizations/patient.com/peers/peer1.patient.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.patient.com:/var/hyperledger/production
+    ports:
+      - 8051:8051
+      - 8053:7053
+    depends_on:
+      - couchdb.peer1.patient.com
+    networks:
+      - clinicaltrialprotocol
+
+  peer0.datamanagement.com:
+    container_name: peer0.datamanagement.com
+    image: hyperledger/fabric-peer:$IMAGE_TAG
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=clinicaltrialprotocol
+      - FABRIC_LOGGING_SPEC=INFO
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer0.datamanagement.com
+      - CORE_PEER_ADDRESS=peer0.datamanagement.com:9051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.datamanagement.com:9052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.datamanagement.com:9051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.datamanagement.com:10051
+      - CORE_PEER_LOCALMSPID=DatamanagementMSP
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb.peer0.datamanagement.com:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=peer0.datamanagement.com
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=password
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/datamanagement.com/peers/peer0.datamanagement.com/msp:/etc/hyperledger/fabric/msp
+        - ./crypto-config/peerOrganizations/datamanagement.com/peers/peer0.datamanagement.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.datamanagement.com:/var/hyperledger/production
+    ports:
+      - 9051:9051
+      - 9053:7053
+    depends_on:
+      - couchdb.peer0.datamanagement.com
+    networks:
+      - clinicaltrialprotocol
+
+  peer1.datamanagement.com:
+    container_name: peer1.datamanagement.com
+    image: hyperledger/fabric-peer:$IMAGE_TAG
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=clinicaltrialprotocol
+      - FABRIC_LOGGING_SPEC=INFO
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer1.datamanagement.com
+      - CORE_PEER_ADDRESS=peer1.datamanagement.com:10051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:10051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.datamanagement.com:10052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:10052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.datamanagement.com:10051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.datamanagement.com:9051
+      - CORE_PEER_LOCALMSPID=DatamanagementMSP
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb.peer1.datamanagement.com:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=peer1.datamanagement.com
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=password
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/datamanagement.com/peers/peer1.datamanagement.com/msp:/etc/hyperledger/fabric/msp
+        - ./crypto-config/peerOrganizations/datamanagement.com/peers/peer1.datamanagement.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.datamanagement.com:/var/hyperledger/production
+    ports:
+      - 10051:10051
+      - 10053:7053
+    depends_on:
+      - couchdb.peer1.datamanagement.com
+    networks:
+      - clinicaltrialprotocol
+
+
+  peer0.oversight.com:
+    container_name: peer0.oversight.com
+    image: hyperledger/fabric-peer:$IMAGE_TAG
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=clinicaltrialprotocol
+      - FABRIC_LOGGING_SPEC=INFO
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer0.oversight.com
+      - CORE_PEER_ADDRESS=peer0.oversight.com:11051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:11051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.oversight.com:11052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:11052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.oversight.com:12051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.oversight.com:11051
+      - CORE_PEER_LOCALMSPID=OversightMSP
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb.peer0.oversight.com:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=peer0.oversight.com
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=password
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/oversight.com/peers/peer0.oversight.com/msp:/etc/hyperledger/fabric/msp
+        - ./crypto-config/peerOrganizations/oversight.com/peers/peer0.oversight.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.oversight.com:/var/hyperledger/production
+    ports:
+      - 11051:11051
+      - 11053:7053
+    depends_on:
+      - couchdb.peer0.oversight.com
+    networks:
+      - clinicaltrialprotocol
+
+  peer1.oversight.com:
+    container_name: peer1.oversight.com
+    image: hyperledger/fabric-peer:$IMAGE_TAG
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=clinicaltrialprotocol
+      - FABRIC_LOGGING_SPEC=INFO
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer1.oversight.com
+      - CORE_PEER_ADDRESS=peer1.oversight.com:12051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:12051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.oversight.com:12052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:12052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.oversight.com:12051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.oversight.com:11051
+      - CORE_PEER_LOCALMSPID=OversightMSP
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb.peer1.oversight.com:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=peer1.oversight.com
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=password
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/oversight.com/peers/peer1.oversight.com/msp:/etc/hyperledger/fabric/msp
+        - ./crypto-config/peerOrganizations/oversight.com/peers/peer1.oversight.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.oversight.com:/var/hyperledger/production
+    ports:
+      - 12051:12051
+      - 12053:7053
+    depends_on:
+      - couchdb.peer1.oversight.com
+    networks:
+      - clinicaltrialprotocol
+
+  peer0.investigator.com:
+    container_name: peer0.investigator.com
+    image: hyperledger/fabric-peer:$IMAGE_TAG
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=clinicaltrialprotocol
+      - FABRIC_LOGGING_SPEC=INFO
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer0.investigator.com
+      - CORE_PEER_ADDRESS=peer0.investigator.com:13051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:13051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.investigator.com:13052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:13052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.investigator.com:14051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.investigator.com:13051
+      - CORE_PEER_LOCALMSPID=OversightMSP
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb.peer0.investigator.com:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=peer0.investigator.com
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=password
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/investigator.com/peers/peer0.investigator.com/msp:/etc/hyperledger/fabric/msp
+        - ./crypto-config/peerOrganizations/investigator.com/peers/peer0.investigator.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.investigator.com:/var/hyperledger/production
+    ports:
+      - 13051:13051
+      - 13053:7053
+    depends_on:
+      - couchdb.peer0.investigator.com
+    networks:
+      - clinicaltrialprotocol
+
+  peer1.investigator.com:
+    container_name: peer1.investigator.com
+    image: hyperledger/fabric-peer:$IMAGE_TAG
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=clinicaltrialprotocol
+      - FABRIC_LOGGING_SPEC=INFO
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer1.investigator.com
+      - CORE_PEER_ADDRESS=peer1.investigator.com:14051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:14051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.investigator.com:14052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:14052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.investigator.com:14051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.investigator.com:13051
+      - CORE_PEER_LOCALMSPID=OversightMSP
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb.peer1.investigator.com:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=peer1.investigator.com
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=password
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/investigator.com/peers/peer1.investigator.com/msp:/etc/hyperledger/fabric/msp
+        - ./crypto-config/peerOrganizations/investigator.com/peers/peer1.investigator.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.investigator.com:/var/hyperledger/production
+    ports:
+      - 14051:14051
+      - 14053:7053
+    depends_on:
+      - couchdb.peer1.investigator.com
+    networks:
+      - clinicaltrialprotocol
+
+  peer0.cro.com:
+    container_name: peer0.cro.com
+    image: hyperledger/fabric-peer:$IMAGE_TAG
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=clinicaltrialprotocol
+      - FABRIC_LOGGING_SPEC=INFO
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer0.cro.com
+      - CORE_PEER_ADDRESS=peer0.cro.com:15051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:15051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.cro.com:15052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:15052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.cro.com:16051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.cro.com:15051
+      - CORE_PEER_LOCALMSPID=OversightMSP
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb.peer0.cro.com:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=peer0.cro.com
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=password
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/cro.com/peers/peer0.cro.com/msp:/etc/hyperledger/fabric/msp
+        - ./crypto-config/peerOrganizations/cro.com/peers/peer0.cro.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.cro.com:/var/hyperledger/production
+    ports:
+      - 15051:15051
+      - 15053:7053
+    depends_on:
+      - couchdb.peer0.cro.com
+    networks:
+      - clinicaltrialprotocol
+
+  peer1.cro.com:
+    container_name: peer1.cro.com
+    image: hyperledger/fabric-peer:$IMAGE_TAG
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=clinicaltrialprotocol
+      - FABRIC_LOGGING_SPEC=INFO
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer1.cro.com
+      - CORE_PEER_ADDRESS=peer1.cro.com:16051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:16051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.cro.com:16052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:16052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.cro.com:16051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.cro.com:15051
+      - CORE_PEER_LOCALMSPID=OversightMSP
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb.peer1.cro.com:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=peer1.cro.com
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=password
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/cro.com/peers/peer1.cro.com/msp:/etc/hyperledger/fabric/msp
+        - ./crypto-config/peerOrganizations/cro.com/peers/peer1.cro.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.cro.com:/var/hyperledger/production
+    ports:
+      - 16051:16051
+      - 16053:7053
+    depends_on:
+      - couchdb.peer1.cro.com
+    networks:
+      - clinicaltrialprotocol
+
+
+  peer0.sponsor.com:
+    container_name: peer0.sponsor.com
+    image: hyperledger/fabric-peer:$IMAGE_TAG
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=clinicaltrialprotocol
+      - FABRIC_LOGGING_SPEC=INFO
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer0.sponsor.com
+      - CORE_PEER_ADDRESS=peer0.sponsor.com:17051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:17051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.sponsor.com:17052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:17052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.sponsor.com:18051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.sponsor.com:17051
+      - CORE_PEER_LOCALMSPID=OversightMSP
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb.peer0.sponsor.com:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=peer0.sponsor.com
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=password
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/sponsor.com/peers/peer0.sponsor.com/msp:/etc/hyperledger/fabric/msp
+        - ./crypto-config/peerOrganizations/sponsor.com/peers/peer0.sponsor.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.sponsor.com:/var/hyperledger/production
+    ports:
+      - 17051:17051
+      - 17053:7053
+    depends_on:
+      - couchdb.peer0.sponsor.com
+    networks:
+      - clinicaltrialprotocol
+
+  peer1.sponsor.com:
+    container_name: peer1.sponsor.com
+    image: hyperledger/fabric-peer:$IMAGE_TAG
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=clinicaltrialprotocol
+      - FABRIC_LOGGING_SPEC=INFO
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer1.sponsor.com
+      - CORE_PEER_ADDRESS=peer1.sponsor.com:18051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:18051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.sponsor.com:18052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:18052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.sponsor.com:18051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.sponsor.com:17051
+      - CORE_PEER_LOCALMSPID=OversightMSP
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb.peer1.sponsor.com:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=peer1.sponsor.com
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=password
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/sponsor.com/peers/peer1.sponsor.com/msp:/etc/hyperledger/fabric/msp
+        - ./crypto-config/peerOrganizations/sponsor.com/peers/peer1.sponsor.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.sponsor.com:/var/hyperledger/production
+    ports:
+      - 18051:18051
+      - 18053:7053
+    depends_on:
+      - couchdb.peer1.sponsor.com
+    networks:
+      - clinicaltrialprotocol
+
+
+
+# CLI
+# ----------------------------------------------------
+  cli:
+    container_name: cli
+    image: hyperledger/fabric-tools:$IMAGE_TAG
+    tty: true
+    stdin_open: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_ID=cli
+      - CORE_PEER_ADDRESS=peer0.patient.com:7051
+      - CORE_PEER_LOCALMSPID=PatientMSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/patient.com/peers/peer0.patient.com/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/patient.com/peers/peer0.patient.com/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/patient.com/peers/peer0.patient.com/tls/ca.crt
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/patient.com/users/Admin@patient.com/msp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./../chaincode/:/opt/gopath/src/github.com/chaincode
+        - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+        - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+        - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
+    depends_on:
+      - orderer.patient.com
+      - peer0.patient.com
+      - peer1.patient.com
+      - peer0.datamanagement.com
+      - peer1.datamanagement.com
+      - peer0.oversight.com
+      - peer1.oversight.com
+      - peer0.investigator.com
+      - peer1.investigator.com
+      - peer0.cro.com
+      - peer1.cro.com
+      - peer0.sponsor.com
+      - peer1.sponsor.com
+    networks:
+      - clinicaltrialprotocol
+
+
+
+# KAFKA
+# --------------------------------------------
+  kafka1.patient.com:
+    container_name: kafka1.patient.com
+    image: hyperledger/fabric-kafka
+    restart: always
+    environment:
+      - KAFKA_MESSAGE_MAX_BYTES=103809024
+      - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024
+      - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false
+      - KAFKA_MIN_INSYNC_REPLICAS=2
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=2
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper1.patient.com:2181,zookeeper2.patient.com:2181,zookeeper3.patient.com:2181
+      - KAFKA_BROKER_ID=1
+    ports:
+      - 9092:9092
+      - 9093:9093
+    networks:
+      - clinicaltrialprotocol
+    depends_on:
+      - zookeeper1.patient.com
+      - zookeeper2.patient.com
+      - zookeeper3.patient.com
+
+
+  kafka2.patient.com:
+    container_name: kafka2.patient.com
+    image: hyperledger/fabric-kafka
+    restart: always
+    environment:
+      - KAFKA_MESSAGE_MAX_BYTES=103809024
+      - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024
+      - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false
+      - KAFKA_MIN_INSYNC_REPLICAS=2
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=2
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper1.patient.com:2181,zookeeper2.patient.com:2181,zookeeper3.patient.com:2181
+      - KAFKA_BROKER_ID=2
+    ports:
+      - 10092:9092
+      - 10093:9093
+    networks:
+      - clinicaltrialprotocol
+    depends_on:
+      - zookeeper1.patient.com
+      - zookeeper2.patient.com
+      - zookeeper3.patient.com
+
+
+# ZOOKEEPER
+# -----------------------------------
+  zookeeper1.patient.com:
+    container_name: zookeeper1.patient.com
+    image: hyperledger/fabric-zookeeper
+    environment:
+      - ZOO_MY_ID=1
+      - ZOO_SERVERS=server.1=zookeeper1.patient.com:2888:3888 server.2=zookeeper2.patient.com:2888:3888 server.3=zookeeper3.patient.com:2888:3888
+    ports:
+      - 2181:2181
+      - 2888:2888
+      - 3888:3888
+    networks:
+      - clinicaltrialprotocol
+
+  zookeeper2.patient.com:
+    container_name: zookeeper2.patient.com
+    image: hyperledger/fabric-zookeeper
+    environment:
+      - ZOO_MY_ID=2
+      - ZOO_SERVERS=server.1=zookeeper1.patient.com:2888:3888 server.2=zookeeper2.patient.com:2888:3888 server.3=zookeeper3.patient.com:2888:3888
+    ports:
+      - 12181:2181
+      - 12888:2888
+      - 13888:3888
+    networks:
+      - clinicaltrialprotocol
+
+  zookeeper3.patient.com:
+    container_name: zookeeper3.patient.com
+    image: hyperledger/fabric-zookeeper
+    environment:
+      - ZOO_MY_ID=3
+      - ZOO_SERVERS=server.1=zookeeper1.patient.com:2888:3888 server.2=zookeeper2.patient.com:2888:3888 server.3=zookeeper3.patient.com:2888:3888
+    ports:
+     - 22181:2181
+     - 22888:2888
+     - 23888:3888
+    networks:
+     - clinicaltrialprotocol
