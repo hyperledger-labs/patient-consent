@@ -162,8 +162,8 @@ def get_signer(request, client_key):
         client_signer = request.app.config.SIGNER_PATIENT
     # elif request.app.config.SIGNER_DOCTOR.get_public_key().as_hex() == client_key:
     #     client_signer = request.app.config.SIGNER_DOCTOR
-    elif request.app.config.SIGNER_DATAPROVIDER.get_public_key().as_hex() == client_key:
-        client_signer = request.app.config.SIGNER_DATAPROVIDER
+    elif request.app.config.SIGNER_INVESTIGATOR.get_public_key().as_hex() == client_key:
+        client_signer = request.app.config.SIGNER_INVESTIGATOR
     # elif request.app.config.SIGNER_INSURANCE.get_public_key().as_hex() == client_key:
     #     client_signer = request.app.config.SIGNER_INSURANCE
     else:
