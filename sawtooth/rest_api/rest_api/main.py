@@ -32,7 +32,7 @@ from sawtooth_signing import CryptoFactory
 
 from zmq.asyncio import ZMQEventLoop
 
-from rest_api.data_provider import DATA_PROVIDERS_BP
+from rest_api.investigator import INVESTIGATORS_BP
 from rest_api.ehrs import EHRS_BP
 from rest_api.hospitals import HOSPITALS_BP
 # from rest_api.workflow.contract import CONTRACT_BP
@@ -70,7 +70,7 @@ DEFAULT_CONFIG = {
     'BATCHER_PRIVATE_KEY': '1111111111111111111111111111111111111111111111111111111111111111',
     'BATCHER_PRIVATE_KEY_FILE_NAME_HOSPITAL': None,
     'BATCHER_PRIVATE_KEY_FILE_NAME_PATIENT': None,
-    'BATCHER_PRIVATE_KEY_FILE_NAME_DATA_PROVIDER': None
+    'BATCHER_PRIVATE_KEY_FILE_NAME_INVESTIGATOR': None
     # 'BATCHER_PRIVATE_KEY_FILE_NAME_LAB': None,
     # 'BATCHER_PRIVATE_KEY_FILE_NAME_INSURANCE': None
 }
@@ -128,8 +128,8 @@ def parse_args(args):
     #                     help='The sawtooth key used for batch signing having doctor role')
     parser.add_argument('--batcher-private-key-file-name-patient',
                         help='The sawtooth key used for batch signing having patient role')
-    parser.add_argument('--batcher-private-key-file-name-dataprovider',
-                        help='The sawtooth key used for batch signing having dataprovider role')
+    parser.add_argument('--batcher-private-key-file-name-investigator',
+                        help='The sawtooth key used for batch signing having investigator role')
     # parser.add_argument('--batcher-private-key-file-name-insurance',
     #                     help='The sawtooth key used for batch signing having insurance role')
 
@@ -193,8 +193,8 @@ def load_config(appl):  # pylint: disable=too-many-branches
     #     appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_DOCTOR = opts.batcher_private_key_file_name_doctor
     if opts.batcher_private_key_file_name_patient is not None:
         appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_PATIENT = opts.batcher_private_key_file_name_patient
-    if opts.batcher_private_key_file_name_dataprovider is not None:
-        appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_DATAPROVIDER = opts.batcher_private_key_file_name_dataprovider
+    if opts.batcher_private_key_file_name_investigator is not None:
+        appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_INVESTIGATOR = opts.batcher_private_key_file_name_investigator
     # if opts.batcher_private_key_file_name_insurance is not None:
     #     appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_INSURANCE = opts.batcher_private_key_file_name_insurance
 
@@ -207,7 +207,7 @@ def load_config(appl):  # pylint: disable=too-many-branches
     if appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_PATIENT is None:
         LOGGER.exception("Batcher private key file name for Patient entity was not provided")
         sys.exit(1)
-    if appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_DATAPROVIDER is None:
+    if appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_INVESTIGATOR is None:
         LOGGER.exception("Batcher private key file name for Data Provider entity was not provided")
         sys.exit(1)
     # if appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_INSURANCE is None:
@@ -221,8 +221,8 @@ def load_config(appl):  # pylint: disable=too-many-branches
         # doctor_private_key = get_signer_from_file(private_key_file_name_doctor)
         private_key_file_name_patient = get_keyfile(appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_PATIENT)
         patient_private_key = get_signer_from_file(private_key_file_name_patient)
-        private_key_file_name_dataprovider = get_keyfile(appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_DATAPROVIDER)
-        dataprovider_private_key = get_signer_from_file(private_key_file_name_dataprovider)
+        private_key_file_name_investigator = get_keyfile(appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_INVESTIGATOR)
+        investigator_private_key = get_signer_from_file(private_key_file_name_investigator)
         # private_key_file_name_insurance = get_keyfile(appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_INSURANCE)
         # insurance_private_key = get_signer_from_file(private_key_file_name_insurance)
 
@@ -238,8 +238,8 @@ def load_config(appl):  # pylint: disable=too-many-branches
     #     appl.config.CONTEXT).new_signer(doctor_private_key)
     appl.config.SIGNER_PATIENT = CryptoFactory(
         appl.config.CONTEXT).new_signer(patient_private_key)
-    appl.config.SIGNER_DATAPROVIDER = CryptoFactory(
-        appl.config.CONTEXT).new_signer(dataprovider_private_key)
+    appl.config.SIGNER_INVESTIGATOR = CryptoFactory(
+        appl.config.CONTEXT).new_signer(investigator_private_key)
     # appl.config.SIGNER_INSURANCE = CryptoFactory(
     #     appl.config.CONTEXT).new_signer(insurance_private_key)
 
@@ -253,7 +253,7 @@ def main():
     # CORS(app)
 
     app.blueprint(HOSPITALS_BP)
-    app.blueprint(DATA_PROVIDERS_BP)
+    app.blueprint(INVESTIGATORS_BP)
     app.blueprint(PATIENTS_BP)
     app.blueprint(EHRS_BP)
     # app.blueprint(CLAIM_DETAILS_BP)

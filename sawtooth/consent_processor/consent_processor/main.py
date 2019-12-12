@@ -20,7 +20,7 @@ from sawtooth_sdk.processor.core import TransactionProcessor
 from sawtooth_sdk.processor.log import init_console_logging
 from sawtooth_sdk.processor.log import log_configuration
 from sawtooth_sdk.processor.config import get_log_config
-from sawtooth_sdk.processor.config import get_log_dir
+# from sawtooth_sdk.processor.config import get_log_dir
 
 from consent_processor.consent_common.helper import TP_PREFFIX_HEX6
 from consent_processor.handler import ConsentTransactionHandler
@@ -58,8 +58,9 @@ def main(args=None):
 
         if log_config is not None:
             log_configuration(log_config=log_config)
-        else:
-            log_dir = get_log_dir()
+        # else:
+        #     log_dir = get_log_dir()
+
             # use the transaction consent_processor zmq identity for filename
             # log_configuration(
             # log_dir=log_dir,

@@ -10,8 +10,8 @@ class EHRPayload(object):
     def create_hospital(self):
         return self._transaction.create_hospital
 
-    def create_data_provider(self):
-        return self._transaction.create_data_provider
+    def create_investigator(self):
+        return self._transaction.create_investigator
 
     def create_patient(self):
         return self._transaction.create_patient
@@ -40,23 +40,23 @@ class EHRPayload(object):
     # def attend_procedures(self):
     #     return self._transaction.attend_procedures
     #
-    # def eat_pills(self):
-    #     return self._transaction.eat_pills
-    #
-    # def next_visit(self):
-    #     return self._transaction.next_visit
+    def set_eligible(self):
+        return self._transaction.set_eligible
+
+    def update_data(self):
+        return self._transaction.update_data
 
     def create_ehr(self):
         return self._transaction.create_ehr
 
-    # def pulse(self):
-    #     return self._transaction.pulse
+    def import_data(self):
+        return self._transaction.import_data
 
     def is_create_hospital(self):
         return self._transaction.payload_type == TrialTransactionPayload.CREATE_HOSPITAL
 
-    def is_create_data_provider(self):
-        return self._transaction.payload_type == TrialTransactionPayload.CREATE_DATA_PROVIDER
+    def is_create_investigator(self):
+        return self._transaction.payload_type == TrialTransactionPayload.CREATE_INVESTIGATOR
 
     def is_create_patient(self):
         return self._transaction.payload_type == TrialTransactionPayload.CREATE_PATIENT
@@ -64,14 +64,14 @@ class EHRPayload(object):
     def is_create_ehr(self):
         return self._transaction.payload_type == TrialTransactionPayload.CREATE_EHR
 
-    # def is_create_claim(self):
-    #     return self._transaction.payload_type == payload_pb2.TransactionPayload.CREATE_CLAIM
-    #
-    # def is_close_claim(self):
-    #     return self._transaction.payload_type == payload_pb2.TransactionPayload.CLOSE_CLAIM
-    #
-    # def is_update_claim(self):
-    #     return self._transaction.payload_type == payload_pb2.TransactionPayload.UPDATE_CLAIM
+    def is_import_data(self):
+        return self._transaction.payload_type == TrialTransactionPayload.IMPORT_DATA
+
+    def is_update_data(self):
+        return self._transaction.payload_type == TrialTransactionPayload.UPDATE_DATA
+
+    def is_set_eligible(self):
+        return self._transaction.payload_type == TrialTransactionPayload.SET_ELIGIBLE
     #
     # def is_assign_doctor(self):
     #     return self._transaction.payload_type == payload_pb2.TransactionPayload.ASSIGN_DOCTOR

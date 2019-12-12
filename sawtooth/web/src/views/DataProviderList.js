@@ -27,7 +27,7 @@ module.exports = {
                             DataProvider.grant_access_to_share_data(dataprovider.public_key, vnode.attrs.client_key)
                         }
                     }, 'Grant Access To Share Data'),
-                    m("div"),
+                    m("div"), 
                     m("button", {
                         onclick: function() {
                             DataProvider.revoke_access_to_share_data(dataprovider.public_key, vnode.attrs.client_key)

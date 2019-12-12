@@ -29,12 +29,12 @@ var Hospital = {
         })
     },
 
-    get_shared_data: function(hospitalPKey, dataProviderPKey) {   //i.e Data Provider
+    get_shared_data: function(hospitalPKey, investigatorPKey) {   //i.e Investigator
         return m.request({
             method: "GET",
             url: "/api/hospitals/get_shared_data/" + hospitalPKey,
             headers: {
-                'ClientKey': dataProviderPKey
+                'ClientKey': investigatorPKey
             }
         })
         .then(function(result) {
@@ -48,6 +48,26 @@ var Hospital = {
             Hospital.sharedDataList = []
         })
     },
+
+//    screening_data: function(hospitalPKey, investigatorPKey, inclExclCriteria) {   //i.e Investigator
+//        return m.request({
+//            method: "GET",
+//            url: "/api/hospitals/screening_data/" + hospitalPKey + "?" + inclExclCriteria,
+//            headers: {
+//                'ClientKey': investigatorPKey
+//            }
+//        })
+//        .then(function(result) {
+//            console.log("Get Pre-screening data")
+//            Hospital.error = ""
+//            Hospital.sharedDataList = result.data
+//        })
+//        .catch(function(e) {
+//            console.log(e)
+//            Hospital.error = e.message
+//            Hospital.sharedDataList = []
+//        })
+//    },
 
     current: {},
 
@@ -69,10 +89,10 @@ var Hospital = {
         })
     },
 
-    grant_read_ehr: function(hospitalPKey, clientKey) {
+    grant_data_processing: function(hospitalPKey, clientKey) {
         return m.request({
             method: "GET",
-            url: "/api/patients/grant_read_ehr/" + hospitalPKey,
+            url: "/api/patients/grant_data_processing/" + hospitalPKey,
             headers: {
                 'ClientKey': clientKey
             }
@@ -90,94 +110,10 @@ var Hospital = {
         })
     },
 
-    revoke_read_ehr: function(hospitalPKey, clientKey) {
+    revoke_data_processing: function(hospitalPKey, clientKey) {
         return m.request({
             method: "GET",
-            url: "/api/patients/revoke_read_ehr/" + hospitalPKey,
-            headers: {
-                'ClientKey': clientKey
-            }
-//            data: Doctor.current,
-//            useBody: true,
-//            withCredentials: true,
-        })
-        .then(function(items) {
-//            Data.todos.list = items
-            Hospital.error = ""
-        })
-        .catch(function(e) {
-            console.log(e)
-            Hospital.error = e.message
-        })
-    },
-
-    grant_write_ehr: function(hospitalPKey, clientKey) {
-        return m.request({
-            method: "GET",
-            url: "/api/patients/grant_write_ehr/" + hospitalPKey,
-            headers: {
-                'ClientKey': clientKey
-            }
-//            data: Doctor.current,
-//            useBody: true,
-//            withCredentials: true,
-        })
-        .then(function(items) {
-//            Data.todos.list = items
-            Hospital.error = ""
-        })
-        .catch(function(e) {
-            console.log(e)
-            Hospital.error = e.message
-        })
-    },
-
-    revoke_write_ehr: function(hospitalPKey, clientKey) {
-        return m.request({
-            method: "GET",
-            url: "/api/patients/revoke_write_ehr/" + hospitalPKey,
-            headers: {
-                'ClientKey': clientKey
-            }
-//            data: Doctor.current,
-//            useBody: true,
-//            withCredentials: true,
-        })
-        .then(function(items) {
-//            Data.todos.list = items
-            Hospital.error = ""
-        })
-        .catch(function(e) {
-            console.log(e)
-            Hospital.error = e.message
-        })
-    },
-
-    grant_3rd_party_access: function(hospitalPKey, clientKey) {
-        return m.request({
-            method: "GET",
-            url: "/api/patients/grant_share_ehr/" + hospitalPKey,
-            headers: {
-                'ClientKey': clientKey
-            }
-//            data: Doctor.current,
-//            useBody: true,
-//            withCredentials: true,
-        })
-        .then(function(items) {
-//            Data.todos.list = items
-            Hospital.error = ""
-        })
-        .catch(function(e) {
-            console.log(e)
-            Hospital.error = e.message
-        })
-    },
-
-    revoke_3rd_party_access: function(hospitalPKey, clientKey) {
-        return m.request({
-            method: "GET",
-            url: "/api/patients/revoke_share_ehr/" + hospitalPKey,
+            url: "/api/patients/revoke_data_processing/" + hospitalPKey,
             headers: {
                 'ClientKey': clientKey
             }
@@ -194,6 +130,91 @@ var Hospital = {
             Hospital.error = e.message
         })
     }
+//    ,
+
+//    grant_write_ehr: function(hospitalPKey, clientKey) {
+//        return m.request({
+//            method: "GET",
+//            url: "/api/patients/grant_write_ehr/" + hospitalPKey,
+//            headers: {
+//                'ClientKey': clientKey
+//            }
+////            data: Doctor.current,
+////            useBody: true,
+////            withCredentials: true,
+//        })
+//        .then(function(items) {
+////            Data.todos.list = items
+//            Hospital.error = ""
+//        })
+//        .catch(function(e) {
+//            console.log(e)
+//            Hospital.error = e.message
+//        })
+//    },
+//
+//    revoke_write_ehr: function(hospitalPKey, clientKey) {
+//        return m.request({
+//            method: "GET",
+//            url: "/api/patients/revoke_write_ehr/" + hospitalPKey,
+//            headers: {
+//                'ClientKey': clientKey
+//            }
+////            data: Doctor.current,
+////            useBody: true,
+////            withCredentials: true,
+//        })
+//        .then(function(items) {
+////            Data.todos.list = items
+//            Hospital.error = ""
+//        })
+//        .catch(function(e) {
+//            console.log(e)
+//            Hospital.error = e.message
+//        })
+//    },
+//
+//    grant_3rd_party_access: function(hospitalPKey, clientKey) {
+//        return m.request({
+//            method: "GET",
+//            url: "/api/patients/grant_share_ehr/" + hospitalPKey,
+//            headers: {
+//                'ClientKey': clientKey
+//            }
+////            data: Doctor.current,
+////            useBody: true,
+////            withCredentials: true,
+//        })
+//        .then(function(items) {
+////            Data.todos.list = items
+//            Hospital.error = ""
+//        })
+//        .catch(function(e) {
+//            console.log(e)
+//            Hospital.error = e.message
+//        })
+//    },
+//
+//    revoke_3rd_party_access: function(hospitalPKey, clientKey) {
+//        return m.request({
+//            method: "GET",
+//            url: "/api/patients/revoke_share_ehr/" + hospitalPKey,
+//            headers: {
+//                'ClientKey': clientKey
+//            }
+////            data: Doctor.current,
+////            useBody: true,
+////            withCredentials: true,
+//        })
+//        .then(function(items) {
+////            Data.todos.list = items
+//            Hospital.error = ""
+//        })
+//        .catch(function(e) {
+//            console.log(e)
+//            Hospital.error = e.message
+//        })
+//    }
 }
 
 module.exports = Hospital

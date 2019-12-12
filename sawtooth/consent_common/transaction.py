@@ -97,12 +97,12 @@ def _batch_header(batch_signer, transactions):
 def create_hospital_client(txn_signer, batch_signer):
     permissions = [Permission(type=Permission.READ_HOSPITAL),
                    Permission(type=Permission.READ_OWN_HOSPITAL),
-                   Permission(type=Permission.READ_EHR),
-                   Permission(type=Permission.READ_OWN_EHR),
-                   Permission(type=Permission.READ_DATA_PROVIDER),
-                   Permission(type=Permission.GRANT_TRANSFER_SHARED_EHR_ACCESS),
-                   Permission(type=Permission.REVOKE_TRANSFER_SHARED_EHR_ACCESS),
-                   Permission(type=Permission.WRITE_EHR)
+                   Permission(type=Permission.READ_PATIENT_DATA),
+                   Permission(type=Permission.READ_OWN_PATIENT),
+                   Permission(type=Permission.READ_INVESTIGATOR),
+                   Permission(type=Permission.GRANT_INVESTIGATOR_ACCESS),
+                   Permission(type=Permission.REVOKE_INVESTIGATOR_ACCESS),
+                   Permission(type=Permission.WRITE_PATIENT_DATA)
                    ]
     return create_client(txn_signer, batch_signer, permissions)
 
@@ -111,39 +111,50 @@ def create_patient_client(txn_signer, batch_signer):
     permissions = [Permission(type=Permission.READ_HOSPITAL),
                    Permission(type=Permission.READ_PATIENT),
                    Permission(type=Permission.READ_OWN_PATIENT),
-                   Permission(type=Permission.REVOKE_WRITE_EHR_ACCESS),
-                   Permission(type=Permission.GRANT_WRITE_EHR_ACCESS),
-                   Permission(type=Permission.READ_OWN_EHR),
-                   Permission(type=Permission.GRANT_READ_EHR_ACCESS),
-                   Permission(type=Permission.REVOKE_READ_EHR_ACCESS),
-                   Permission(type=Permission.GRANT_3RD_PARTY_ACCESS),
-                   Permission(type=Permission.REVOKE_3RD_PARTY_ACCESS)
+                   Permission(type=Permission.GRANT_READ_DATA_ACCESS),
+                   Permission(type=Permission.REVOKE_READ_DATA_ACCESS),
+                   Permission(type=Permission.READ_PATIENT_DATA),
+                   Permission(type=Permission.READ_OWN_PATIENT_DATA),
+                   Permission(type=Permission.GRANT_WRITE_DATA_ACCESS),
+                   Permission(type=Permission.REVOKE_WRITE_DATA_ACCESS),
+                   Permission(type=Permission.READ_INFORM_CONSENT_REQUEST),
+                   Permission(type=Permission.READ_SIGNED_INFORM_CONSENT),
+                   Permission(type=Permission.SIGN_INFORM_CONSENT),
+                   Permission(type=Permission.DECLINE_INFORM_CONSENT)
                    ]
-    return create_client(txn_signer, batch_signer, permissions)
-
-
-def create_data_provider_client(txn_signer, batch_signer):
-    permissions = [Permission(type=Permission.READ_HOSPITAL),
-                   Permission(type=Permission.READ_OWN_DATA_PROVIDER),
-                   Permission(type=Permission.READ_TRANSFERRED_SHARED_DATA),
-                   Permission(type=Permission.READ_FORMATTED_EHR),
-                   Permission(type=Permission.WRITE_FORMATTED_EHR)
-                   ]
-    return create_client(txn_signer, batch_signer, permissions)
-
-
-def create_sponsor_client(txn_signer, batch_signer):
-    permissions = [Permission(type=Permission.READ_LAB),
-                   Permission(type=Permission.READ_OWN_LAB),
-                   Permission(type=Permission.READ_LAB_TEST)]
     return create_client(txn_signer, batch_signer, permissions)
 
 
 def create_investigator_client(txn_signer, batch_signer):
-    permissions = [Permission(type=Permission.READ_OWN_INVESTIGATOR),
-                   Permission(type=Permission.READ_FORMATTED_EHR)
-                   ]
+    permissions = [
+        Permission(type=Permission.READ_HOSPITAL),
+        Permission(type=Permission.READ_OWN_INVESTIGATOR),
+        Permission(type=Permission.REQUEST_INFORM_CONSENT),
+        Permission(type=Permission.READ_INFORM_CONSENT_REQUEST),
+        Permission(type=Permission.READ_SIGNED_INFORM_CONSENT),
+        Permission(type=Permission.READ_PATIENT_DATA),
+        Permission(type=Permission.READ_PATIENT),
+        Permission(type=Permission.IMPORT_TRIAL_DATA),
+        Permission(type=Permission.READ_TRIAL_DATA),
+        Permission(type=Permission.UPDATE_TRIAL_DATA)
+    ]
     return create_client(txn_signer, batch_signer, permissions)
+
+
+def create_sponsor_client(txn_signer, batch_signer):
+    permissions = [
+        # Permission(type=Permission.READ_LAB),
+        # Permission(type=Permission.READ_OWN_LAB),
+        # Permission(type=Permission.READ_LAB_TEST)
+    ]
+    return create_client(txn_signer, batch_signer, permissions)
+
+
+# def create_investigator_client(txn_signer, batch_signer):
+#     permissions = [Permission(type=Permission.READ_OWN_INVESTIGATOR),
+#                    Permission(type=Permission.READ_FORMATTED_EHR)
+#                    ]
+#     return create_client(txn_signer, batch_signer, permissions)
 
 
 def create_client(txn_signer, batch_signer, permissions):
@@ -169,9 +180,9 @@ def create_client(txn_signer, batch_signer, permissions):
         batch_signer=batch_signer)
 
 
-def grant_read_ehr_permission(txn_signer, batch_signer, dest_pkey):
+def grant_data_processing(txn_signer, batch_signer, dest_pkey):
     patient_pkey = txn_signer.get_public_key().as_hex()
-    consent_hex = helper.make_consent_read_ehr_address(dest_pkey=dest_pkey, src_pkey=patient_pkey)
+    permission_hex = helper.make_data_processing_access_address(dest_pkey=dest_pkey, src_pkey=patient_pkey)
 
     access = ActionOnAccess(
         dest_pkey=dest_pkey,
@@ -179,20 +190,20 @@ def grant_read_ehr_permission(txn_signer, batch_signer, dest_pkey):
     )
 
     payload = ConsentTransactionPayload(
-        payload_type=ConsentTransactionPayload.GRANT_READ_EHR_ACCESS,
-        grant_read_ehr_access=access)
+        payload_type=ConsentTransactionPayload.GRANT_DATA_PROCESSING_ACCESS,
+        grant_data_processing_access=access)
 
     return _make_transaction(
         payload=payload,
-        inputs=[consent_hex],
-        outputs=[consent_hex],
+        inputs=[permission_hex],
+        outputs=[permission_hex],
         txn_signer=txn_signer,
         batch_signer=batch_signer)
 
 
-def revoke_read_ehr_permission(txn_signer, batch_signer, dest_pkey):
+def revoke_data_processing(txn_signer, batch_signer, dest_pkey):
     patient_pkey = txn_signer.get_public_key().as_hex()
-    consent_hex = helper.make_consent_read_ehr_address(dest_pkey=dest_pkey, src_pkey=patient_pkey)
+    permission_hex = helper.make_data_processing_access_address(dest_pkey=dest_pkey, src_pkey=patient_pkey)
 
     access = ActionOnAccess(
         dest_pkey=dest_pkey,
@@ -200,104 +211,20 @@ def revoke_read_ehr_permission(txn_signer, batch_signer, dest_pkey):
     )
 
     payload = ConsentTransactionPayload(
-        payload_type=ConsentTransactionPayload.REVOKE_READ_EHR_ACCESS,
-        revoke_read_ehr_access=access)
+        payload_type=ConsentTransactionPayload.REVOKE_DATA_PROCESSING_ACCESS,
+        revoke_data_processing_access=access)
 
     return _make_transaction(
         payload=payload,
-        inputs=[consent_hex],
-        outputs=[consent_hex],
+        inputs=[permission_hex],
+        outputs=[permission_hex],
         txn_signer=txn_signer,
         batch_signer=batch_signer)
 
 
-def grant_write_ehr_permission(txn_signer, batch_signer, dest_pkey):
-    patient_pkey = txn_signer.get_public_key().as_hex()
-    consent_hex = helper.make_consent_write_ehr_address(dest_pkey=dest_pkey, src_pkey=patient_pkey)
-
-    access = ActionOnAccess(
-        dest_pkey=dest_pkey,
-        src_pkey=patient_pkey
-    )
-
-    payload = ConsentTransactionPayload(
-        payload_type=ConsentTransactionPayload.GRANT_WRITE_EHR_ACCESS,
-        grant_write_ehr_access=access)
-
-    return _make_transaction(
-        payload=payload,
-        inputs=[consent_hex],
-        outputs=[consent_hex],
-        txn_signer=txn_signer,
-        batch_signer=batch_signer)
-
-
-def revoke_write_ehr_permission(txn_signer, batch_signer, dest_pkey):
-    patient_pkey = txn_signer.get_public_key().as_hex()
-    consent_hex = helper.make_consent_write_ehr_address(dest_pkey=dest_pkey, src_pkey=patient_pkey)
-
-    access = ActionOnAccess(
-        dest_pkey=dest_pkey,
-        src_pkey=patient_pkey
-    )
-
-    payload = ConsentTransactionPayload(
-        payload_type=ConsentTransactionPayload.REVOKE_WRITE_EHR_ACCESS,
-        revoke_write_ehr_access=access)
-
-    return _make_transaction(
-        payload=payload,
-        inputs=[consent_hex],
-        outputs=[consent_hex],
-        txn_signer=txn_signer,
-        batch_signer=batch_signer)
-
-
-def grant_share_ehr_permission(txn_signer, batch_signer, dest_pkey):
-    patient_pkey = txn_signer.get_public_key().as_hex()
-    consent_hex = helper.make_consent_share_ehr_address(dest_pkey=dest_pkey, src_pkey=patient_pkey)
-
-    access = ActionOnAccess(
-        dest_pkey=dest_pkey,
-        src_pkey=patient_pkey
-    )
-
-    payload = ConsentTransactionPayload(
-        payload_type=ConsentTransactionPayload.GRANT_SHARE_EHR_ACCESS,
-        grant_share_ehr_access=access)
-
-    return _make_transaction(
-        payload=payload,
-        inputs=[consent_hex],
-        outputs=[consent_hex],
-        txn_signer=txn_signer,
-        batch_signer=batch_signer)
-
-
-def revoke_share_ehr_permission(txn_signer, batch_signer, dest_pkey):
-    patient_pkey = txn_signer.get_public_key().as_hex()
-    consent_hex = helper.make_consent_share_ehr_address(dest_pkey=dest_pkey, src_pkey=patient_pkey)
-
-    access = ActionOnAccess(
-        dest_pkey=dest_pkey,
-        src_pkey=patient_pkey
-    )
-
-    payload = ConsentTransactionPayload(
-        payload_type=ConsentTransactionPayload.REVOKE_SHARE_EHR_ACCESS,
-        revoke_share_ehr_access=access)
-
-    return _make_transaction(
-        payload=payload,
-        inputs=[consent_hex],
-        outputs=[consent_hex],
-        txn_signer=txn_signer,
-        batch_signer=batch_signer)
-
-
-def grant_transfer_ehr_permission(txn_signer, batch_signer, dest_pkey):
+def grant_investigator_access(txn_signer, batch_signer, dest_pkey):
     hospital_pkey = txn_signer.get_public_key().as_hex()
-    consent_hex = helper.make_consent_share_shared_ehr_address(dest_pkey=dest_pkey, src_pkey=hospital_pkey)
+    permission_hex = helper.make_investigator_access_address(dest_pkey=dest_pkey, src_pkey=hospital_pkey)
 
     access = ActionOnAccess(
         dest_pkey=dest_pkey,
@@ -305,20 +232,20 @@ def grant_transfer_ehr_permission(txn_signer, batch_signer, dest_pkey):
     )
 
     payload = ConsentTransactionPayload(
-        payload_type=ConsentTransactionPayload.GRANT_SHARE_SHARED_EHR_ACCESS,
-        grant_share_shared_ehr_access=access)
+        payload_type=ConsentTransactionPayload.GRANT_INVESTIGATOR_ACCESS,
+        grant_investigator_access=access)
 
     return _make_transaction(
         payload=payload,
-        inputs=[consent_hex],
-        outputs=[consent_hex],
+        inputs=[permission_hex],
+        outputs=[permission_hex],
         txn_signer=txn_signer,
         batch_signer=batch_signer)
 
 
-def revoke_transfer_ehr_permission(txn_signer, batch_signer, dest_pkey):
+def revoke_investigator_access(txn_signer, batch_signer, dest_pkey):
     hospital_pkey = txn_signer.get_public_key().as_hex()
-    consent_hex = helper.make_consent_share_shared_ehr_address(dest_pkey=dest_pkey, src_pkey=hospital_pkey)
+    permission_hex = helper.make_investigator_access_address(dest_pkey=dest_pkey, src_pkey=hospital_pkey)
 
     access = ActionOnAccess(
         dest_pkey=dest_pkey,
@@ -326,12 +253,138 @@ def revoke_transfer_ehr_permission(txn_signer, batch_signer, dest_pkey):
     )
 
     payload = ConsentTransactionPayload(
-        payload_type=ConsentTransactionPayload.REVOKE_SHARE_SHARED_EHR_ACCESS,
-        revoke_share_shared_ehr_access=access)
+        payload_type=ConsentTransactionPayload.REVOKE_INVESTIGATOR_ACCESS,
+        revoke_investigator_access=access)
 
     return _make_transaction(
         payload=payload,
-        inputs=[consent_hex],
-        outputs=[consent_hex],
+        inputs=[permission_hex],
+        outputs=[permission_hex],
         txn_signer=txn_signer,
         batch_signer=batch_signer)
+
+
+def request_inform_document_consent(txn_signer, batch_signer, patient_pkey):
+    investigator_pkey = txn_signer.get_public_key().as_hex()
+    permission_hex = \
+        helper.make_request_inform_document_consent_address(dest_pkey=investigator_pkey, src_pkey=patient_pkey)
+    permission_vice_versa_hex = \
+        helper.make_request_inform_document_consent_address(dest_pkey=patient_pkey, src_pkey=investigator_pkey)
+
+    access = ActionOnAccess(
+        dest_pkey=investigator_pkey,
+        src_pkey=patient_pkey
+    )
+
+    payload = ConsentTransactionPayload(
+        payload_type=ConsentTransactionPayload.REQUEST_INFORM_CONSENT,
+        request_inform_document_consent=access)
+
+    return _make_transaction(
+        payload=payload,
+        inputs=[permission_hex, permission_vice_versa_hex],
+        outputs=[permission_hex, permission_vice_versa_hex],
+        txn_signer=txn_signer,
+        batch_signer=batch_signer)
+
+
+def sign_inform_document_consent(txn_signer, batch_signer, investigator_pkey):
+    patient_pkey = txn_signer.get_public_key().as_hex()
+    request_inform_consent_permission_hex = \
+        helper.make_request_inform_document_consent_address(dest_pkey=investigator_pkey, src_pkey=patient_pkey)
+
+    request_inform_consent_permission_vice_versa_hex = \
+        helper.make_request_inform_document_consent_address(dest_pkey=patient_pkey, src_pkey=investigator_pkey)
+
+    sign_inform_consent_permission_hex = \
+        helper.make_sign_inform_document_consent_address(dest_pkey=investigator_pkey, src_pkey=patient_pkey)
+
+    access = ActionOnAccess(
+        dest_pkey=investigator_pkey,
+        src_pkey=patient_pkey
+    )
+
+    payload = ConsentTransactionPayload(
+        payload_type=ConsentTransactionPayload.SIGN_INFORM_CONSENT,
+        sign_inform_document_consent=access)
+
+    return _make_transaction(
+        payload=payload,
+        inputs=[request_inform_consent_permission_hex, request_inform_consent_permission_vice_versa_hex,
+                sign_inform_consent_permission_hex],
+        outputs=[request_inform_consent_permission_hex, request_inform_consent_permission_vice_versa_hex,
+                 sign_inform_consent_permission_hex],
+        txn_signer=txn_signer,
+        batch_signer=batch_signer)
+
+
+def decline_inform_consent(txn_signer, batch_signer, investigator_pkey):
+    patient_pkey = txn_signer.get_public_key().as_hex()
+
+    request_inform_consent_permission_hex = \
+        helper.make_request_inform_document_consent_address(dest_pkey=investigator_pkey, src_pkey=patient_pkey)
+
+    request_inform_consent_permission_vice_versa_hex = \
+        helper.make_request_inform_document_consent_address(dest_pkey=patient_pkey, src_pkey=investigator_pkey)
+
+    sign_inform_consent_permission_hex = \
+        helper.make_sign_inform_document_consent_address(dest_pkey=investigator_pkey, src_pkey=patient_pkey)
+
+    access = ActionOnAccess(
+        dest_pkey=investigator_pkey,
+        src_pkey=patient_pkey
+    )
+
+    payload = ConsentTransactionPayload(
+        payload_type=ConsentTransactionPayload.DECLINE_INFORM_CONSENT,
+        decline_inform_consent=access)
+
+    return _make_transaction(
+        payload=payload,
+        inputs=[request_inform_consent_permission_hex, request_inform_consent_permission_vice_versa_hex,
+                sign_inform_consent_permission_hex],
+        outputs=[request_inform_consent_permission_hex, request_inform_consent_permission_vice_versa_hex,
+                 sign_inform_consent_permission_hex],
+        txn_signer=txn_signer,
+        batch_signer=batch_signer)
+
+# def grant_transfer_ehr_permission(txn_signer, batch_signer, dest_pkey):
+#     hospital_pkey = txn_signer.get_public_key().as_hex()
+#     consent_hex = helper.make_consent_share_shared_ehr_address(dest_pkey=dest_pkey, src_pkey=hospital_pkey)
+#
+#     access = ActionOnAccess(
+#         dest_pkey=dest_pkey,
+#         src_pkey=hospital_pkey
+#     )
+#
+#     payload = ConsentTransactionPayload(
+#         payload_type=ConsentTransactionPayload.GRANT_SHARE_SHARED_EHR_ACCESS,
+#         grant_share_shared_ehr_access=access)
+#
+#     return _make_transaction(
+#         payload=payload,
+#         inputs=[consent_hex],
+#         outputs=[consent_hex],
+#         txn_signer=txn_signer,
+#         batch_signer=batch_signer)
+#
+#
+# def revoke_transfer_ehr_permission(txn_signer, batch_signer, dest_pkey):
+#     hospital_pkey = txn_signer.get_public_key().as_hex()
+#     consent_hex = helper.make_consent_share_shared_ehr_address(dest_pkey=dest_pkey, src_pkey=hospital_pkey)
+#
+#     access = ActionOnAccess(
+#         dest_pkey=dest_pkey,
+#         src_pkey=hospital_pkey
+#     )
+#
+#     payload = ConsentTransactionPayload(
+#         payload_type=ConsentTransactionPayload.REVOKE_SHARE_SHARED_EHR_ACCESS,
+#         revoke_share_shared_ehr_access=access)
+#
+#     return _make_transaction(
+#         payload=payload,
+#         inputs=[consent_hex],
+#         outputs=[consent_hex],
+#         txn_signer=txn_signer,
+#         batch_signer=batch_signer)

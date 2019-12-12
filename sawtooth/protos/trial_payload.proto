@@ -9,10 +9,10 @@ message TrialTransactionPayload {
         CREATE_PATIENT = 3;
         CREATE_HOSPITAL = 4;
         CREATE_EHR = 5;
-        CREATE_DATA_PROVIDER = 6;
-//        PASS_TESTS = 7;
-//        ATTEND_PROCEDURES = 8;
-//        EAT_PILLS = 9;
+//        CREATE_DATA_PROVIDER = 6;
+        IMPORT_DATA = 6;
+        UPDATE_DATA = 7;
+        SET_ELIGIBLE = 8;
 //        NEXT_VISIT = 10;
 //        ADD_LAB_TEST = 11;
 //        ADD_PULSE = 12;
@@ -26,9 +26,12 @@ message TrialTransactionPayload {
     Patient create_patient = 2;
     Hospital create_hospital = 3;
     EHR create_ehr = 4;
-    DataProvider create_data_provider = 5;
+//    DataProvider create_data_provider = 5;
     Sponsor create_sponsor = 6;
     Investigator create_investigator = 7;
+    Data import_data = 8;
+    Data update_data = 9;
+    Data set_eligible = 10;
 //    Claim create_claim = 5;
 //    ActionOnClaim assign_doctor = 6;
 //    ActionOnClaim first_visit = 7;
@@ -57,24 +60,44 @@ message Hospital {
 message EHR {
     string id=1;
     string client_pkey=2;
-    string field_1=3;
-    string field_2=4;
-    string event_time=5;
+    string height=3;
+    string weight=4;
+    string A1C=5;
+    string FPG=6;
+    string OGTT=7;
+    string RPGT=8;
+    string event_time=9;
 }
 
 message EHRWithUser {
     string id=1;
     string client_pkey=2;
-    string field_1=3;
-    string field_2=4;
-    string event_time=5;
-    string name=6;
-    string surname=7;
+    string height=3;
+    string weight=4;
+    string A1C=5;
+    string FPG=6;
+    string OGTT=7;
+    string RPGT=8;
+    string event_time=9;
+    string name=10;
+    string surname=11;
 }
 
-message DataProvider {
-    string public_key = 1;
-    string name = 2;
+//message DataProvider {
+//    string public_key = 1;
+//    string name = 2;
+//}
+
+message Data {
+    string id=1;
+    string height=2;
+    string weight=3;
+    string A1C=4;
+    string FPG=5;
+    string OGTT=6;
+    string RPGT=7;
+    bool eligible=8;
+    string event_time=9;
 }
 
 message Data {
