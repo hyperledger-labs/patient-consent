@@ -307,58 +307,6 @@ def set_eligible(txn_signer, batch_signer, uid, eligible):
         batch_signer=batch_signer)
 
 
-def update_data(txn_signer, batch_signer, uid, height, weight, a1c, fpg, ogtt, rpgt):
-    data_provider_pkey = txn_signer.get_public_key().as_hex()
-    data_hex = helper.make_data_provider_data_address(data_id=uid)
-    # data_data_provider_rel_hex = helper.make_data_data_provider__relation_address(uid, data_provider_pkey)
-    # data_provider_data_rel_hex = helper.make_data_provider_data__relation_address(data_provider_pkey, uid)
-
-    trial = Data(
-        id=uid,
-        height=height,
-        weight=weight,
-        A1C=a1c,
-        FPG=fpg,
-        OGTT=ogtt,
-        RPGT=rpgt
-    )
-
-    LOGGER.debug('trial_update: ' + str(trial))
-
-    payload = TrialTransactionPayload(
-        payload_type=TrialTransactionPayload.UPDATE_DATA,
-        update_data=trial)
-
-    return _make_transaction(
-        payload=payload,
-        inputs=[data_hex],
-        outputs=[data_hex],
-        txn_signer=txn_signer,
-        batch_signer=batch_signer)
-
-
-def set_eligible(txn_signer, batch_signer, uid, eligible):
-    data_hex = helper.make_data_provider_data_address(data_id=uid)
-
-    trial = Data(
-        id=uid,
-        eligible=eligible
-    )
-
-    LOGGER.debug('set_eligible: ' + str(trial))
-
-    payload = TrialTransactionPayload(
-        payload_type=TrialTransactionPayload.SET_ELIGIBLE,
-        set_eligible=trial)
-
-    return _make_transaction(
-        payload=payload,
-        inputs=[data_hex],
-        outputs=[data_hex],
-        txn_signer=txn_signer,
-        batch_signer=batch_signer)
-
-
 def add_ehr(txn_signer, batch_signer, uid, client_pkey, height, weight, a1c, fpg, ogtt, rpgt):
     hospital_pkey = txn_signer.get_public_key().as_hex()
     patient_pkey = client_pkey
