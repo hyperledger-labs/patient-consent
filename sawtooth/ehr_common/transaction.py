@@ -337,6 +337,28 @@ def update_data(txn_signer, batch_signer, uid, height, weight, a1c, fpg, ogtt, r
         batch_signer=batch_signer)
 
 
+def set_eligible(txn_signer, batch_signer, uid, eligible):
+    data_hex = helper.make_data_provider_data_address(data_id=uid)
+
+    trial = Data(
+        id=uid,
+        eligible=eligible
+    )
+
+    LOGGER.debug('set_eligible: ' + str(trial))
+
+    payload = TrialTransactionPayload(
+        payload_type=TrialTransactionPayload.SET_ELIGIBLE,
+        set_eligible=trial)
+
+    return _make_transaction(
+        payload=payload,
+        inputs=[data_hex],
+        outputs=[data_hex],
+        txn_signer=txn_signer,
+        batch_signer=batch_signer)
+
+
 def add_ehr(txn_signer, batch_signer, uid, client_pkey, height, weight, a1c, fpg, ogtt, rpgt):
     hospital_pkey = txn_signer.get_public_key().as_hex()
     patient_pkey = client_pkey
