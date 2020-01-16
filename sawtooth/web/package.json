@@ -1,0 +1,24 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server src/index.js --output-filename bin/app.js -d --watch --env.hra=http://ehr-rest-api:8000",
+    "start-0": "webpack-dev-server src/index.js --output-filename bin/app.js -d --watch --env.hra=http://ehr-rest-api-0:8000",
+    "start-1": "webpack-dev-server src/index.js --output-filename bin/app.js -d --watch --env.hra=http://ehr-rest-api-1:8000",
+    "start-2": "webpack-dev-server src/index.js --output-filename bin/app.js -d --watch --env.hra=http://ehr-rest-api-2:8000"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mithril": "^1.1.6"
+  },
+  "devDependencies": {
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.1",
+    "webpack-dev-server": ">=3.1.11"
+  }
+}

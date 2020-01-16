@@ -1,0 +1,2 @@
+class EHRException(Exception):
+    pass
