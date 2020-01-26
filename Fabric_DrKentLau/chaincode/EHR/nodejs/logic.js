@@ -7,32 +7,33 @@ class ehr extends Contract {
 
    async queryRecord(ctx,patientId) {
    
-    let marksAsBytes = await ctx.stub.getState(patientId); 
-    if (!marksAsBytes || marksAsBytes.toString().length <= 0) {
-      throw new Error('Patient with this Id does not exist: ');
+    let dataAsBytes = await ctx.stub.getState(patientId); 
+    if (!dataAsBytes || dataAsBytes.toString().length <= 0) {
+      throw new Error('PATIENT WITH THIS ID DOES NOT EXIST: ');
        }
-      let marks=JSON.parse(marksAsBytes.toString());
-
-      return JSON.stringify(marks);
+      let data=JSON.parse(dataAsBytes.toString());
+      
+      return JSON.stringify(data);
      }
 
    async addRecord(ctx,patientId,data1,data2,data3,data4,data5,data6,data7,data8,data9) {
    
-    let marks={
-       age:data1,
-       sex:data2,
-       bmi:data3,
-       hbA1c:data4,
-       concomitant_medication:data5,
-       history_of_cancer:data6,
-       race:data7,
-       diagnosis_over_1year:data8,
-       childbirth_potential:data9
+    let data={
+      '000-IDENTITY':patientId,
+      '001-AGE':data1,
+      '002-SEX':data2,
+      '003-BMI':data3,
+      '004-HBA1C':data4,
+      '005-CONCOMITANT_MEDICATION':data5,
+      '006-HISTORY_OF_CANCER':data6,
+      '007-RACE':data7,
+      '008-DIAGNOSIS_OVER_1YEAR':data8,
+      '009-CHILDBIRTH_POTENTIAL':data9
        };
 
-    await ctx.stub.putState(patientId,Buffer.from(JSON.stringify(marks))); 
+    await ctx.stub.putState(patientId,Buffer.from(JSON.stringify(data))); 
     
-    console.log('Patient Record added To the ledger Succesfully..');
+    console.log('PATIENT RECORD ADDED TO THE LEDGER SUCCESSFULLY!');
     
   }
 
@@ -41,7 +42,7 @@ class ehr extends Contract {
 
     await ctx.stub.deleteState(patientId); 
     
-    console.log('Student Marks deleted from the ledger Succesfully..');
+    console.log('PATIENT RECORD DELETED FROM THE LEDGER SUCCESSFULLY!');
     
     }
 }
