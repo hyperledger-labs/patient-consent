@@ -1,21 +1,21 @@
 var m = require("mithril")
-var Hospital = require("../models/Hospital")
+var Patient = require("../models/Patient")
 //var Investigator = require("../models/Investigator")
 
-var qrcodeurl = ''
+//var qrcodeurl = ''
 
 module.exports = {
     oninit:
         function(vnode){
-            Hospital.loadList(vnode.attrs.client_key)
+            Patient.inform_consent_request_list(vnode.attrs.client_key)
         },
     view: function(vnode) {
 //        return m(".user-list", Clinic.list.map(function(clinic) {
 //            return m("a.user-list-item", clinic.name) // + " " + clinic.permissions)
 //        }),
 //        m("label.error", Clinic.error))
-        return m(".user-list", Hospital.list.map(function(hospital) {
-            return m("a.user-list-item", "PUBLIC KEY: " + hospital.public_key + "; NAME: " + hospital.name,
+        return m(".user-list", Patient.informConsentRequestList.map(function(inform_consent) {
+            return m("a.user-list-item", "PUBLIC KEY: " + inform_consent.src_pkey, //"; NAME: " + hospital.name,
 //                    m("div"),
 //                    m("button", {
 //                        onclick: function() {
@@ -37,15 +37,15 @@ module.exports = {
                     m("div"),
                     m("button", {
                         onclick: function() {
-                            Hospital.grant_data_processing(hospital.public_key, vnode.attrs.client_key)
+                            Patient.sign_inform_consent(inform_consent.dest_pkey, vnode.attrs.client_key)
                         }
-                    }, 'Grant Data Processing Permission'),
+                    }, 'Sign Inform Consent'),
                     m("div"),
                     m("button", {
                         onclick: function() {
-                            Hospital.revoke_data_processing(hospital.public_key, vnode.attrs.client_key)
+                            Patient.decline_inform_consent(inform_consent.dest_pkey, vnode.attrs.client_key)
                         }
-                    }, 'Revoke Data Processing Permission'),
+                    }, 'Decline Inform Consent'),
 //                    m("div"),
 //                    m("button", {
 //                        onclick: function() {
@@ -96,8 +96,8 @@ module.exports = {
 //                    Investigator.import_screening_data(Hospital.sharedDataList, vnode.attrs.client_key)
 //                }
 //            }, 'Import Screening Data'),
-            m("div"),
-            m("img", {src: qrcodeurl}),
-            m("label.error", Hospital.error))
+//            m("div"),
+//            m("img", {src: qrcodeurl}),
+            m("label.error", Patient.error))
     }
 }

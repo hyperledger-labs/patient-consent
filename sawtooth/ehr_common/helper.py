@@ -22,74 +22,17 @@ HOSPITAL_ENTITY_CODE = '01'
 # DOCTOR_ENTITY_CODE = '02'
 PATIENT_ENTITY_CODE = '03'
 EHR_ENTITY_CODE = '04'
-DATA_PROVIDER_ENTITY_CODE = '05'
-# LAB_TEST_ENTITY_CODE = '06'
-# PULSE_ENTITY_CODE = '07'
-# LAB_ENTITY_CODE = '08'
-
-# PATIENT_LAB_TEST__RELATION_CODE = "51"
-# LAB_TEST_PATIENT__RELATION_CODE = "52"
-#
-# PATIENT_PULSE__RELATION_CODE = "61"
-# PULSE_PATIENT__RELATION_CODE = "62"
+INVESTIGATOR_ENTITY_CODE = '05'
+INVESTIGATOR_DATA_ENTITY_CODE = '06'
 
 PATIENT_EHR__RELATION_CODE = "71"
 EHR_PATIENT__RELATION_CODE = "72"
 
 HOSPITAL_EHR__RELATION_CODE = "81"
 EHR_HOSPITAL__RELATION_CODE = "82"
-# permissions = {
-#     'read_clinic': '100',
-#     'read_own_clinic': '101',
-#     'write_own_clinic': '102',
-#
-#     'read_doctor': '200',
-#     'read_own_doctor': '201',
-#     'write_own_doctor': '202',
-#
-#     'read_patient': '300',
-#     'read_own_patient': '301',
-#     'write_own_patient': '302',
-#
-#     'read_lab': '800',
-#     'read_own_lab': '801',
-#     'write_own_lab': '802',
-#
-#     'read_lab_test': '600',
-#     'read_own_lab_test': '601',
-#     'write_lab_test': '602',
-#
-#     'read_pulse': '700',
-#     'read_own_pulse': '701',
-#     'write_own_pulse': '702',
-#
-#     'read_claim': '400',
-#     'read_own_claim': '401',
-#     'write_own_claim': '402'
-# }
 
-# roles = {'clinic': {
-#     permissions['read_clinic'],
-#     permissions['read_own_clinic']
-# },
-#     'patient': {
-#         permissions['read_own_patient'],
-#         permissions['read_own_lab_test'],
-#         permissions['read_own_pulse'],
-#         permissions['read_own_claim']
-#     },
-#     'doctor': {
-#         permissions['read_own_doctor'],
-#         permissions['read_lab'],
-#         permissions['read_lab_test'],
-#         permissions['read_claim']
-#     },
-#     'lab': {
-#         permissions['read_own_lab'],
-#         permissions['read_lab_test'],
-#         permissions['write_lab_test']
-#     }
-# }
+INVESTIGATOR_DATA__RELATION_CODE = "91"
+DATA_INVESTIGATOR__RELATION_CODE = "92"
 
 
 def _hash(identifier):
@@ -107,12 +50,34 @@ def make_hospital_list_address():
     return TP_PREFFIX_HEX6 + HOSPITAL_ENTITY_CODE
 
 
-def make_data_provider_address(data_provider_pkey):
-    return TP_PREFFIX_HEX6 + DATA_PROVIDER_ENTITY_CODE + _hash(data_provider_pkey)[:62]
+def make_investigator_data_address(data_id):
+    return TP_PREFFIX_HEX6 + INVESTIGATOR_DATA_ENTITY_CODE + _hash(data_id)[:62]
 
 
-def make_data_provider_list_address():
-    return TP_PREFFIX_HEX6 + DATA_PROVIDER_ENTITY_CODE
+def make_investigator_address(investigator_pkey):
+    return TP_PREFFIX_HEX6 + INVESTIGATOR_ENTITY_CODE + _hash(investigator_pkey)[:62]
+
+
+def make_investigator_data_list_address():
+    return TP_PREFFIX_HEX6 + INVESTIGATOR_DATA_ENTITY_CODE
+
+
+def make_investigator_list_address():
+    return TP_PREFFIX_HEX6 + INVESTIGATOR_ENTITY_CODE
+
+
+# Investigator <-> Data relation
+def make_data_investigator__relation_address(data_id, client_pkey):
+    return TP_PREFFIX_HEX6 + DATA_INVESTIGATOR__RELATION_CODE + \
+           INVESTIGATOR_DATA_ENTITY_CODE + _hash(data_id)[:30] + \
+           INVESTIGATOR_ENTITY_CODE + _hash(client_pkey)[:28]
+
+
+# Data <-> Investigator relation
+def make_investigator_data__relation_address(client_pkey, data_id):
+    return TP_PREFFIX_HEX6 + INVESTIGATOR_DATA__RELATION_CODE + \
+           INVESTIGATOR_ENTITY_CODE + _hash(client_pkey)[:30] + \
+           INVESTIGATOR_DATA_ENTITY_CODE + _hash(data_id)[:28]
 
 # def make_doctor_address(doctor_pkey):
 #     return TP_PREFFIX_HEX6 + DOCTOR_ENTITY_CODE + _hash(doctor_pkey)[:62]

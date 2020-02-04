@@ -14,13 +14,14 @@ var PatientForm = require("./views/PatientForm")
 var HospitalList = require("./views/HospitalList")
 var HospitalForm = require("./views/HospitalForm")
 
-var DataProviderList = require("./views/DataProviderList")
-var DataProviderForm = require("./views/DataProviderForm")
+var InvestigatorList = require("./views/InvestigatorList")
+var InvestigatorForm = require("./views/InvestigatorForm")
+var TrialDataList = require("./views/TrialDataList")
 
 var EHRList = require("./views/EHRList")
 var EHRNewForm = require("./views/EHRNewForm")
-//var ClaimDetailsForm = require("./views/ClaimDetailsForm")
-
+var PreScreeningCheckForm = require("./views/PreScreeningCheck")
+var InformConsentRequestList = require("./views/InformConsentRequestList")
 //var LabTestsList = require("./views/LabTestsList")
 //var LabTestForm = require("./views/LabTestForm")
 //
@@ -46,7 +47,7 @@ var EHRNewForm = require("./views/EHRNewForm")
 var HospitalActionsList = require("./views/HospitalActionsList")
 var PatientActionsList = require("./views/PatientActionsList")
 //var LabActionsList = require("./views/LabActionsList")
-var DataProviderActionsList = require("./views/DataProviderActionsList")
+var InvestigatorActionsList = require("./views/InvestigatorActionsList")
 var Layout = require("./views/Layout")
 
 m.route(document.body, "/hospital", {
@@ -87,14 +88,14 @@ m.route(document.body, "/hospital", {
             return m(Layout, m(HospitalForm))
         }
     },
-    "/data_provider_list/": {
+    "/investigator_list/": {
         render: function(vnode) {
-            return m(Layout, m(DataProviderList, vnode.attrs))
+            return m(Layout, m(InvestigatorList, vnode.attrs))
         }
     },
-    "/data_provider/new/": {
+    "/investigator/new/": {
         render: function() {
-            return m(Layout, m(DataProviderForm))
+            return m(Layout, m(InvestigatorForm))
         }
     },
     "/ehr_list": {
@@ -102,21 +103,21 @@ m.route(document.body, "/hospital", {
             return m(Layout, m(EHRList, vnode.attrs))
         }
     },
-//    "/doctor/assign/": {
-//        render: function() {
-//            return m(Layout, m(DoctorAssignForm))
-//        }
-//    },
-//    "/first_visit/": {
-//        render: function() {
-//            return m(Layout, m(FirstVisitForm))
-//        }
-//    },
-//    "/eat_pills/": {
-//        render: function() {
-//            return m(Layout, m(EatPillsForm))
-//        }
-//    },
+    "/trial_data_list": {
+        render: function(vnode) {
+            return m(Layout, m(TrialDataList, vnode.attrs))
+        }
+    },
+    "/pre_screening_check": {
+        render: function(vnode) {
+            return m(Layout, m(PreScreeningCheckForm, vnode.attrs))
+        }
+    },
+    "/inform_consent_request_list": {
+        render: function(vnode) {
+            return m(Layout, m(InformConsentRequestList, vnode.attrs))
+        }
+    },
 //    "/pass_tests/": {
 //        render: function() {
 //            return m(Layout, m(PassTestsForm))
@@ -177,11 +178,11 @@ m.route(document.body, "/hospital", {
 //            return m(Layout, m(ContractForm, vnode.attrs))
 //        }
 //    },
-    "/patient/:patient_pkey": {
-        render: function(vnode) {
-            return m(Layout, m(PatientDetailsForm, vnode.attrs))
-        }
-    },
+//    "/patient/:patient_pkey": {
+//        render: function(vnode) {
+//            return m(Layout, m(PatientDetailsForm, vnode.attrs))
+//        }
+//    },
     "/hospital": {
         render: function() {
             return m(Layout, m(HospitalActionsList))
@@ -202,9 +203,9 @@ m.route(document.body, "/hospital", {
 //            return m(Layout, m(LabActionsList))
 //        }
 //    },
-    "/data_provider": {
+    "/investigator": {
         render: function() {
-            return m(Layout, m(DataProviderActionsList))
+            return m(Layout, m(InvestigatorActionsList))
         }
     },
 //    "/lab_list/": {

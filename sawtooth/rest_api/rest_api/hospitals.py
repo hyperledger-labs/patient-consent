@@ -77,39 +77,67 @@ async def register_hospital(request):
                          headers=general.get_response_headers())
 
 
-@HOSPITALS_BP.get('hospitals/get_shared_data/<hospital_pkey>')
-async def get_data(request, hospital_pkey):
-    """Updates auth information for the authorized account"""
-    data_provider_pkey = general.get_request_key_header(request)
-    data_list = await security_messaging.get_shared_data(request.app.config.VAL_CONN,
-                                                         hospital_pkey, data_provider_pkey)
+# @HOSPITALS_BP.get('hospitals/get_shared_data/<hospital_pkey>')
+# async def get_data(request, hospital_pkey):
+#     """Updates auth information for the authorized account"""
+#     investigator_pkey = general.get_request_key_header(request)
+#     data_list = await security_messaging.get_shared_data(request.app.config.VAL_CONN,
+#                                                          hospital_pkey, investigator_pkey)
+#
+#     data_list_json = []
+#     for address, data in data_list.items():
+#         data_list_json.append({
+#             'id': data.id,
+#             'height': data.height,
+#             'weight': data.weight,
+#             'A1C': data.A1C,
+#             'FPG': data.FPG,
+#             'OGTT': data.OGTT,
+#             'RPGT': data.RPGT,
+#             'event_time': data.event_time
+#         })
+#
+#     return response.json(body={'data': data_list_json},
+#                          headers=general.get_response_headers())
+#
+#
+# @HOSPITALS_BP.get('hospitals/screening_data/<hospital_pkey>')
+# async def get_data(request, hospital_pkey):
+#     """Updates auth information for the authorized account"""
+#     investigator_pkey = general.get_request_key_header(request)
+#     data_list = await security_messaging.get_screening_data(request.app.config.VAL_CONN,
+#                                                             hospital_pkey, investigator_pkey, request.raw_args)
+#
+#     data_list_json = []
+#     for address, data in data_list.items():
+#         data_list_json.append({
+#             'id': data.id,
+#             'height': data.height,
+#             'weight': data.weight,
+#             'A1C': data.A1C,
+#             'FPG': data.FPG,
+#             'OGTT': data.OGTT,
+#             'RPGT': data.RPGT,
+#             'event_time': data.event_time
+#         })
+#
+#     return response.json(body={'data': data_list_json},
+#                          headers=general.get_response_headers())
 
-    data_list_json = []
-    for address, data in data_list.items():
-        data_list_json.append({
-            'id': data.id,
-            'field_1': data.field_1,
-            'field_2': data.field_2,
-            'event_time': data.event_time
-        })
 
-    return response.json(body={'data': data_list_json},
-                         headers=general.get_response_headers())
-
-
-@HOSPITALS_BP.get('hospitals/revoke_access_to_share_data/<data_provider_pkey>')
-async def revoke_access_to_share_data(request, data_provider_pkey):
+@HOSPITALS_BP.get('hospitals/grant_investigator_access/<investigator_pkey>')
+async def grant_investigator_access(request, investigator_pkey):
     """Updates auth information for the authorized account"""
     hospital_key = general.get_request_key_header(request)
     client_signer = general.get_signer(request, hospital_key)
-    revoke_access_to_share_data_txn = consent_transaction.revoke_transfer_ehr_permission(
+    grant_investigator_access_txn = consent_transaction.grant_investigator_access(
         txn_signer=client_signer,
         batch_signer=client_signer,
-        dest_pkey=data_provider_pkey)
+        dest_pkey=investigator_pkey)
 
-    batch, batch_id = ehr_transaction.make_batch_and_id([revoke_access_to_share_data_txn], client_signer)
+    batch, batch_id = ehr_transaction.make_batch_and_id([grant_investigator_access_txn], client_signer)
 
-    await security_messaging.revoke_access_to_share_data(
+    await security_messaging.grant_investigator_access(
         request.app.config.VAL_CONN,
         request.app.config.TIMEOUT,
         [batch], hospital_key)
@@ -126,19 +154,19 @@ async def revoke_access_to_share_data(request, data_provider_pkey):
                          headers=general.get_response_headers())
 
 
-@HOSPITALS_BP.get('hospitals/grant_access_to_share_data/<data_provider_pkey>')
-async def grant_access_to_share_data(request, data_provider_pkey):
+@HOSPITALS_BP.get('hospitals/revoke_investigator_access/<investigator_pkey>')
+async def revoke_investigator_access(request, investigator_pkey):
     """Updates auth information for the authorized account"""
     hospital_key = general.get_request_key_header(request)
     client_signer = general.get_signer(request, hospital_key)
-    grant_access_to_share_data_txn = consent_transaction.grant_transfer_ehr_permission(
+    revoke_access_to_share_data_txn = consent_transaction.revoke_investigator_access(
         txn_signer=client_signer,
         batch_signer=client_signer,
-        dest_pkey=data_provider_pkey)
+        dest_pkey=investigator_pkey)
 
-    batch, batch_id = ehr_transaction.make_batch_and_id([grant_access_to_share_data_txn], client_signer)
+    batch, batch_id = ehr_transaction.make_batch_and_id([revoke_access_to_share_data_txn], client_signer)
 
-    await security_messaging.grant_access_to_share_data(
+    await security_messaging.revoke_investigator_access(
         request.app.config.VAL_CONN,
         request.app.config.TIMEOUT,
         [batch], hospital_key)

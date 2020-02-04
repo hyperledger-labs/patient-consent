@@ -4,28 +4,28 @@ message ConsentTransactionPayload {
 
     enum PayloadType {
         TYPE_UNSET = 0;
-        GRANT_READ_EHR_ACCESS = 1;
-        REVOKE_READ_EHR_ACCESS = 2;
-        ADD_CLIENT = 3;
-        GRANT_WRITE_EHR_ACCESS = 4;
-        REVOKE_WRITE_EHR_ACCESS = 5;
-        GRANT_SHARE_EHR_ACCESS = 6;
-        REVOKE_SHARE_EHR_ACCESS = 7;
-        GRANT_SHARE_SHARED_EHR_ACCESS = 8;
-        REVOKE_SHARE_SHARED_EHR_ACCESS = 9;
+        ADD_CLIENT = 1;
+        GRANT_INVESTIGATOR_ACCESS = 2;
+        REVOKE_INVESTIGATOR_ACCESS = 3;
+        GRANT_DATA_PROCESSING_ACCESS = 4;
+        REVOKE_DATA_PROCESSING_ACCESS = 5;
+        SIGN_INFORM_CONSENT = 6;
+        REQUEST_INFORM_CONSENT = 7;
+        DECLINE_INFORM_CONSENT = 8;
+//        REVOKE_INVESTIGATOR_ACCESS_ACTION = 9;
     }
 
     PayloadType payload_type = 1;
 
-    ActionOnAccess grant_read_ehr_access = 2;
-    ActionOnAccess revoke_read_ehr_access = 3;
-    ActionOnAccess grant_write_ehr_access = 4;
-    ActionOnAccess revoke_write_ehr_access = 5;
-    Client create_client = 6;
-    ActionOnAccess grant_share_ehr_access = 7;
-    ActionOnAccess revoke_share_ehr_access = 8;
-    ActionOnAccess grant_share_shared_ehr_access = 9;
-    ActionOnAccess revoke_share_shared_ehr_access = 10;
+    Client create_client = 2;
+    ActionOnAccess grant_investigator_access = 3;
+    ActionOnAccess revoke_investigator_access = 4;
+    ActionOnAccess grant_data_processing_access = 5;
+    ActionOnAccess revoke_data_processing_access = 6;
+    ActionOnAccess sign_inform_document_consent = 7;
+    ActionOnAccess request_inform_document_consent = 8;
+    ActionOnAccess decline_inform_consent = 9;
+//    ActionOnAccess revoke_share_shared_ehr_access = 10;
 }
 
 message ActionOnAccess {
@@ -44,37 +44,48 @@ message Permission {
 
       READ_HOSPITAL = 100;
       READ_OWN_HOSPITAL = 101;
-      GRANT_TRANSFER_SHARED_EHR_ACCESS = 102;
-      REVOKE_TRANSFER_SHARED_EHR_ACCESS = 103;
+      GRANT_INVESTIGATOR_ACCESS = 102;
+      REVOKE_INVESTIGATOR_ACCESS = 103;
 
       READ_PATIENT = 200;
       READ_OWN_PATIENT = 201;
+      GRANT_READ_DATA_ACCESS = 202;
+      REVOKE_READ_DATA_ACCESS = 203;
+      GRANT_WRITE_DATA_ACCESS = 204;
+      REVOKE_WRITE_DATA_ACCESS = 205;
+      SIGN_INFORM_CONSENT = 206;
+      DECLINE_INFORM_CONSENT = 207;
+      READ_INFORM_CONSENT_REQUEST = 208;
+      READ_SIGNED_INFORM_CONSENT = 209;
 
-      READ_DATA_PROVIDER = 300;
-      READ_OWN_DATA_PROVIDER = 301;
-      READ_TRANSFERRED_SHARED_DATA = 302;
+      READ_INVESTIGATOR = 300;
+      READ_OWN_INVESTIGATOR = 301;
+      REQUEST_INFORM_CONSENT = 302;
+      IMPORT_TRIAL_DATA = 303;
+      READ_TRIAL_DATA = 304;
+      UPDATE_TRIAL_DATA = 305;
 
-      READ_FORMATTED_EHR = 400;
-      WRITE_FORMATTED_EHR = 401;
+      READ_PATIENT_DATA = 400;
+      WRITE_PATIENT_DATA = 401;
+      READ_OWN_PATIENT_DATA = 402;
 
-      REVOKE_WRITE_EHR_ACCESS = 500;
-      GRANT_WRITE_EHR_ACCESS = 501;
+      READ_SPONSOR = 500;
+      READ_OWN_SPONSOR = 501;
+      //      READ_DATA_PROVIDER = 300;
+      //      READ_OWN_DATA_PROVIDER = 301;
+      //      READ_TRANSFERRED_SHARED_DATA = 302;
 
-      READ_INVESTIGATOR = 600;
-      READ_OWN_INVESTIGATOR = 601;
+      //      READ_FORMATTED_EHR = 400;
+      //      WRITE_FORMATTED_EHR = 401;
 
-      READ_EHR = 700;
-      READ_OWN_EHR = 701;
-      WRITE_EHR = 702;
 
-      READ_SPONSOR = 800;
-      READ_OWN_SPONSOR = 801;
+      //      READ_TRANSFERRED_SHARED_DATA = 302;
 
-      GRANT_READ_EHR_ACCESS = 900;
-      REVOKE_READ_EHR_ACCESS = 901;
-
-      GRANT_3RD_PARTY_ACCESS = 1000;
-      REVOKE_3RD_PARTY_ACCESS = 1001;
+      //      READ_OWN_EHR = 701;
+//
+//      GRANT_3RD_PARTY_ACCESS = 1000;
+//      REVOKE_3RD_PARTY_ACCESS = 1001;
+//
 //      READ_INSURANCE_COMPANY = 900;
 //      READ_OWN_INSURANCE_COMPANY = 901;
 //

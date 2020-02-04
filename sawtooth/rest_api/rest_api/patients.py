@@ -94,6 +94,23 @@ async def get_all_patients(request):
                          headers=general.get_response_headers())
 
 
+@PATIENTS_BP.get('patients/inform_consent_request_list')
+async def inform_consent_request_list(request):
+    """Fetches complete details of all Accounts in state"""
+    client_key = general.get_request_key_header(request)
+    inform_consent_list = \
+        await security_messaging.get_inform_consent_request_list(request.app.config.VAL_CONN, client_key)
+    inform_consent_list_json = []
+    for address, inf_con in inform_consent_list.items():
+        inform_consent_list_json.append({
+            'src_pkey': inf_con.src_pkey,
+            'dest_pkey': inf_con.dest_pkey
+        })
+
+    return response.json(body={'data': inform_consent_list_json},
+                         headers=general.get_response_headers())
+
+
 @PATIENTS_BP.post('patients')
 async def register_new_patient(request):
     """Updates auth information for the authorized account"""
@@ -138,48 +155,19 @@ async def register_new_patient(request):
                          headers=general.get_response_headers())
 
 
-@PATIENTS_BP.get('patients/revoke_read_ehr/<dest_pkey>')
-async def revoke_read_ehr_access(request, dest_pkey):
+@PATIENTS_BP.get('patients/grant_data_processing/<dest_pkey>')
+async def grant_data_processing(request, dest_pkey):
     """Updates auth information for the authorized account"""
     client_key = general.get_request_key_header(request)
     client_signer = general.get_signer(request, client_key)
-    revoke_read_ehr_permission_txn = consent_transaction.revoke_read_ehr_permission(
-        txn_signer=client_signer,
-        batch_signer=client_signer,
-        dest_pkey=dest_pkey)
-
-    batch, batch_id = ehr_transaction.make_batch_and_id([revoke_read_ehr_permission_txn], client_signer)
-
-    await security_messaging.revoke_read_ehr_access(
-        request.app.config.VAL_CONN,
-        request.app.config.TIMEOUT,
-        [batch], client_key)
-
-    try:
-        await security_messaging.check_batch_status(
-            request.app.config.VAL_CONN, [batch_id])
-    except (ApiBadRequest, ApiInternalError) as err:
-        # await auth_query.remove_auth_entry(
-        #     request.app.config.DB_CONN, request.json.get('email'))
-        raise err
-
-    return response.json(body={'status': general.DONE},
-                         headers=general.get_response_headers())
-
-
-@PATIENTS_BP.get('patients/grant_read_ehr/<dest_pkey>')
-async def grant_read_ehr_access(request, dest_pkey):
-    """Updates auth information for the authorized account"""
-    client_key = general.get_request_key_header(request)
-    client_signer = general.get_signer(request, client_key)
-    grant_read_ehr_permission_txn = consent_transaction.grant_read_ehr_permission(
+    grant_read_ehr_permission_txn = consent_transaction.grant_data_processing(
         txn_signer=client_signer,
         batch_signer=client_signer,
         dest_pkey=dest_pkey)
 
     batch, batch_id = ehr_transaction.make_batch_and_id([grant_read_ehr_permission_txn], client_signer)
 
-    await security_messaging.grant_read_ehr_access(
+    await security_messaging.grant_data_processing(
         request.app.config.VAL_CONN,
         request.app.config.TIMEOUT,
         [batch], client_key)
@@ -196,19 +184,19 @@ async def grant_read_ehr_access(request, dest_pkey):
                          headers=general.get_response_headers())
 
 
-@PATIENTS_BP.get('patients/revoke_write_ehr/<dest_pkey>')
-async def revoke_write_ehr_access(request, dest_pkey):
+@PATIENTS_BP.get('patients/revoke_data_processing/<dest_pkey>')
+async def revoke_data_processing(request, dest_pkey):
     """Updates auth information for the authorized account"""
     client_key = general.get_request_key_header(request)
     client_signer = general.get_signer(request, client_key)
-    revoke_write_ehr_permission_txn = consent_transaction.revoke_write_ehr_permission(
+    revoke_data_processing_txn = consent_transaction.revoke_data_processing(
         txn_signer=client_signer,
         batch_signer=client_signer,
         dest_pkey=dest_pkey)
 
-    batch, batch_id = ehr_transaction.make_batch_and_id([revoke_write_ehr_permission_txn], client_signer)
+    batch, batch_id = ehr_transaction.make_batch_and_id([revoke_data_processing_txn], client_signer)
 
-    await security_messaging.revoke_write_ehr_access(
+    await security_messaging.revoke_data_processing(
         request.app.config.VAL_CONN,
         request.app.config.TIMEOUT,
         [batch], client_key)
@@ -225,19 +213,19 @@ async def revoke_write_ehr_access(request, dest_pkey):
                          headers=general.get_response_headers())
 
 
-@PATIENTS_BP.get('patients/grant_write_ehr/<dest_pkey>')
-async def grant_write_ehr_access(request, dest_pkey):
+@PATIENTS_BP.get('patients/sign_inform_consent/<investigator_pkey>')
+async def sign_inform_consent(request, investigator_pkey):
     """Updates auth information for the authorized account"""
     client_key = general.get_request_key_header(request)
     client_signer = general.get_signer(request, client_key)
-    grant_write_ehr_permission_txn = consent_transaction.grant_write_ehr_permission(
+    grant_read_ehr_permission_txn = consent_transaction.sign_inform_document_consent(
         txn_signer=client_signer,
         batch_signer=client_signer,
-        dest_pkey=dest_pkey)
+        investigator_pkey=investigator_pkey)
 
-    batch, batch_id = ehr_transaction.make_batch_and_id([grant_write_ehr_permission_txn], client_signer)
+    batch, batch_id = ehr_transaction.make_batch_and_id([grant_read_ehr_permission_txn], client_signer)
 
-    await security_messaging.grant_write_ehr_access(
+    await security_messaging.sign_inform_document_consent(
         request.app.config.VAL_CONN,
         request.app.config.TIMEOUT,
         [batch], client_key)
@@ -254,19 +242,19 @@ async def grant_write_ehr_access(request, dest_pkey):
                          headers=general.get_response_headers())
 
 
-@PATIENTS_BP.get('patients/revoke_share_ehr/<dest_pkey>')
-async def revoke_share_ehr_access(request, dest_pkey):
+@PATIENTS_BP.get('patients/decline_inform_consent/<investigator_pkey>')
+async def decline_inform_consent(request, investigator_pkey):
     """Updates auth information for the authorized account"""
     client_key = general.get_request_key_header(request)
     client_signer = general.get_signer(request, client_key)
-    revoke_share_ehr_permission_txn = consent_transaction.revoke_share_ehr_permission(
+    revoke_data_processing_txn = consent_transaction.decline_inform_consent(
         txn_signer=client_signer,
         batch_signer=client_signer,
-        dest_pkey=dest_pkey)
+        investigator_pkey=investigator_pkey)
 
-    batch, batch_id = ehr_transaction.make_batch_and_id([revoke_share_ehr_permission_txn], client_signer)
+    batch, batch_id = ehr_transaction.make_batch_and_id([revoke_data_processing_txn], client_signer)
 
-    await security_messaging.revoke_share_ehr_access(
+    await security_messaging.decline_inform_consent(
         request.app.config.VAL_CONN,
         request.app.config.TIMEOUT,
         [batch], client_key)
@@ -283,34 +271,121 @@ async def revoke_share_ehr_access(request, dest_pkey):
                          headers=general.get_response_headers())
 
 
-@PATIENTS_BP.get('patients/grant_share_ehr/<dest_pkey>')
-async def grant_share_ehr_access(request, dest_pkey):
-    """Updates auth information for the authorized account"""
-    client_key = general.get_request_key_header(request)
-    client_signer = general.get_signer(request, client_key)
-    grant_share_ehr_permission_txn = consent_transaction.grant_share_ehr_permission(
-        txn_signer=client_signer,
-        batch_signer=client_signer,
-        dest_pkey=dest_pkey)
-
-    batch, batch_id = ehr_transaction.make_batch_and_id([grant_share_ehr_permission_txn], client_signer)
-
-    await security_messaging.grant_share_ehr_access(
-        request.app.config.VAL_CONN,
-        request.app.config.TIMEOUT,
-        [batch], client_key)
-
-    try:
-        await security_messaging.check_batch_status(
-            request.app.config.VAL_CONN, [batch_id])
-    except (ApiBadRequest, ApiInternalError) as err:
-        # await auth_query.remove_auth_entry(
-        #     request.app.config.DB_CONN, request.json.get('email'))
-        raise err
-
-    return response.json(body={'status': general.DONE},
-                         headers=general.get_response_headers())
-
+# @PATIENTS_BP.get('patients/revoke_write_ehr/<dest_pkey>')
+# async def revoke_write_ehr_access(request, dest_pkey):
+#     """Updates auth information for the authorized account"""
+#     client_key = general.get_request_key_header(request)
+#     client_signer = general.get_signer(request, client_key)
+#     revoke_write_ehr_permission_txn = consent_transaction.revoke_write_ehr_permission(
+#         txn_signer=client_signer,
+#         batch_signer=client_signer,
+#         dest_pkey=dest_pkey)
+#
+#     batch, batch_id = ehr_transaction.make_batch_and_id([revoke_write_ehr_permission_txn], client_signer)
+#
+#     await security_messaging.revoke_write_ehr_access(
+#         request.app.config.VAL_CONN,
+#         request.app.config.TIMEOUT,
+#         [batch], client_key)
+#
+#     try:
+#         await security_messaging.check_batch_status(
+#             request.app.config.VAL_CONN, [batch_id])
+#     except (ApiBadRequest, ApiInternalError) as err:
+#         # await auth_query.remove_auth_entry(
+#         #     request.app.config.DB_CONN, request.json.get('email'))
+#         raise err
+#
+#     return response.json(body={'status': general.DONE},
+#                          headers=general.get_response_headers())
+#
+#
+# @PATIENTS_BP.get('patients/grant_write_ehr/<dest_pkey>')
+# async def grant_write_ehr_access(request, dest_pkey):
+#     """Updates auth information for the authorized account"""
+#     client_key = general.get_request_key_header(request)
+#     client_signer = general.get_signer(request, client_key)
+#     grant_write_ehr_permission_txn = consent_transaction.grant_write_ehr_permission(
+#         txn_signer=client_signer,
+#         batch_signer=client_signer,
+#         dest_pkey=dest_pkey)
+#
+#     batch, batch_id = ehr_transaction.make_batch_and_id([grant_write_ehr_permission_txn], client_signer)
+#
+#     await security_messaging.grant_write_ehr_access(
+#         request.app.config.VAL_CONN,
+#         request.app.config.TIMEOUT,
+#         [batch], client_key)
+#
+#     try:
+#         await security_messaging.check_batch_status(
+#             request.app.config.VAL_CONN, [batch_id])
+#     except (ApiBadRequest, ApiInternalError) as err:
+#         # await auth_query.remove_auth_entry(
+#         #     request.app.config.DB_CONN, request.json.get('email'))
+#         raise err
+#
+#     return response.json(body={'status': general.DONE},
+#                          headers=general.get_response_headers())
+#
+#
+# @PATIENTS_BP.get('patients/revoke_share_ehr/<dest_pkey>')
+# async def revoke_share_ehr_access(request, dest_pkey):
+#     """Updates auth information for the authorized account"""
+#     client_key = general.get_request_key_header(request)
+#     client_signer = general.get_signer(request, client_key)
+#     revoke_share_ehr_permission_txn = consent_transaction.revoke_share_ehr_permission(
+#         txn_signer=client_signer,
+#         batch_signer=client_signer,
+#         dest_pkey=dest_pkey)
+#
+#     batch, batch_id = ehr_transaction.make_batch_and_id([revoke_share_ehr_permission_txn], client_signer)
+#
+#     await security_messaging.revoke_share_ehr_access(
+#         request.app.config.VAL_CONN,
+#         request.app.config.TIMEOUT,
+#         [batch], client_key)
+#
+#     try:
+#         await security_messaging.check_batch_status(
+#             request.app.config.VAL_CONN, [batch_id])
+#     except (ApiBadRequest, ApiInternalError) as err:
+#         # await auth_query.remove_auth_entry(
+#         #     request.app.config.DB_CONN, request.json.get('email'))
+#         raise err
+#
+#     return response.json(body={'status': general.DONE},
+#                          headers=general.get_response_headers())
+#
+#
+# @PATIENTS_BP.get('patients/grant_share_ehr/<dest_pkey>')
+# async def grant_share_ehr_access(request, dest_pkey):
+#     """Updates auth information for the authorized account"""
+#     client_key = general.get_request_key_header(request)
+#     client_signer = general.get_signer(request, client_key)
+#     grant_share_ehr_permission_txn = consent_transaction.grant_share_ehr_permission(
+#         txn_signer=client_signer,
+#         batch_signer=client_signer,
+#         dest_pkey=dest_pkey)
+#
+#     batch, batch_id = ehr_transaction.make_batch_and_id([grant_share_ehr_permission_txn], client_signer)
+#
+#     await security_messaging.grant_share_ehr_access(
+#         request.app.config.VAL_CONN,
+#         request.app.config.TIMEOUT,
+#         [batch], client_key)
+#
+#     try:
+#         await security_messaging.check_batch_status(
+#             request.app.config.VAL_CONN, [batch_id])
+#     except (ApiBadRequest, ApiInternalError) as err:
+#         # await auth_query.remove_auth_entry(
+#         #     request.app.config.DB_CONN, request.json.get('email'))
+#         raise err
+#
+#     return response.json(body={'status': general.DONE},
+#                          headers=general.get_response_headers())
+#
 
 # @ACCOUNTS_BP.get('accounts/<key>')
 # async def get_account(request, key):
