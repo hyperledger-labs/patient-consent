@@ -1,0 +1,97 @@
+#  Dr Kent G Lau
+#  kenty@kenty.com
+#  February 2020
+
+#  For testing use only.  No guarantees or warranties provided whatsoever.
+#  SPDX-License-Identifier: Apache-2.0
+
+#  Hyperledger Healthcare Special Interest Group (SIG)
+#  Patient Consent
+#  Clinical Trial Protocol
+
+#  http://github.com/hyperledger-labs/patient-consent
+#  1org1peer1channel
+#  configtx.yml
+
+Organizations:
+    - &OrdererOrg
+        Name: OrdererOrg
+        ID: OrdererMSP
+        MSPDir: crypto-config/ordererOrganizations/patient.com/msp
+    - &Patient
+        Name: PatientMSP
+        ID: PatientMSP
+        MSPDir: crypto-config/peerOrganizations/patient.com/msp
+        AnchorPeers:
+            - Host: peer0.patient.com
+            - Port: 7051
+
+# Capabilities:
+#
+#     Channel: &ChannelCapabilities
+#
+#         V1_3: true
+#
+#     Orderer: &OrdererCapabilities
+#
+#         V1_1: true
+#
+#     Application: &ApplicationCapabilities
+#
+#         V1_3: true
+#
+#         V1_2: false
+#
+#         V1_1: false
+#
+#
+Application: &ApplicationDefaults
+
+    Organizations:
+#
+#     Policies:
+#         Readers:
+#             Type: ImplicitMeta
+#             Rule: "ANY Readers"
+#         Writers:
+#             Type: ImplicitMeta
+#             Rule: "ANY Writers"
+#         Admins:
+#             Type: ImplicitMeta
+#             Rule: "MAJORITY Admins"
+    #
+    # Capabilities:
+    #     <<: *ApplicationCapabilities
+
+
+
+Orderer: &OrdererDefaults
+    OrdererType: solo
+    Addresses:
+        - orderer.patient.com:7050
+    BatchTimeout: 2s
+    BatchSize:
+        MaxMessageCount: 10
+        AbsoluteMaxBytes: 99 MB
+        PreferredMaxBytes: 512 KB
+    Kafka:
+        Brokers:
+            - 127.0.0.1:9092
+    Organizations:
+
+Profiles:
+    PatientOrdererGenesis:
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *OrdererOrg
+        Consortiums:
+            PatientConsortium:
+                Organizations:
+                    - *Patient
+    PatientChannel:
+        Consortium: PatientConsortium
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *Patient
