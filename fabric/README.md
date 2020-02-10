@@ -1,2 +1,2 @@
-# patient-consent/fabric
-Test content for READ.md
+# patient-consent/fabric/
+Folder for Patient SIG POC Chaincode READ.md
