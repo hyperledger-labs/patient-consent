@@ -187,14 +187,14 @@ services:
   ehr-web-app:
     build:
       context: .
-      dockerfile: web/Dockerfile
-    image: ehr-web-app
+      dockerfile: web_hospital/Dockerfile
+    image: web_hospital-investigator-app
     user: "node"
-    container_name: ehr-web-app
+    container_name: web_hospital-investigator-app
 #    volumes:
 #      - .:/project/sawtooth_healthcare
     volumes:
-      - ./web:/home/node/app
+      - ./web_investigator_app:/home/node/app
       - /home/node/app/node_modules
     expose:
       - 8080
