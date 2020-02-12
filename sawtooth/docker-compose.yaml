@@ -42,7 +42,7 @@ services:
         sleep 1 &&
         echo '--- Building consent-tp by docker-compose---\n' &&
         init-consent-tp.sh &&
-        consent-tp -v -C tcp://validator:4004 &&
+        consent-tp -v -C tcp://validator:4005 &&
         tail -f /dev/null
                "
 
@@ -108,7 +108,7 @@ services:
 #        tail -f /dev/null
 #      "
 #
-  ehr-rest-api:
+  hospital-rest-api:
     build:
       context: .
       dockerfile: rest_api/Dockerfile
@@ -116,8 +116,8 @@ services:
         - http_proxy
         - https_proxy
         - no_proxy
-    image: ehr-rest-api
-    container_name: ehr-rest-api
+    image: hospital-rest-api
+    container_name: hospital-rest-api
     volumes:
       - .:/project/sawtooth_healthcare
     ports:
@@ -128,11 +128,12 @@ services:
     command: |
       bash -c "
         sleep 3 &&
-        echo '--- Building ehr-rest-api by docker-compose---' &&
-        init-ehr-rest-api.sh &&
-        ehr-rest-api --host ehr-rest-api --validator tcp://validator:4004 &&
+        echo '--- Building hospital-rest-api by docker-compose---' &&
+        init-hospital-rest-api.sh &&
+        hospital-rest-api --host hospital-rest-api --validator tcp://validator:4004 &&
         tail -f /dev/null
                "
+# validator 4005???
 
   sawtooth-rest-api:
     image: hyperledger/sawtooth-rest-api:1.1
@@ -184,17 +185,17 @@ services:
       - validator
     entrypoint: devmode-engine-rust -C tcp://validator:5050
 
-  ehr-web-app:
+  hospital-web-app:
     build:
       context: .
       dockerfile: web_hospital/Dockerfile
-    image: web_hospital-investigator-app
+    image: hospital-web-app
     user: "node"
-    container_name: web_hospital-investigator-app
+    container_name: hospital-web-app
 #    volumes:
 #      - .:/project/sawtooth_healthcare
     volumes:
-      - ./web_investigator_app:/home/node/app
+      - ./web_hospital:/home/node/app
       - /home/node/app/node_modules
     expose:
       - 8080
@@ -204,7 +205,32 @@ services:
 #      - ehr-rest-api
     command: |
       sh -c "
-        echo '--- Starting ehr-web-app by docker-compose---' &&
+        echo '--- Starting hospital-web-app by docker-compose---' &&
+        npm start
+      "
+#        tail -f /dev/null
+
+  investigator-web-app:
+    build:
+      context: .
+      dockerfile: web_investigator/Dockerfile
+    image: investigator-web-app
+    user: "node"
+    container_name: investigator-web-app
+#    volumes:
+#      - .:/project/sawtooth_healthcare
+    volumes:
+      - ./web_investigator:/home/node/app
+      - /home/node/app/node_modules
+    expose:
+      - 8080
+    ports:
+      - '8044:8080'
+#    depends_on:
+#      - ehr-rest-api
+    command: |
+      sh -c "
+        echo '--- Starting investigator-web-app by docker-compose---' &&
         npm start
       "
 #        tail -f /dev/null
