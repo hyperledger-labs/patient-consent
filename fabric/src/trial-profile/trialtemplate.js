@@ -1,7 +1,7 @@
 'use strict';
 const { Contract} = require('fabric-contract-api');
 
-class preConsentTrailProfile extends Contract {
+class PreConsentTrailProfile extends Contract {
 
 
 
@@ -41,4 +41,4 @@ class preConsentTrailProfile extends Contract {
     }
 }
 
-module.exports=preConsentTrialProfile;
+export default PreConsentTrialProfile;

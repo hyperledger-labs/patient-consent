@@ -1,5 +1,5 @@
 'use strict';
 
-const ehr = require('./candidatetemplate.js');
+const PreConsentCandidateProfile = require('./candidatetemplate.js');
 
-module.exports.contracts = preConsentCandidateProfile;
+exports.PreConsentCandidateProfile = PreConsentCandidateProfile;
