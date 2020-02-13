@@ -32,16 +32,16 @@ from sawtooth_signing import CryptoFactory
 
 from zmq.asyncio import ZMQEventLoop
 
-from rest_api.investigator import INVESTIGATORS_BP
-from rest_api.ehrs import EHRS_BP
-from rest_api.hospitals import HOSPITALS_BP
+from trial_rest_api.investigator import INVESTIGATORS_BP
+from trial_rest_api.ehrs import EHRS_BP
+from trial_rest_api.hospitals import HOSPITALS_BP
 # from rest_api.workflow.contract import CONTRACT_BP
-from rest_api.general import get_keyfile, get_signer_from_file
+from trial_rest_api.general import get_keyfile, get_signer_from_file
 # from rest_api.workflow.doctors import DOCTORS_BP
 # from rest_api.workflow.labs import LABS_BP
-from rest_api.patients import PATIENTS_BP
+from trial_rest_api.patients import PATIENTS_BP
 # from rest_api.workflow.insurances import INSURANCES_BP
-from rest_api.clients import CLIENTS_BP
+from trial_rest_api.clients import CLIENTS_BP
 # from rest_api.workflow.claim_details import CLAIM_DETAILS_BP
 # from rest_api.workflow.lab_tests import LAB_TESTS_BP
 # from rest_api.workflow.payment import PAYMENT_BP
@@ -59,7 +59,7 @@ DEFAULT_CONFIG = {
     'HOST': 'localhost',
     'PORT': 8000,
     'TIMEOUT': 500,
-    'EHR_VALIDATOR_URL': 'tcp://localhost:4004',
+    'TRIAL_VALIDATOR_URL': 'tcp://localhost:4004',
     'CONSENT_VALIDATOR_URL': 'tcp://localhost:5004',
     # 'DB_HOST': 'localhost',
     # 'DB_PORT': 28015,
@@ -69,8 +69,8 @@ DEFAULT_CONFIG = {
     'SECRET_KEY': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890',
     'AES_KEY': 'ffffffffffffffffffffffffffffffff',
     'BATCHER_PRIVATE_KEY': '1111111111111111111111111111111111111111111111111111111111111111',
-    'BATCHER_PRIVATE_KEY_FILE_NAME_HOSPITAL': None,
-    'BATCHER_PRIVATE_KEY_FILE_NAME_PATIENT': None,
+    # 'BATCHER_PRIVATE_KEY_FILE_NAME_HOSPITAL': None,
+    # 'BATCHER_PRIVATE_KEY_FILE_NAME_PATIENT': None,
     'BATCHER_PRIVATE_KEY_FILE_NAME_INVESTIGATOR': None
     # 'BATCHER_PRIVATE_KEY_FILE_NAME_LAB': None,
     # 'BATCHER_PRIVATE_KEY_FILE_NAME_INSURANCE': None
@@ -85,13 +85,13 @@ async def open_connections(appl):
     #     port=app.config.DB_PORT,
     #     db=app.config.DB_NAME)
 
-    appl.config.EHR_VAL_CONN = Connection(appl.config.EHR_VALIDATOR_URL)
+    appl.config.INVESTIGATOR_VAL_CONN = Connection(appl.config.TRIAL_VALIDATOR_URL)
     appl.config.CONSENT_VAL_CONN = Connection(appl.config.CONSENT_VALIDATOR_URL)
 
-    LOGGER.warning('opening validator connection for EHR network: ' + str(appl.config.EHR_VALIDATOR_URL))
+    LOGGER.warning('opening validator connection for Investigator network: ' + str(appl.config.TRIAL_VALIDATOR_URL))
     LOGGER.warning('opening validator connection for Consent network: ' + str(appl.config.CONSENT_VALIDATOR_URL))
 
-    appl.config.EHR_VAL_CONN.open()
+    appl.config.INVESTIGATOR_VAL_CONN.open()
     appl.config.CONSENT_VAL_CONN.open()
 
 
@@ -99,8 +99,8 @@ def close_connections(appl):
     # LOGGER.warning('closing database connection')
     # app.config.DB_CONN.close()
 
-    LOGGER.warning('closing validator connection EHR network')
-    appl.config.EHR_VAL_CONN.close()
+    LOGGER.warning('closing validator connection Investigator network')
+    appl.config.INVESTIGATOR_VAL_CONN.close()
     LOGGER.warning('closing validator connection Consent network')
     appl.config.CONSENT_VAL_CONN.close()
 
@@ -113,8 +113,8 @@ def parse_args(args):
                         help='The port for the api to run on.')
     parser.add_argument('--timeout',
                         help='Seconds to wait for a validator response')
-    parser.add_argument('--ehr-validator',
-                        help='The url to connect to a running validator EHR network')
+    parser.add_argument('--trial-validator',
+                        help='The url to connect to a running validator Trial network')
     parser.add_argument('--consent-validator',
                         help='The url to connect to a running validator Consent network')
     # parser.add_argument('--db-port',
@@ -129,12 +129,12 @@ def parse_args(args):
                         help='The AES key used for private key encryption')
     parser.add_argument('--batcher-private-key',
                         help='The sawtooth key used for transaction signing')
-    parser.add_argument('--batcher-private-key-file-name-hospital',
-                        help='The sawtooth key used for batch signing having hospital role')
+    # parser.add_argument('--batcher-private-key-file-name-hospital',
+    #                     help='The sawtooth key used for batch signing having hospital role')
     # parser.add_argument('--batcher-private-key-file-name-doctor',
     #                     help='The sawtooth key used for batch signing having doctor role')
-    parser.add_argument('--batcher-private-key-file-name-patient',
-                        help='The sawtooth key used for batch signing having patient role')
+    # parser.add_argument('--batcher-private-key-file-name-patient',
+    #                     help='The sawtooth key used for batch signing having patient role')
     parser.add_argument('--batcher-private-key-file-name-investigator',
                         help='The sawtooth key used for batch signing having investigator role')
     # parser.add_argument('--batcher-private-key-file-name-insurance',
@@ -147,7 +147,7 @@ def load_config(appl):  # pylint: disable=too-many-branches
     appl.config.update(DEFAULT_CONFIG)
     config_file_path = os.path.join(
         os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-        'rest_api/config.py')
+        'trial_rest_api/config.py')
     try:
         LOGGER.info('Path: ' + str(config_file_path))
         appl.config.from_pyfile(config_file_path)
@@ -164,8 +164,8 @@ def load_config(appl):  # pylint: disable=too-many-branches
     if opts.timeout is not None:
         appl.config.TIMEOUT = opts.timeout
 
-    if opts.ehr_validator is not None:
-        appl.config.EHR_VALIDATOR_URL = opts.ehr_validator
+    if opts.trial_validator is not None:
+        appl.config.TRIAL_VALIDATOR_URL = opts.trial_validator
     if opts.consent_validator is not None:
         appl.config.CONSENT_VALIDATOR_URL = opts.consent_validator
     # if opts.db_host is not None:
@@ -196,26 +196,26 @@ def load_config(appl):  # pylint: disable=too-many-branches
         LOGGER.exception("Batcher private key was not provided")
         sys.exit(1)
 
-    if opts.batcher_private_key_file_name_hospital is not None:
-        appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_HOSPITAL = opts.batcher_private_key_file_name_hospital
+    # if opts.batcher_private_key_file_name_hospital is not None:
+    #     appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_HOSPITAL = opts.batcher_private_key_file_name_hospital
     # if opts.batcher_private_key_file_name_doctor is not None:
     #     appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_DOCTOR = opts.batcher_private_key_file_name_doctor
-    if opts.batcher_private_key_file_name_patient is not None:
-        appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_PATIENT = opts.batcher_private_key_file_name_patient
+    # if opts.batcher_private_key_file_name_patient is not None:
+    #     appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_PATIENT = opts.batcher_private_key_file_name_patient
     if opts.batcher_private_key_file_name_investigator is not None:
         appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_INVESTIGATOR = opts.batcher_private_key_file_name_investigator
     # if opts.batcher_private_key_file_name_insurance is not None:
     #     appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_INSURANCE = opts.batcher_private_key_file_name_insurance
 
-    if appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_HOSPITAL is None:
-        LOGGER.exception("Batcher private key file name for Hospital entity was not provided")
-        sys.exit(1)
+    # if appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_HOSPITAL is None:
+    #     LOGGER.exception("Batcher private key file name for Hospital entity was not provided")
+    #     sys.exit(1)
     # if appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_DOCTOR is None:
     #     LOGGER.exception("Batcher private key file name for Doctor entity was not provided")
     #     sys.exit(1)
-    if appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_PATIENT is None:
-        LOGGER.exception("Batcher private key file name for Patient entity was not provided")
-        sys.exit(1)
+    # if appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_PATIENT is None:
+    #     LOGGER.exception("Batcher private key file name for Patient entity was not provided")
+    #     sys.exit(1)
     if appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_INVESTIGATOR is None:
         LOGGER.exception("Batcher private key file name for Data Provider entity was not provided")
         sys.exit(1)
@@ -224,12 +224,12 @@ def load_config(appl):  # pylint: disable=too-many-branches
     #     sys.exit(1)
 
     try:
-        private_key_file_name_hospital = get_keyfile(appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_HOSPITAL)
-        hospital_private_key = get_signer_from_file(private_key_file_name_hospital)
+        # private_key_file_name_hospital = get_keyfile(appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_HOSPITAL)
+        # hospital_private_key = get_signer_from_file(private_key_file_name_hospital)
         # private_key_file_name_doctor = get_keyfile(appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_DOCTOR)
         # doctor_private_key = get_signer_from_file(private_key_file_name_doctor)
-        private_key_file_name_patient = get_keyfile(appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_PATIENT)
-        patient_private_key = get_signer_from_file(private_key_file_name_patient)
+        # private_key_file_name_patient = get_keyfile(appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_PATIENT)
+        # patient_private_key = get_signer_from_file(private_key_file_name_patient)
         private_key_file_name_investigator = get_keyfile(appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_INVESTIGATOR)
         investigator_private_key = get_signer_from_file(private_key_file_name_investigator)
         # private_key_file_name_insurance = get_keyfile(appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_INSURANCE)
@@ -241,12 +241,12 @@ def load_config(appl):  # pylint: disable=too-many-branches
         LOGGER.exception('Unable to load private key: %s', str(err))
         sys.exit(1)
     appl.config.CONTEXT = create_context('secp256k1')
-    appl.config.SIGNER_HOSPITAL = CryptoFactory(
-        appl.config.CONTEXT).new_signer(hospital_private_key)
+    # appl.config.SIGNER_HOSPITAL = CryptoFactory(
+    #     appl.config.CONTEXT).new_signer(hospital_private_key)
     # appl.config.SIGNER_DOCTOR = CryptoFactory(
     #     appl.config.CONTEXT).new_signer(doctor_private_key)
-    appl.config.SIGNER_PATIENT = CryptoFactory(
-        appl.config.CONTEXT).new_signer(patient_private_key)
+    # appl.config.SIGNER_PATIENT = CryptoFactory(
+    #     appl.config.CONTEXT).new_signer(patient_private_key)
     appl.config.SIGNER_INVESTIGATOR = CryptoFactory(
         appl.config.CONTEXT).new_signer(investigator_private_key)
     # appl.config.SIGNER_INSURANCE = CryptoFactory(

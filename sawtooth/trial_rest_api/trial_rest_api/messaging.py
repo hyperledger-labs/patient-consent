@@ -18,7 +18,7 @@ from sawtooth_sdk.protobuf import client_batch_submit_pb2
 from sawtooth_rest_api.protobuf import client_state_pb2
 from sawtooth_rest_api.protobuf import validator_pb2
 
-from rest_api.errors import ApiBadRequest, ApiInternalError
+from trial_rest_api.errors import ApiBadRequest, ApiInternalError
 
 
 async def send(conn, timeout, batches):

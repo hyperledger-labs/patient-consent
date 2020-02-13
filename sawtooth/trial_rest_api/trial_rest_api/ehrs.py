@@ -14,9 +14,9 @@
 # ------------------------------------------------------------------------------
 from sanic import Blueprint
 from sanic import response
-from rest_api.ehr_common import transaction as ehr_transaction
+# from rest_api.ehr_common import transaction as ehr_transaction
 from rest_api import general, security_messaging
-from rest_api.errors import ApiBadRequest, ApiInternalError
+# from rest_api.errors import ApiBadRequest, ApiInternalError
 
 EHRS_BP = Blueprint('ehrs')
 
@@ -73,51 +73,51 @@ async def get_screening_data(request):
                          headers=general.get_response_headers())
 
 
-@EHRS_BP.post('ehrs')
-async def add_ehr(request):
-    """Updates auth information for the authorized account"""
-    hospital_pkey = general.get_request_key_header(request)
-    required_fields = ['patient_pkey', 'id', 'height', 'weight', 'A1C', 'FPG', 'OGTT', 'RPGT']
-    general.validate_fields(required_fields, request.json)
-
-    patient_pkey = request.json.get('patient_pkey')
-    ehr_id = request.json.get('id')
-    height = request.json.get('height')
-    weight = request.json.get('weight')
-    a1c = request.json.get('A1C')
-    fpg = request.json.get('FPG')
-    ogtt = request.json.get('OGTT')
-    rpgt = request.json.get('RPGT')
-
-    client_signer = general.get_signer(request, hospital_pkey)
-
-    ehr_txn = ehr_transaction.add_ehr(
-        txn_signer=client_signer,
-        batch_signer=client_signer,
-        uid=ehr_id,
-        client_pkey=patient_pkey,
-        height=height,
-        weight=weight,
-        a1c=a1c,
-        fpg=fpg,
-        ogtt=ogtt,
-        rpgt=rpgt
-    )
-
-    batch, batch_id = ehr_transaction.make_batch_and_id([ehr_txn], client_signer)
-
-    await security_messaging.add_ehr(
-        request.app.config.EHR_VAL_CONN,
-        request.app.config.TIMEOUT,
-        [batch], hospital_pkey, patient_pkey)
-
-    try:
-        await security_messaging.check_batch_status(
-            request.app.config.EHR_VAL_CONN, [batch_id])
-    except (ApiBadRequest, ApiInternalError) as err:
-        # await auth_query.remove_auth_entry(
-        #     request.app.config.DB_CONN, request.json.get('email'))
-        raise err
-
-    return response.json(body={'status': general.DONE},
-                         headers=general.get_response_headers())
+# @EHRS_BP.post('ehrs')
+# async def add_ehr(request):
+#     """Updates auth information for the authorized account"""
+#     hospital_pkey = general.get_request_key_header(request)
+#     required_fields = ['patient_pkey', 'id', 'height', 'weight', 'A1C', 'FPG', 'OGTT', 'RPGT']
+#     general.validate_fields(required_fields, request.json)
+#
+#     patient_pkey = request.json.get('patient_pkey')
+#     ehr_id = request.json.get('id')
+#     height = request.json.get('height')
+#     weight = request.json.get('weight')
+#     a1c = request.json.get('A1C')
+#     fpg = request.json.get('FPG')
+#     ogtt = request.json.get('OGTT')
+#     rpgt = request.json.get('RPGT')
+#
+#     client_signer = general.get_signer(request, hospital_pkey)
+#
+#     ehr_txn = ehr_transaction.add_ehr(
+#         txn_signer=client_signer,
+#         batch_signer=client_signer,
+#         uid=ehr_id,
+#         client_pkey=patient_pkey,
+#         height=height,
+#         weight=weight,
+#         a1c=a1c,
+#         fpg=fpg,
+#         ogtt=ogtt,
+#         rpgt=rpgt
+#     )
+#
+#     batch, batch_id = ehr_transaction.make_batch_and_id([ehr_txn], client_signer)
+#
+#     await security_messaging.add_ehr(
+#         request.app.config.EHR_VAL_CONN,
+#         request.app.config.TIMEOUT,
+#         [batch], hospital_pkey, patient_pkey)
+#
+#     try:
+#         await security_messaging.check_batch_status(
+#             request.app.config.EHR_VAL_CONN, [batch_id])
+#     except (ApiBadRequest, ApiInternalError) as err:
+#         # await auth_query.remove_auth_entry(
+#         #     request.app.config.DB_CONN, request.json.get('email'))
+#         raise err
+#
+#     return response.json(body={'status': general.DONE},
+#                          headers=general.get_response_headers())

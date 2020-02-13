@@ -71,8 +71,8 @@ def make_ehr_protobuf():
     make_protobuf(path='ehr_common', pkg_name='protobuf', proto_file='trial_payload.proto')
 
 
-def make_payment_protobuf():
-    make_protobuf(path='payment_common', pkg_name='protobuf', proto_file='payment_payload.proto')
+def make_trial_protobuf():
+    make_protobuf(path='trial_common', pkg_name='protobuf', proto_file='trial_payload.proto')
 
 
 def make_base_protobuf():

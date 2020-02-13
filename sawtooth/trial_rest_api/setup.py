@@ -49,7 +49,7 @@ from setuptools import setup, find_packages  # , Command
 
 
 setup(
-    name='hospital-rest-api',
+    name='trial-rest-api',
     version='0.1',
     description='Sawtooth HealthCare REST API Example',
     author='Hyperledger Sawtooth',
@@ -76,6 +76,6 @@ setup(
     entry_points={
         'console_scripts': [
             # 'xo = sawtooth_xo.xo_cli:main_wrapper',
-            'hospital-rest-api = rest_api.main:main',
+            'trial-rest-api = trial_rest_api.main:main',
         ]
     })

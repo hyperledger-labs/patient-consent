@@ -214,7 +214,7 @@ def create_investigator(txn_signer, batch_signer, name):
 #         txn_signer=txn_signer,
 #         batch_signer=batch_signer)
 
-
+# Used
 def add_data(txn_signer, batch_signer, uid, height, weight, a1c, fpg, ogtt, rpgt, event_time):
     # LOGGER.debug('data: ' + str(data))
     investigator_pkey = txn_signer.get_public_key().as_hex()
@@ -254,7 +254,7 @@ def add_data(txn_signer, batch_signer, uid, height, weight, a1c, fpg, ogtt, rpgt
         txn_signer=txn_signer,
         batch_signer=batch_signer)
 
-
+# Used
 def update_data(txn_signer, batch_signer, uid, height, weight, a1c, fpg, ogtt, rpgt):
     # data_provider_pkey = txn_signer.get_public_key().as_hex()
     data_hex = helper.make_investigator_data_address(data_id=uid)

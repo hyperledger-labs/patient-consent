@@ -17,10 +17,10 @@ import logging
 from sanic import Blueprint
 from sanic import response
 
-from rest_api.ehr_common import transaction as ehr_transaction
-from rest_api.consent_common import transaction as consent_transaction
-from rest_api import general, security_messaging
-from rest_api.errors import ApiBadRequest, ApiInternalError
+from trial_rest_api.trial_common import transaction as trial_transaction
+from trial_rest_api.consent_common import transaction as consent_transaction
+from trial_rest_api import general, security_messaging
+from trial_rest_api.errors import ApiBadRequest, ApiInternalError
 
 INVESTIGATORS_BP = Blueprint('investigators')
 
@@ -77,14 +77,14 @@ async def register_investigator(request):
         #     request.app.config.DB_CONN, request.json.get('email'))
         raise err
 
-    # EHR network
+    # Trial network
 
-    clinic_txn = ehr_transaction.create_investigator(
+    clinic_txn = trial_transaction.create_investigator(
         txn_signer=clinic_signer,
         batch_signer=clinic_signer,
         name=name
     )
-    batch, batch_id = ehr_transaction.make_batch_and_id([clinic_txn], clinic_signer)
+    batch, batch_id = trial_transaction.make_batch_and_id([clinic_txn], clinic_signer)
 
     await security_messaging.add_investigator(
         request.app.config.INVESTIGATOR_VAL_CONN,
@@ -166,7 +166,7 @@ async def import_screening_data(request, patient_pkey, ehr_id):
 
     ehr = await security_messaging.get_ehr_by_id(request.app.config.VAL_CONN, patient_pkey, ehr_id)
 
-    data_txn = ehr_transaction.add_data(
+    data_txn = trial_transaction.add_data(
             txn_signer=client_signer,
             batch_signer=client_signer,
             uid=ehr.id,
@@ -178,7 +178,7 @@ async def import_screening_data(request, patient_pkey, ehr_id):
             rpgt=ehr.RPGT,
             event_time=ehr.event_time)
 
-    batch, batch_id = ehr_transaction.make_batch_and_id([data_txn], client_signer)
+    batch, batch_id = trial_transaction.make_batch_and_id([data_txn], client_signer)
 
     await security_messaging.import_screening_data(
         request.app.config.VAL_CONN,
@@ -236,7 +236,7 @@ async def update_data(request):
 
     client_signer = request.app.config.SIGNER_INVESTIGATOR  # .get_public_key().as_hex()
 
-    client_txn = ehr_transaction.update_data(
+    client_txn = trial_transaction.update_data(
         txn_signer=client_signer,
         batch_signer=client_signer,
         uid=uid,
@@ -247,7 +247,7 @@ async def update_data(request):
         ogtt=OGTT,
         rpgt=RPGT)
 
-    batch, batch_id = ehr_transaction.make_batch_and_id([client_txn], client_signer)
+    batch, batch_id = trial_transaction.make_batch_and_id([client_txn], client_signer)
 
     await security_messaging.update_investigator(
         request.app.config.VAL_CONN,
@@ -276,7 +276,7 @@ async def request_inform_consent(request, patient_pkey):
         batch_signer=client_signer,
         patient_pkey=patient_pkey)
 
-    batch, batch_id = ehr_transaction.make_batch_and_id([grant_read_ehr_permission_txn], client_signer)
+    batch, batch_id = trial_transaction.make_batch_and_id([grant_read_ehr_permission_txn], client_signer)
 
     await security_messaging.request_inform_document_consent(
         request.app.config.VAL_CONN,
@@ -306,13 +306,13 @@ async def set_eligible(request):
 
     client_signer = request.app.config.SIGNER_INVESTIGATOR  # .get_public_key().as_hex()
 
-    client_txn = ehr_transaction.set_eligible(
+    client_txn = trial_transaction.set_eligible(
         txn_signer=client_signer,
         batch_signer=client_signer,
         uid=uid,
         eligible=eligible)
 
-    batch, batch_id = ehr_transaction.make_batch_and_id([client_txn], client_signer)
+    batch, batch_id = trial_transaction.make_batch_and_id([client_txn], client_signer)
 
     await security_messaging.set_eligible(
         request.app.config.VAL_CONN,

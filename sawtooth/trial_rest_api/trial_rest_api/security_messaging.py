@@ -17,14 +17,14 @@ import logging
 from sawtooth_rest_api.protobuf import client_state_pb2
 from sawtooth_rest_api.protobuf import validator_pb2
 
-from rest_api.ehr_common import helper as ehr_helper
-from rest_api.ehr_common.protobuf.trial_payload_pb2 import Hospital, Patient, EHRWithUser, Investigator, Data
+from trial_rest_api.trial_common import helper as ehr_helper
+from trial_rest_api.trial_common.protobuf.trial_payload_pb2 import Hospital, Patient, EHRWithUser, Investigator, Data
 
-from rest_api.consent_common import helper as consent_helper
-from rest_api.consent_common.protobuf.consent_payload_pb2 import Client, Permission, ActionOnAccess
+from trial_rest_api.consent_common import helper as consent_helper
+from trial_rest_api.consent_common.protobuf.consent_payload_pb2 import Client, Permission, ActionOnAccess
 
-from rest_api import messaging
-from rest_api.errors import ApiForbidden, ApiUnauthorized, ApiBadRequest
+from trial_rest_api import messaging
+from trial_rest_api.errors import ApiForbidden, ApiUnauthorized, ApiBadRequest
 
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)

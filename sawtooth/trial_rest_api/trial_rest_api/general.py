@@ -25,8 +25,9 @@ from sawtooth_signing.secp256k1 import Secp256k1PrivateKey
 
 # from db import auth_query
 # from protobuf import payload_pb2 as rule_pb2
+from rest_api.trial_common.exceptions import TrialException
 from rest_api.errors import ApiBadRequest, ApiForbidden
-from rest_api.ehr_common.exceptions import EHRException
+# from rest_api.ehr_common.exceptions import EHRException
 # from rest_api.common.protobuf import payload_pb2 as rule_pb2
 
 DONE = 'DONE'
@@ -140,14 +141,14 @@ def get_signer_from_file(keyfile):
         with open(keyfile) as fd:
             private_key_str = fd.read().strip()
     except OSError as err:
-        raise EHRException(
+        raise TrialException(
             'Failed to read private key {}: {}'.format(
                 keyfile, str(err)))
 
     try:
         private_key = Secp256k1PrivateKey.from_hex(private_key_str)
     except ParseError as e:
-        raise EHRException(
+        raise TrialException(
             'Unable to load private key: {}'.format(str(e)))
 
     return private_key
@@ -156,17 +157,17 @@ def get_signer_from_file(keyfile):
 
 
 def get_signer(request, client_key):
-    if request.app.config.SIGNER_HOSPITAL.get_public_key().as_hex() == client_key:
-        client_signer = request.app.config.SIGNER_HOSPITAL
-    elif request.app.config.SIGNER_PATIENT.get_public_key().as_hex() == client_key:
-        client_signer = request.app.config.SIGNER_PATIENT
+    # if request.app.config.SIGNER_HOSPITAL.get_public_key().as_hex() == client_key:
+    #     client_signer = request.app.config.SIGNER_HOSPITAL
+    # elif request.app.config.SIGNER_PATIENT.get_public_key().as_hex() == client_key:
+    #     client_signer = request.app.config.SIGNER_PATIENT
     # elif request.app.config.SIGNER_DOCTOR.get_public_key().as_hex() == client_key:
     #     client_signer = request.app.config.SIGNER_DOCTOR
-    elif request.app.config.SIGNER_INVESTIGATOR.get_public_key().as_hex() == client_key:
+    if request.app.config.SIGNER_INVESTIGATOR.get_public_key().as_hex() == client_key:
         client_signer = request.app.config.SIGNER_INVESTIGATOR
     # elif request.app.config.SIGNER_INSURANCE.get_public_key().as_hex() == client_key:
     #     client_signer = request.app.config.SIGNER_INSURANCE
     else:
-        raise EHRException(
+        raise TrialException(
             'Unable to load private key for client_key: {}'.format(str(client_key)))
     return client_signer

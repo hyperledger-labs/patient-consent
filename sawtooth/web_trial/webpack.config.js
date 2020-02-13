@@ -17,7 +17,7 @@
 //  }
 //};
 
-module.exports = function({ hra = "http://investigator-rest-api:8000" }) {
+module.exports = function({ hra = "http://trial-rest-api:8000" }) {
     return {
 
       devServer: {
