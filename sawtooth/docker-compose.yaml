@@ -14,8 +14,8 @@ services:
     container_name: ehr-processor
     volumes:
       - ./:/project/sawtooth_healthcare
-#    depends_on:
-#      - consent-processor
+    depends_on:
+      - consent-processor
     command: |
       bash -c "
         sleep 1 &&
@@ -55,11 +55,11 @@ services:
         - https_proxy
         - no_proxy
     image: trial-tp
-    container_name: ehr-trial
+    container_name: trial-processor
     volumes:
       - ./:/project/sawtooth_healthcare
-    #    depends_on:
-    #      - consent-processor
+    depends_on:
+      - ehr-processor
     command: |
       bash -c "
         sleep 1 &&
@@ -147,7 +147,7 @@ services:
       - '8040:8000'
     depends_on:
       - ehr-validator
-#      - ehr-processor
+      - ehr-processor
     command: |
       bash -c "
         sleep 3 &&
@@ -172,7 +172,8 @@ services:
     ports:
       - '8045:8000'
     depends_on:
-      - consent-validator
+      - trial-validator
+      - trial-processor
     command: |
       bash -c "
         sleep 3 &&

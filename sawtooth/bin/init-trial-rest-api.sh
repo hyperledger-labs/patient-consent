@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-bin/healthcare-protogen
+#bin/healthcare-protogen
 cp -R trial_common trial_rest_api/trial_rest_api
 cp -R consent_common trial_rest_api/trial_rest_api
 #cp -R insurance_common rest_api/rest_api
