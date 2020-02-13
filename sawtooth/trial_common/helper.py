@@ -1,11 +1,11 @@
 import hashlib
 import time
 
-DISTRIBUTION_NAME = 'patient-consent'
+DISTRIBUTION_NAME = 'clinical-trials'
 
 DEFAULT_URL = 'http://127.0.0.1:8008'
 
-TP_FAMILYNAME = 'ehr'
+TP_FAMILYNAME = 'clinical-trials'
 TP_VERSION = '1.0'
 # CLINIC_ENTITY_NAME = 'clinic'
 # DOCTOR_ENTITY_NAME = 'doctor'
@@ -18,18 +18,18 @@ TP_VERSION = '1.0'
 # CLAIM_ENTITY_HEX6 = hashlib.sha512(CLAIM_ENTITY_NAME.encode("utf-8")).hexdigest()[0:6]
 # CLINIC_ENTITY_HEX64 = hashlib.sha512(CLINIC_ENTITY_NAME.encode("utf-8")).hexdigest()[0:64]
 
-HOSPITAL_ENTITY_CODE = '01'
+# HOSPITAL_ENTITY_CODE = '01'
 # DOCTOR_ENTITY_CODE = '02'
-PATIENT_ENTITY_CODE = '03'
-EHR_ENTITY_CODE = '04'
+# PATIENT_ENTITY_CODE = '03'
+# EHR_ENTITY_CODE = '04'
 INVESTIGATOR_ENTITY_CODE = '05'
 INVESTIGATOR_DATA_ENTITY_CODE = '06'
 
-PATIENT_EHR__RELATION_CODE = "71"
-EHR_PATIENT__RELATION_CODE = "72"
-
-HOSPITAL_EHR__RELATION_CODE = "81"
-EHR_HOSPITAL__RELATION_CODE = "82"
+# PATIENT_EHR__RELATION_CODE = "71"
+# EHR_PATIENT__RELATION_CODE = "72"
+#
+# HOSPITAL_EHR__RELATION_CODE = "81"
+# EHR_HOSPITAL__RELATION_CODE = "82"
 
 INVESTIGATOR_DATA__RELATION_CODE = "91"
 DATA_INVESTIGATOR__RELATION_CODE = "92"
@@ -42,12 +42,12 @@ def _hash(identifier):
 TP_PREFFIX_HEX6 = _hash(TP_FAMILYNAME)[0:6]
 
 
-def make_hospital_address(hospital_pkey):
-    return TP_PREFFIX_HEX6 + HOSPITAL_ENTITY_CODE + _hash(hospital_pkey)[:62]
-
-
-def make_hospital_list_address():
-    return TP_PREFFIX_HEX6 + HOSPITAL_ENTITY_CODE
+# def make_hospital_address(hospital_pkey):
+#     return TP_PREFFIX_HEX6 + HOSPITAL_ENTITY_CODE + _hash(hospital_pkey)[:62]
+#
+#
+# def make_hospital_list_address():
+#     return TP_PREFFIX_HEX6 + HOSPITAL_ENTITY_CODE
 
 
 def make_investigator_data_address(data_id):
@@ -87,12 +87,12 @@ def make_investigator_data__relation_address(client_pkey, data_id):
 #     return TP_PREFFIX_HEX6 + DOCTOR_ENTITY_CODE
 
 
-def make_patient_address(patient_pkey):
-    return TP_PREFFIX_HEX6 + PATIENT_ENTITY_CODE + _hash(patient_pkey)[:62]
-
-
-def make_patient_list_address():
-    return TP_PREFFIX_HEX6 + PATIENT_ENTITY_CODE
+# def make_patient_address(patient_pkey):
+#     return TP_PREFFIX_HEX6 + PATIENT_ENTITY_CODE + _hash(patient_pkey)[:62]
+#
+#
+# def make_patient_list_address():
+#     return TP_PREFFIX_HEX6 + PATIENT_ENTITY_CODE
 
 
 # def make_lab_address(lab_pkey):
@@ -113,56 +113,56 @@ def make_patient_list_address():
 
 
 # EHR entity
-def make_ehr_address(ehr_id):
-    return TP_PREFFIX_HEX6 + EHR_ENTITY_CODE + _hash(ehr_id)[:62]
-
-
-def make_ehr_list_address():
-    return TP_PREFFIX_HEX6 + EHR_ENTITY_CODE
-
-
-# EHR <-> Patient relation
-def make_ehr_patient__relation_address(ehr_id, client_pkey):
-    return TP_PREFFIX_HEX6 + EHR_PATIENT__RELATION_CODE + \
-        EHR_ENTITY_CODE + _hash(ehr_id)[:30] + \
-        PATIENT_ENTITY_CODE + _hash(client_pkey)[:28]
-
-
-def make_patient_list_by_ehr_address(claim_id):
-    return TP_PREFFIX_HEX6 + EHR_PATIENT__RELATION_CODE + EHR_ENTITY_CODE + _hash(claim_id)[:30]
+# def make_ehr_address(ehr_id):
+#     return TP_PREFFIX_HEX6 + EHR_ENTITY_CODE + _hash(ehr_id)[:62]
+#
+#
+# def make_ehr_list_address():
+#     return TP_PREFFIX_HEX6 + EHR_ENTITY_CODE
+#
+#
+# # EHR <-> Patient relation
+# def make_ehr_patient__relation_address(ehr_id, client_pkey):
+#     return TP_PREFFIX_HEX6 + EHR_PATIENT__RELATION_CODE + \
+#         EHR_ENTITY_CODE + _hash(ehr_id)[:30] + \
+#         PATIENT_ENTITY_CODE + _hash(client_pkey)[:28]
+#
+#
+# def make_patient_list_by_ehr_address(claim_id):
+#     return TP_PREFFIX_HEX6 + EHR_PATIENT__RELATION_CODE + EHR_ENTITY_CODE + _hash(claim_id)[:30]
 
 
 # Patient <-> EHR relation
-def make_patient_ehr__relation_address(client_pkey, ehr_id):
-    return TP_PREFFIX_HEX6 + PATIENT_EHR__RELATION_CODE + \
-        PATIENT_ENTITY_CODE + _hash(client_pkey)[:30] + \
-        EHR_ENTITY_CODE + _hash(ehr_id)[:28]
-
-
-def make_ehr_list_by_patient_address(client_pkey):
-    return TP_PREFFIX_HEX6 + PATIENT_EHR__RELATION_CODE + PATIENT_ENTITY_CODE + _hash(client_pkey)[:30]
-
-
-# EHR <-> Hospital relation
-def make_ehr_hospital__relation_address(ehr_id, client_pkey):
-    return TP_PREFFIX_HEX6 + EHR_HOSPITAL__RELATION_CODE + \
-        EHR_ENTITY_CODE + _hash(ehr_id)[:30] + \
-        HOSPITAL_ENTITY_CODE + _hash(client_pkey)[:28]
-
-
-def make_hospital_list_by_ehr_address(ehr_id):
-    return TP_PREFFIX_HEX6 + EHR_HOSPITAL__RELATION_CODE + EHR_ENTITY_CODE + _hash(ehr_id)[:30]
+# def make_patient_ehr__relation_address(client_pkey, ehr_id):
+#     return TP_PREFFIX_HEX6 + PATIENT_EHR__RELATION_CODE + \
+#         PATIENT_ENTITY_CODE + _hash(client_pkey)[:30] + \
+#         EHR_ENTITY_CODE + _hash(ehr_id)[:28]
+#
+#
+# def make_ehr_list_by_patient_address(client_pkey):
+#     return TP_PREFFIX_HEX6 + PATIENT_EHR__RELATION_CODE + PATIENT_ENTITY_CODE + _hash(client_pkey)[:30]
+#
+#
+# # EHR <-> Hospital relation
+# def make_ehr_hospital__relation_address(ehr_id, client_pkey):
+#     return TP_PREFFIX_HEX6 + EHR_HOSPITAL__RELATION_CODE + \
+#         EHR_ENTITY_CODE + _hash(ehr_id)[:30] + \
+#         HOSPITAL_ENTITY_CODE + _hash(client_pkey)[:28]
+#
+#
+# def make_hospital_list_by_ehr_address(ehr_id):
+#     return TP_PREFFIX_HEX6 + EHR_HOSPITAL__RELATION_CODE + EHR_ENTITY_CODE + _hash(ehr_id)[:30]
 
 
 # Hospital <-> EHR relation
-def make_hospital_ehr__relation_address(client_pkey, ehr_id):
-    return TP_PREFFIX_HEX6 + HOSPITAL_EHR__RELATION_CODE + \
-        HOSPITAL_ENTITY_CODE + _hash(client_pkey)[:30] + \
-        EHR_ENTITY_CODE + _hash(ehr_id)[:28]
-
-
-def make_ehr_list_by_hospital_address(client_pkey):
-    return TP_PREFFIX_HEX6 + HOSPITAL_EHR__RELATION_CODE + HOSPITAL_ENTITY_CODE + _hash(client_pkey)[:30]
+# def make_hospital_ehr__relation_address(client_pkey, ehr_id):
+#     return TP_PREFFIX_HEX6 + HOSPITAL_EHR__RELATION_CODE + \
+#         HOSPITAL_ENTITY_CODE + _hash(client_pkey)[:30] + \
+#         EHR_ENTITY_CODE + _hash(ehr_id)[:28]
+#
+#
+# def make_ehr_list_by_hospital_address(client_pkey):
+#     return TP_PREFFIX_HEX6 + HOSPITAL_EHR__RELATION_CODE + HOSPITAL_ENTITY_CODE + _hash(client_pkey)[:30]
 
 
 # def make_event_address(ehr_id, clinic_pkey, event_time):

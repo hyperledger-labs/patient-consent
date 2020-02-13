@@ -42,7 +42,7 @@ services:
         sleep 1 &&
         echo '--- Building consent-tp by docker-compose---\n' &&
         init-consent-tp.sh &&
-        consent-tp -v -C tcp://validator:4005 &&
+        consent-tp -v -C tcp://validator:5004 &&
         tail -f /dev/null
                "
 
@@ -130,10 +130,9 @@ services:
         sleep 3 &&
         echo '--- Building hospital-rest-api by docker-compose---' &&
         init-hospital-rest-api.sh &&
-        hospital-rest-api --host hospital-rest-api --validator tcp://validator:4004 &&
+        hospital-rest-api --host hospital-rest-api --ehr-validator tcp://validator:4004 --consent-validator tcp://validator:5004 &&
         tail -f /dev/null
                "
-# validator 4005???
 
   sawtooth-rest-api:
     image: hyperledger/sawtooth-rest-api:1.1
@@ -188,14 +187,14 @@ services:
   hospital-web-app:
     build:
       context: .
-      dockerfile: web_hospital/Dockerfile
+      dockerfile: web_ehr/Dockerfile
     image: hospital-web-app
     user: "node"
     container_name: hospital-web-app
 #    volumes:
 #      - .:/project/sawtooth_healthcare
     volumes:
-      - ./web_hospital:/home/node/app
+      - ./web_ehr:/home/node/app
       - /home/node/app/node_modules
     expose:
       - 8080
@@ -213,14 +212,14 @@ services:
   investigator-web-app:
     build:
       context: .
-      dockerfile: web_investigator/Dockerfile
+      dockerfile: web_trial/Dockerfile
     image: investigator-web-app
     user: "node"
     container_name: investigator-web-app
 #    volumes:
 #      - .:/project/sawtooth_healthcare
     volumes:
-      - ./web_investigator:/home/node/app
+      - ./web_trial:/home/node/app
       - /home/node/app/node_modules
     expose:
       - 8080
