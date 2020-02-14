@@ -15,10 +15,10 @@
 from sanic import Blueprint
 from sanic import response
 
-from rest_api.ehr_common import transaction as ehr_transaction
-from rest_api.consent_common import transaction as consent_transaction
-from rest_api import general, security_messaging
-from rest_api.errors import ApiBadRequest, ApiInternalError
+from trial_rest_api.trial_common import transaction as trial_transaction
+from trial_rest_api.consent_common import transaction as consent_transaction
+from trial_rest_api import general, security_messaging
+from trial_rest_api.errors import ApiBadRequest, ApiInternalError
 
 HOSPITALS_BP = Blueprint('hospitals')
 
@@ -40,65 +40,65 @@ async def get_all_hospitals(request):
                          headers=general.get_response_headers())
 
 
-@HOSPITALS_BP.post('hospitals')
-async def register_hospital(request):
-    """Updates auth information for the authorized account"""
-    required_fields = ['name']
-    general.validate_fields(required_fields, request.json)
-
-    name = request.json.get('name')
-
-    clinic_signer = request.app.config.SIGNER_HOSPITAL  # .get_public_key().as_hex()
-
-    client_txn = consent_transaction.create_hospital_client(
-        txn_signer=clinic_signer,
-        batch_signer=clinic_signer
-    )
-
-    # Consent network
-
-    batch, batch_id = consent_transaction.make_batch_and_id([client_txn], clinic_signer)
-
-    await security_messaging.add_hospital(
-        request.app.config.CONSENT_VAL_CONN,
-        request.app.config.TIMEOUT,
-        [batch])
-
-    try:
-        await security_messaging.check_batch_status(
-            request.app.config.CONSENT_VAL_CONN, [batch_id])
-    except (ApiBadRequest, ApiInternalError) as err:
-        # await auth_query.remove_auth_entry(
-        #     request.app.config.DB_CONN, request.json.get('email'))
-        raise err
-
-    # EHR network
-
-    clinic_txn = ehr_transaction.create_hospital(
-        txn_signer=clinic_signer,
-        batch_signer=clinic_signer,
-        name=name
-    )
-
-    batch, batch_id = ehr_transaction.make_batch_and_id([clinic_txn], clinic_signer)
-
-    await security_messaging.add_hospital(
-        request.app.config.EHR_VAL_CONN,
-        request.app.config.TIMEOUT,
-        [batch])
-
-    try:
-        await security_messaging.check_batch_status(
-            request.app.config.EHR_VAL_CONN, [batch_id])
-    except (ApiBadRequest, ApiInternalError) as err:
-        # await auth_query.remove_auth_entry(
-        #     request.app.config.DB_CONN, request.json.get('email'))
-        raise err
-
-    return response.json(body={'status': general.DONE},
-                         headers=general.get_response_headers())
-
-
+# @HOSPITALS_BP.post('hospitals')
+# async def register_hospital(request):
+#     """Updates auth information for the authorized account"""
+#     required_fields = ['name']
+#     general.validate_fields(required_fields, request.json)
+#
+#     name = request.json.get('name')
+#
+#     clinic_signer = request.app.config.SIGNER_HOSPITAL  # .get_public_key().as_hex()
+#
+#     client_txn = consent_transaction.create_hospital_client(
+#         txn_signer=clinic_signer,
+#         batch_signer=clinic_signer
+#     )
+#
+#     # Consent network
+#
+#     batch, batch_id = consent_transaction.make_batch_and_id([client_txn], clinic_signer)
+#
+#     await security_messaging.add_hospital(
+#         request.app.config.CONSENT_VAL_CONN,
+#         request.app.config.TIMEOUT,
+#         [batch])
+#
+#     try:
+#         await security_messaging.check_batch_status(
+#             request.app.config.CONSENT_VAL_CONN, [batch_id])
+#     except (ApiBadRequest, ApiInternalError) as err:
+#         # await auth_query.remove_auth_entry(
+#         #     request.app.config.DB_CONN, request.json.get('email'))
+#         raise err
+#
+#     # EHR network
+#
+#     clinic_txn = ehr_transaction.create_hospital(
+#         txn_signer=clinic_signer,
+#         batch_signer=clinic_signer,
+#         name=name
+#     )
+#
+#     batch, batch_id = ehr_transaction.make_batch_and_id([clinic_txn], clinic_signer)
+#
+#     await security_messaging.add_hospital(
+#         request.app.config.EHR_VAL_CONN,
+#         request.app.config.TIMEOUT,
+#         [batch])
+#
+#     try:
+#         await security_messaging.check_batch_status(
+#             request.app.config.EHR_VAL_CONN, [batch_id])
+#     except (ApiBadRequest, ApiInternalError) as err:
+#         # await auth_query.remove_auth_entry(
+#         #     request.app.config.DB_CONN, request.json.get('email'))
+#         raise err
+#
+#     return response.json(body={'status': general.DONE},
+#                          headers=general.get_response_headers())
+#
+#
 # @HOSPITALS_BP.get('hospitals/get_shared_data/<hospital_pkey>')
 # async def get_data(request, hospital_pkey):
 #     """Updates auth information for the authorized account"""

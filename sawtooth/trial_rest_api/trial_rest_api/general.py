@@ -25,8 +25,8 @@ from sawtooth_signing.secp256k1 import Secp256k1PrivateKey
 
 # from db import auth_query
 # from protobuf import payload_pb2 as rule_pb2
-from rest_api.trial_common.exceptions import TrialException
-from rest_api.errors import ApiBadRequest, ApiForbidden
+from trial_rest_api.trial_common.exceptions import TrialException
+from trial_rest_api.errors import ApiBadRequest, ApiForbidden
 # from rest_api.ehr_common.exceptions import EHRException
 # from rest_api.common.protobuf import payload_pb2 as rule_pb2
 

@@ -15,7 +15,7 @@
 from sanic import Blueprint
 from sanic import response
 
-from rest_api import general
+from trial_rest_api import general
 
 CLIENTS_BP = Blueprint('clients')
 

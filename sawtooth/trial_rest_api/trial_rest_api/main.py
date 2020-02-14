@@ -59,7 +59,7 @@ DEFAULT_CONFIG = {
     'HOST': 'localhost',
     'PORT': 8000,
     'TIMEOUT': 500,
-    'TRIAL_VALIDATOR_URL': 'tcp://localhost:4004',
+    'TRIAL_VALIDATOR_URL': 'tcp://localhost:6004',
     'CONSENT_VALIDATOR_URL': 'tcp://localhost:5004',
     # 'DB_HOST': 'localhost',
     # 'DB_PORT': 28015,

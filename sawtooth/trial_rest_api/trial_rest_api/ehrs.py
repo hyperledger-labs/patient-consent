@@ -15,7 +15,7 @@
 from sanic import Blueprint
 from sanic import response
 # from rest_api.ehr_common import transaction as ehr_transaction
-from rest_api import general, security_messaging
+from trial_rest_api import general, security_messaging
 # from rest_api.errors import ApiBadRequest, ApiInternalError
 
 EHRS_BP = Blueprint('ehrs')
