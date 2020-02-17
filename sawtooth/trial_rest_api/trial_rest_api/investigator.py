@@ -167,16 +167,16 @@ async def import_screening_data(request, patient_pkey, ehr_id):
     ehr = await security_messaging.get_ehr_by_id(request.app.config.VAL_CONN, patient_pkey, ehr_id)
 
     data_txn = trial_transaction.add_data(
-            txn_signer=client_signer,
-            batch_signer=client_signer,
-            uid=ehr.id,
-            height=ehr.height,
-            weight=ehr.weight,
-            a1c=ehr.A1C,
-            fpg=ehr.FPG,
-            ogtt=ehr.OGTT,
-            rpgt=ehr.RPGT,
-            event_time=ehr.event_time)
+        txn_signer=client_signer,
+        batch_signer=client_signer,
+        uid=ehr.id,
+        height=ehr.height,
+        weight=ehr.weight,
+        a1c=ehr.A1C,
+        fpg=ehr.FPG,
+        ogtt=ehr.OGTT,
+        rpgt=ehr.RPGT,
+        event_time=ehr.event_time)
 
     batch, batch_id = trial_transaction.make_batch_and_id([data_txn], client_signer)
 
@@ -201,7 +201,8 @@ async def import_screening_data(request, patient_pkey, ehr_id):
 async def get_all_data_from_investigators(request):
     """Fetches complete details of all Accounts in state"""
     client_key = general.get_request_key_header(request)
-    data_list = await security_messaging.get_data_from_investigators(request.app.config.VAL_CONN, client_key)
+    data_list = await security_messaging.get_data_from_investigators(request.app.config.INVESTIGATOR_VAL_CONN,
+                                                                     request.app.config.CONSENT_VAL_CONN, client_key)
 
     data_list_json = []
     for address, data in data_list.items():

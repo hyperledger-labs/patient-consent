@@ -142,18 +142,18 @@ async def get_inform_consent_request_list(conn, client_key):
     raise ApiForbidden("Insufficient permission")
 
 
-async def get_patients(conn, client_key):
-    client = await get_client(conn, client_key)
+async def get_patients(ehr_conn, consent_conn, client_key):
+    client = await get_client(consent_conn, client_key)
     patient_list = {}
     if Permission(type=Permission.READ_PATIENT) in client.permissions:
         LOGGER.debug('has READ_PATIENT permission: ' + str(client_key))
         list_patient_address = ehr_helper.make_patient_list_address()
         # Get Data Processing Access
-        data_processing_access = await get_data_processing_access(conn, client_key)
+        data_processing_access = await get_data_processing_access(consent_conn, client_key)
         data_processing_access_list = {}
         for address, pt in data_processing_access.items():
             LOGGER.debug('data_processing_access: ' + str(pt))
-            patient = await get_patient(conn, pt.src_pkey)
+            patient = await get_patient(ehr_conn, pt.src_pkey)
             data_processing_access_list[pt.src_pkey] = patient
 
         # consent = await get_read_ehr_consent(conn, client_key)
@@ -163,7 +163,7 @@ async def get_patients(conn, client_key):
         #     patient = await get_patient(conn, pt.src_pkey)
         #     consent_list[pt.src_pkey] = patient
         #
-        patient_list_resources = await messaging.get_state_by_address(conn, list_patient_address)
+        patient_list_resources = await messaging.get_state_by_address(ehr_conn, list_patient_address)
         for entity in patient_list_resources.entries:
             pat = Patient()
             pat.ParseFromString(entity.data)
@@ -181,11 +181,11 @@ async def get_patients(conn, client_key):
     elif Permission(type=Permission.READ_OWN_PATIENT) in client.permissions:
         LOGGER.debug('has READ_OWN_PATIENT: ' + str(client_key))
         # Get Data Processing Access
-        data_processing_access = await get_data_processing_access(conn, client_key)
+        data_processing_access = await get_data_processing_access(consent_conn, client_key)
         data_processing_access_list = {}
         for address, pt in data_processing_access.items():
             LOGGER.debug('data_processing_access: ' + str(pt))
-            patient = await get_patient(conn, pt.src_pkey)
+            patient = await get_patient(ehr_conn, pt.src_pkey)
             data_processing_access_list[pt.src_pkey] = patient
         return data_processing_access_list
     raise ApiForbidden("Insufficient permission")
