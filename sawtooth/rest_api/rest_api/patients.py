@@ -130,22 +130,41 @@ async def register_new_patient(request):
         batch_signer=patient_signer
     )
 
+    # Consent network
+
+    batch, batch_id = consent_transaction.make_batch_and_id([client_txn], patient_signer)
+
+    await security_messaging.add_patient(
+        request.app.config.CONSENT_VAL_CONN,
+        request.app.config.TIMEOUT,
+        [batch])
+
+    try:
+        await security_messaging.check_batch_status(
+            request.app.config.CONSENT_VAL_CONN, [batch_id])
+    except (ApiBadRequest, ApiInternalError) as err:
+        # await auth_query.remove_auth_entry(
+        #     request.app.config.DB_CONN, request.json.get('email'))
+        raise err
+
+    # EHR network
+
     patient_txn = ehr_transaction.create_patient(
         txn_signer=patient_signer,
         batch_signer=patient_signer,
         name=name,
         surname=surname)
 
-    batch, batch_id = ehr_transaction.make_batch_and_id([client_txn, patient_txn], patient_signer)
+    batch, batch_id = ehr_transaction.make_batch_and_id([patient_txn], patient_signer)
 
     await security_messaging.add_patient(
-        request.app.config.VAL_CONN,
+        request.app.config.EHR_VAL_CONN,
         request.app.config.TIMEOUT,
         [batch])
 
     try:
         await security_messaging.check_batch_status(
-            request.app.config.VAL_CONN, [batch_id])
+            request.app.config.EHR_VAL_CONN, [batch_id])
     except (ApiBadRequest, ApiInternalError) as err:
         # await auth_query.remove_auth_entry(
         #     request.app.config.DB_CONN, request.json.get('email'))

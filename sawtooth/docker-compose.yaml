@@ -21,7 +21,7 @@ services:
         sleep 1 &&
         echo '--- Building ehr-tp by docker-compose---\n' &&
         init-ehr-tp.sh &&
-        ehr-tp -v -C tcp://validator:4004 &&
+        ehr-tp -v -C tcp://ehr-validator:4004 &&
         tail -f /dev/null
                "
 
@@ -42,7 +42,7 @@ services:
         sleep 1 &&
         echo '--- Building consent-tp by docker-compose---\n' &&
         init-consent-tp.sh &&
-        consent-tp -v -C tcp://validator:5004 &&
+        consent-tp -v -C tcp://consent-validator:4004 &&
         tail -f /dev/null
                "
 
@@ -65,7 +65,7 @@ services:
         sleep 1 &&
         echo '--- Building trial-tp by docker-compose---\n' &&
         init-trial-tp.sh &&
-        trial-tp -v -C tcp://validator:6004 &&
+        trial-tp -v -C tcp://trial-validator:4004 &&
         tail -f /dev/null
                "
 
@@ -153,7 +153,7 @@ services:
         sleep 3 &&
         echo '--- Building hospital-rest-api by docker-compose---' &&
         init-ehr-rest-api.sh &&
-        hospital-rest-api --host hospital-rest-api --ehr-validator tcp://validator:4004 --consent-validator tcp://validator:5004 &&
+        hospital-rest-api --host hospital-rest-api --ehr-validator tcp://ehr-validator:4004 --consent-validator tcp://consent-validator:4004 &&
         tail -f /dev/null
                "
 
@@ -179,7 +179,7 @@ services:
         sleep 3 &&
         echo '--- Building trial-rest-api by docker-compose---' &&
         init-trial-rest-api.sh &&
-        trial-rest-api --host trial-rest-api --trial-validator tcp://validator:6004 --consent-validator tcp://validator:5004 &&
+        trial-rest-api --host trial-rest-api --trial-validator tcp://trial-validator:4004 --consent-validator tcp://consent-validator:4004 &&
         tail -f /dev/null
                "
 
@@ -202,7 +202,7 @@ services:
     container_name: ehr-sawtooth-settings-tp
     depends_on:
       - ehr-validator
-    command: settings-tp -vv --connect tcp://validator:4004
+    command: settings-tp -vv --connect tcp://ehr-validator:4004
 
   ehr-validator:
     image: hyperledger/sawtooth-validator:1.1
@@ -220,7 +220,7 @@ services:
         sawadm genesis config-genesis.batch
         fi;
         sawtooth-validator -vv \
-          --endpoint tcp://validator:8800 \
+          --endpoint tcp://ehr-validator:8800 \
           --bind component:tcp://eth0:4004 \
           --bind network:tcp://eth0:8800 \
           --bind consensus:tcp://eth0:5050
@@ -231,15 +231,15 @@ services:
     container_name: consent-sawtooth-settings-tp
     depends_on:
       - consent-validator
-    command: settings-tp -vv --connect tcp://validator:5004
+    command: settings-tp -vv --connect tcp://consent-validator:4004
 
   consent-validator:
     image: hyperledger/sawtooth-validator:1.1
     container_name: consent-sawtooth-validator
     expose:
-      - 5004
+      - 4004
     ports:
-      - '5040:5004'
+      - '4041:4004'
     command: |
       bash -c "
         if [ ! -f /etc/sawtooth/keys/validator.priv ]; then
@@ -249,10 +249,10 @@ services:
         sawadm genesis config-genesis.batch
         fi;
         sawtooth-validator -vv \
-          --endpoint tcp://validator:8805 \
-          --bind component:tcp://eth0:5004 \
-          --bind network:tcp://eth0:8805 \
-          --bind consensus:tcp://eth0:5055
+          --endpoint tcp://consent-validator:8800 \
+          --bind component:tcp://eth0:4004 \
+          --bind network:tcp://eth0:8800 \
+          --bind consensus:tcp://eth0:5050
       "
 
   trial-settings-tp:
@@ -260,15 +260,15 @@ services:
     container_name: trial-sawtooth-settings-tp
     depends_on:
       - trial-validator
-    command: settings-tp -vv --connect tcp://validator:6004
+    command: settings-tp -vv --connect tcp://trial-validator:4004
 
   trial-validator:
     image: hyperledger/sawtooth-validator:1.1
     container_name: trial-sawtooth-validator
     expose:
-      - 6004
+      - 4004
     ports:
-      - '6040:6004'
+      - '4042:4004'
     command: |
       bash -c "
         if [ ! -f /etc/sawtooth/keys/validator.priv ]; then
@@ -278,10 +278,10 @@ services:
         sawadm genesis config-genesis.batch
         fi;
         sawtooth-validator -vv \
-          --endpoint tcp://validator:8806 \
-          --bind component:tcp://eth0:6004 \
-          --bind network:tcp://eth0:8806 \
-          --bind consensus:tcp://eth0:5056
+          --endpoint tcp://trial-validator:8800 \
+          --bind component:tcp://eth0:4004 \
+          --bind network:tcp://eth0:8800 \
+          --bind consensus:tcp://eth0:5050
       "
 
   ehr-devmode-engine:
@@ -289,21 +289,21 @@ services:
     container_name: ehr-sawtooth-devmode-engine-rust-default
     depends_on:
       - ehr-validator
-    entrypoint: devmode-engine-rust -C tcp://validator:5050
+    entrypoint: devmode-engine-rust -C tcp://ehr-validator:5050
 
   consent-devmode-engine:
     image: hyperledger/sawtooth-devmode-engine-rust:1.1
     container_name: consent-sawtooth-devmode-engine-rust-default
     depends_on:
       - consent-validator
-    entrypoint: devmode-engine-rust -C tcp://validator:5055
+    entrypoint: devmode-engine-rust -C tcp://consent-validator:5050
 
   trial-devmode-engine:
     image: hyperledger/sawtooth-devmode-engine-rust:1.1
     container_name: trial-sawtooth-devmode-engine-rust-default
     depends_on:
       - trial-validator
-    entrypoint: devmode-engine-rust -C tcp://validator:5056
+    entrypoint: devmode-engine-rust -C tcp://trial-validator:5050
 
   hospital-web-app:
     build:
