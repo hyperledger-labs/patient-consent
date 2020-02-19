@@ -26,7 +26,7 @@ var EHR = {
     screening_data: function(investigatorPKey, inclExclCriteria) {   //i.e Investigator
         return m.request({
             method: "GET",
-            url: "/api/ehrs/pre_screening_data?" + inclExclCriteria,
+            url: "/api/pre_screening_data?" + inclExclCriteria,
             headers: {
                 'ClientKey': investigatorPKey
             }

@@ -64,7 +64,7 @@ setup(
         'sawtooth-sdk',
         'sawtooth-signing',
         # 'Crypto',
-        # 'itsdangerous',
+        'requests',
         'sanic',
         'sanic_cors',
         # 'PyYAML',

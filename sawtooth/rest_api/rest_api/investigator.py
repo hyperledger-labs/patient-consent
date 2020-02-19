@@ -31,16 +31,20 @@ LOGGER = logging.getLogger(__name__)
 @INVESTIGATORS_BP.get('investigators')
 async def get_all_investigators(request):
     """Fetches complete details of all Accounts in state"""
-    client_key = general.get_request_key_header(request)
-    investigator_list = await security_messaging.get_investigators(request.app.config.INVESTIGATOR_VAL_CONN,
-                                                                   request.app.config.CONSENT_VAL_CONN, client_key)
+    res_json = general.get_response_from_trial(request, "/investigators")
+
+    # client_key = general.get_request_key_header(request)
+    # investigator_list = await security_messaging.get_investigators(request.app.config.INVESTIGATOR_VAL_CONN,
+    #                                                                request.app.config.CONSENT_VAL_CONN, client_key)
 
     investigator_list_json = []
-    for address, dp in investigator_list.items():
-        investigator_list_json.append({
-            'public_key': dp.public_key,
-            'name': dp.name
-        })
+    if res_json['data']:
+        for entity in res_json['data']:
+            investigator_list_json.append({
+                'public_key': entity['public_key'],
+                'name': entity['name']
+            })
+
     return response.json(body={'data': investigator_list_json},
                          headers=general.get_response_headers())
 

@@ -51,7 +51,9 @@ async def get_screening_data(request):
     """Updates auth information for the authorized account"""
     investigator_pkey = general.get_request_key_header(request)
     ehr_list = await security_messaging.get_pre_screening_data(request.app.config.EHR_VAL_CONN,
-                                                               investigator_pkey, request.raw_args)
+                                                               request.app.config.CONSENT_VAL_CONN,
+                                                               investigator_pkey,
+                                                               request.raw_args)
 
     ehr_list_json = []
     for address, data in ehr_list.items():

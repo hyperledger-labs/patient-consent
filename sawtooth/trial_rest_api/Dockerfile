@@ -47,7 +47,7 @@ RUN pip3 install \
 #    nose2==0.7.2 \
 #    bcrypt \
 #    pycrypto \
-#    rethinkdb \
+    requests \
     sanic==19.03.1 \
     sanic_cors
 #    \

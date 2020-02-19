@@ -12,13 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ------------------------------------------------------------------------------
+
+# import requests as req
 from sanic import Blueprint
 from sanic import response
 
-from trial_rest_api.trial_common import transaction as trial_transaction
+# from trial_rest_api.trial_common import transaction as trial_transaction
 from trial_rest_api.consent_common import transaction as consent_transaction
 from trial_rest_api import general, security_messaging
 from trial_rest_api.errors import ApiBadRequest, ApiInternalError
+# from trial_rest_api.trial_common.protobuf.trial_payload_pb2 import Hospital
 
 HOSPITALS_BP = Blueprint('hospitals')
 
@@ -26,16 +29,17 @@ HOSPITALS_BP = Blueprint('hospitals')
 @HOSPITALS_BP.get('hospitals')
 async def get_all_hospitals(request):
     """Fetches complete details of all Accounts in state"""
-    client_key = general.get_request_key_header(request)
-    hospital_list = await security_messaging.get_hospitals(request.app.config.EHR_VAL_CONN,
-                                                           request.app.config.CONSENT_VAL_CONN, client_key)
+    res_json = general.get_response_from_ehr(request, "/hospitals")
 
     hospital_list_json = []
-    for address, hp in hospital_list.items():
-        hospital_list_json.append({
-            'public_key': hp.public_key,
-            'name': hp.name
-        })
+    if res_json['data']:
+        for entity in res_json['data']:
+            # LOGGER.debug('entity: ' + str(entity))
+            hospital_list_json.append({
+                'public_key': entity['public_key'],
+                'name': entity['name']
+            })
+
     return response.json(body={'data': hospital_list_json},
                          headers=general.get_response_headers())
 

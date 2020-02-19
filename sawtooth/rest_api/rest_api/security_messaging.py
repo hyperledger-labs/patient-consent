@@ -962,10 +962,10 @@ def _match_incl_excl_criteria(data, inc_excl_criteria):
     return True
 
 
-async def get_pre_screening_data(conn, investigator_pkey, inc_excl_criteria):
-    client = await get_client(conn, investigator_pkey)
+async def get_pre_screening_data(ehr_conn, consent_conn, investigator_pkey, inc_excl_criteria):
+    client = await get_client(consent_conn, investigator_pkey)
     if Permission(type=Permission.READ_PATIENT_DATA) in client.permissions:
-        ehr_list = await get_shared_ehrs(conn, investigator_pkey)
+        ehr_list = await get_shared_ehrs(ehr_conn, investigator_pkey)
         ehr_screening_list = {}
         for address, ehr in ehr_list.items():
             if _match_incl_excl_criteria(ehr, inc_excl_criteria):

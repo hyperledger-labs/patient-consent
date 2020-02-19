@@ -17,56 +17,68 @@ from sanic import response
 # from rest_api.ehr_common import transaction as ehr_transaction
 from trial_rest_api import general, security_messaging
 # from rest_api.errors import ApiBadRequest, ApiInternalError
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+LOGGER = logging.getLogger(__name__)
+
 
 EHRS_BP = Blueprint('ehrs')
 
 
-@EHRS_BP.get('ehrs')
-async def get_all_ehrs(request):
-    client_key = general.get_request_key_header(request)
-    ehr_list = await security_messaging.get_ehrs(request.app.config.EHR_VAL_CONN, client_key)
+# @EHRS_BP.get('ehrs')
+# async def get_all_ehrs(request):
+#     client_key = general.get_request_key_header(request)
+#     ehr_list = await security_messaging.get_ehrs(request.app.config.EHR_VAL_CONN, client_key)
+#
+#     ehr_list_json = []
+#     for address, ehr in ehr_list.items():
+#         ehr_list_json.append({
+#             'id': ehr.id,
+#             'client_pkey': ehr.client_pkey,
+#             'height': ehr.height,
+#             'weight': ehr.weight,
+#             'A1C': ehr.A1C,
+#             'FPG': ehr.FPG,
+#             'OGTT': ehr.OGTT,
+#             'RPGT': ehr.RPGT,
+#             'event_time': ehr.event_time,
+#             'name': ehr.name,
+#             'surname': ehr.surname
+#         })
+#
+#     return response.json(body={'data': ehr_list_json},
+#                          headers=general.get_response_headers())
 
-    ehr_list_json = []
-    for address, ehr in ehr_list.items():
-        ehr_list_json.append({
-            'id': ehr.id,
-            'client_pkey': ehr.client_pkey,
-            'height': ehr.height,
-            'weight': ehr.weight,
-            'A1C': ehr.A1C,
-            'FPG': ehr.FPG,
-            'OGTT': ehr.OGTT,
-            'RPGT': ehr.RPGT,
-            'event_time': ehr.event_time,
-            'name': ehr.name,
-            'surname': ehr.surname
-        })
 
-    return response.json(body={'data': ehr_list_json},
-                         headers=general.get_response_headers())
-
-
-@EHRS_BP.get('ehrs/pre_screening_data')
+@EHRS_BP.get('pre_screening_data')
 async def get_screening_data(request):
     """Updates auth information for the authorized account"""
-    investigator_pkey = general.get_request_key_header(request)
-    ehr_list = await security_messaging.get_pre_screening_data(request.app.config.EHR_VAL_CONN,
-                                                               investigator_pkey, request.raw_args)
+    inc_excl_criteria = '?'
+
+    for criteria, value in request.raw_args.items():
+        LOGGER.debug('_match_incl_excl_criteria -> criteria: ' + criteria + '; value: ' + value + ';')
+        inc_excl_criteria = inc_excl_criteria + criteria + "=" + value + '&'
+
+    res_json = general.get_response_from_ehr(request, "/ehrs/pre_screening_data" + inc_excl_criteria)
+    # investigator_pkey = general.get_request_key_header(request)
+    # ehr_list = await security_messaging.get_pre_screening_data(request.app.config.EHR_VAL_CONN,
+    #                                                            investigator_pkey, request.raw_args)
 
     ehr_list_json = []
-    for address, data in ehr_list.items():
+    for entity in res_json['data']:
         ehr_list_json.append({
-            'id': data.id,
-            'client_pkey': data.client_pkey,
-            'height': data.height,
-            'weight': data.weight,
-            'A1C': data.A1C,
-            'FPG': data.FPG,
-            'OGTT': data.OGTT,
-            'RPGT': data.RPGT,
-            'event_time': data.event_time,
-            'name': data.name,
-            'surname': data.surname
+            'id': entity['id'],
+            'client_pkey': entity['client_pkey'],
+            'height': entity['height'],
+            'weight': entity['weight'],
+            'A1C': entity['A1C'],
+            'FPG': entity['FPG'],
+            'OGTT': entity['OGTT'],
+            'RPGT': entity['RPGT'],
+            'event_time': entity['event_time'],
+            'name': entity['name'],
+            'surname': entity['surname']
         })
 
     return response.json(body={'data': ehr_list_json},

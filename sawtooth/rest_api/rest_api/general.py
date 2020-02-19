@@ -19,6 +19,7 @@ import os
 
 # from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
+import requests as req
 from sawtooth_signing import ParseError
 from sawtooth_signing.secp256k1 import Secp256k1PrivateKey
 
@@ -28,6 +29,10 @@ from sawtooth_signing.secp256k1 import Secp256k1PrivateKey
 from rest_api.errors import ApiBadRequest, ApiForbidden
 from rest_api.ehr_common.exceptions import EHRException
 # from rest_api.common.protobuf import payload_pb2 as rule_pb2
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+LOGGER = logging.getLogger(__name__)
 
 DONE = 'DONE'
 
@@ -63,6 +68,23 @@ def validate_fields(required_fields, request_json):
                 raise ApiBadRequest("{} is required".format(field))
     except (ValueError, AttributeError):
         raise ApiBadRequest("Improper JSON format")
+
+
+def get_response_from_trial(request, uri):
+    client_key = get_request_key_header(request)
+    url = request.app.config.TRIAL_BACKEND_URL + uri
+    LOGGER.debug('Request started: ' + str(url))
+    res = req.get(request.app.config.TRIAL_BACKEND_URL + uri, headers={'ClientKey': client_key})
+    LOGGER.debug('Request finished: ' + str(url))
+    try:
+        res.raise_for_status()
+    except Exception as e:
+        raise EHRException('get_response_from_trial failed: {}'.format(str(e)))
+    res_content = res.content
+    res_json = res.json()
+    LOGGER.debug('res_content: ' + str(res_content))
+    LOGGER.debug('res_json: ' + str(res_json))
+    return res_json
 
 
 # def encrypt_private_key(aes_key, public_key, private_key):

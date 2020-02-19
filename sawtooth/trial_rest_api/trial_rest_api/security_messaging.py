@@ -65,7 +65,7 @@ async def add_investigator(conn, timeout, batches):
 #     if Permission(type=Permission.READ_HOSPITAL) in client.permissions:
 #         list_hospital_address = trial_helper.make_hospital_list_address()
 #         list_hospital_resources = await messaging.get_state_by_address(ehr_conn, list_hospital_address)
-#         for entity in list_hospital_resources.entries:
+#         for entity in list_hospital_resources.entr    ies:
 #             hp = Hospital()
 #             hp.ParseFromString(entity.data)
 #             LOGGER.debug('hospital: ' + str(hp))
@@ -940,26 +940,26 @@ def _get_int(value):
     return int(value)
 
 
-def _match_incl_excl_criteria(data, inc_excl_criteria):
-    for criteria, value in inc_excl_criteria.items():
-        LOGGER.debug('_match_incl_excl_criteria -> criteria: ' + criteria + '; value: ' + value + ';')
-        v = _get_int(value)
-        if criteria == "excl_height_less":
-            if _get_int(data.height) < v:
-                return False
-        elif criteria == "excl_height_more":
-            if _get_int(data.height) > v:
-                return False
-        elif criteria == "incl_height_less":
-            if _get_int(data.height) > v:
-                return False
-        elif criteria == "incl_height_more":
-            if _get_int(data.height) < v:
-                return False
-        else:
-            raise ApiForbidden("Invalid excl/incl criteria specified. "
-                               "Only {excl_height_less,excl_height_more,incl_height_less,incl_height_more} allowed")
-    return True
+# def _match_incl_excl_criteria(data, inc_excl_criteria):
+#     for criteria, value in inc_excl_criteria.items():
+#         LOGGER.debug('_match_incl_excl_criteria -> criteria: ' + criteria + '; value: ' + value + ';')
+#         v = _get_int(value)
+#         if criteria == "excl_height_less":
+#             if _get_int(data.height) < v:
+#                 return False
+#         elif criteria == "excl_height_more":
+#             if _get_int(data.height) > v:
+#                 return False
+#         elif criteria == "incl_height_less":
+#             if _get_int(data.height) > v:
+#                 return False
+#         elif criteria == "incl_height_more":
+#             if _get_int(data.height) < v:
+#                 return False
+#         else:
+#             raise ApiForbidden("Invalid excl/incl criteria specified. "
+#                                "Only {excl_height_less,excl_height_more,incl_height_less,incl_height_more} allowed")
+#     return True
 
 
 # async def get_pre_screening_data(conn, investigator_pkey, inc_excl_criteria):

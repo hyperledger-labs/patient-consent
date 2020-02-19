@@ -61,6 +61,7 @@ DEFAULT_CONFIG = {
     'TIMEOUT': 500,
     'TRIAL_VALIDATOR_URL': 'tcp://localhost:6004',
     'CONSENT_VALIDATOR_URL': 'tcp://localhost:5004',
+    'EHR_BACKEND_URL': 'http://hospital-rest-api:8000',
     # 'DB_HOST': 'localhost',
     # 'DB_PORT': 28015,
     # 'DB_NAME': 'marketplace',
@@ -117,8 +118,8 @@ def parse_args(args):
                         help='The url to connect to a running validator Trial network')
     parser.add_argument('--consent-validator',
                         help='The url to connect to a running validator Consent network')
-    # parser.add_argument('--db-port',
-    #                     help='The port for the state database')
+    parser.add_argument('--ehr-backend',
+                        help='The url to EHR backend')
     # parser.add_argument('--db-name',
     #                     help='The name of the database')
     parser.add_argument('--debug',
@@ -168,8 +169,8 @@ def load_config(appl):  # pylint: disable=too-many-branches
         appl.config.TRIAL_VALIDATOR_URL = opts.trial_validator
     if opts.consent_validator is not None:
         appl.config.CONSENT_VALIDATOR_URL = opts.consent_validator
-    # if opts.db_host is not None:
-    #     app.config.DB_HOST = opts.db_host
+    if opts.ehr_backend is not None:
+        app.config.EHR_BACKEND_URL = opts.ehr_backend
     # if opts.db_port is not None:
     #     app.config.DB_PORT = opts.db_port
     # if opts.db_name is not None:
