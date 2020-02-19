@@ -18,13 +18,13 @@ from sawtooth_rest_api.protobuf import client_state_pb2
 from sawtooth_rest_api.protobuf import validator_pb2
 
 from trial_rest_api.trial_common import helper as trial_helper
-from trial_rest_api.trial_common.protobuf.trial_payload_pb2 import Hospital, Patient, EHRWithUser, Investigator, Data
+from trial_rest_api.trial_common.protobuf.trial_payload_pb2 import Investigator, Data
 
 from trial_rest_api.consent_common import helper as consent_helper
 from trial_rest_api.consent_common.protobuf.consent_payload_pb2 import Client, Permission, ActionOnAccess
 
 from trial_rest_api import messaging
-from trial_rest_api.errors import ApiForbidden, ApiUnauthorized, ApiBadRequest
+from trial_rest_api.errors import ApiForbidden, ApiUnauthorized
 
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)
@@ -51,8 +51,8 @@ async def get_state_by_address(conn, address_suffix):
     return status_response  # resp.entries
 
 
-async def add_hospital(conn, timeout, batches):
-    await _send(conn, timeout, batches)
+# async def add_hospital(conn, timeout, batches):
+#     await _send(conn, timeout, batches)
 
 
 async def add_investigator(conn, timeout, batches):
@@ -132,6 +132,7 @@ async def get_investigators(inv_conn, consent_conn, client_key):
 #     raise ApiForbidden("Insufficient permission")
 
 
+# TODO wrong package?
 async def get_inform_consent_request_list(conn, client_key):
     client = await get_client(conn, client_key)
     if Permission(type=Permission.READ_INFORM_CONSENT_REQUEST) in client.permissions and \
@@ -252,24 +253,24 @@ async def get_inform_consent_request_list(conn, client_key):
 #     raise ApiForbidden("Insufficient permission")
 
 
-async def add_ehr(conn, timeout, batches, dest_pkey, src_pkey):
-    client = await get_client(conn, dest_pkey)
-    if Permission(type=Permission.WRITE_PATIENT_DATA) in client.permissions:
-        LOGGER.debug('has WRITE_PATIENT_DATA permission: True')
-        # Has consent from patient
-        access = await has_data_processing_access(conn, dest_pkey, src_pkey)
-        if not access:
-            LOGGER.debug('no data processing access')
-            raise ApiForbidden("Insufficient permission")
-        #
-        await _send(conn, timeout, batches)
-        return
-        # LOGGER.debug('has permission: True')
-        # await _send(conn, timeout, batches)
-        # return
-    else:
-        LOGGER.debug('has permission: False')
-    raise ApiForbidden("Insufficient permission")
+# async def add_ehr(conn, timeout, batches, dest_pkey, src_pkey):
+#     client = await get_client(conn, dest_pkey)
+#     if Permission(type=Permission.WRITE_PATIENT_DATA) in client.permissions:
+#         LOGGER.debug('has WRITE_PATIENT_DATA permission: True')
+#         # Has consent from patient
+#         access = await has_data_processing_access(conn, dest_pkey, src_pkey)
+#         if not access:
+#             LOGGER.debug('no data processing access')
+#             raise ApiForbidden("Insufficient permission")
+#         #
+#         await _send(conn, timeout, batches)
+#         return
+#         # LOGGER.debug('has permission: True')
+#         # await _send(conn, timeout, batches)
+#         # return
+#     else:
+#         LOGGER.debug('has permission: False')
+#     raise ApiForbidden("Insufficient permission")
 
 
 # async def add_contract(conn, timeout, batches, client_key):
@@ -285,52 +286,52 @@ async def add_ehr(conn, timeout, batches, dest_pkey, src_pkey):
 #     raise ApiForbidden("Insufficient permission")
 
 
-async def grant_data_processing(conn, timeout, batches, client_key):
-    client = await get_client(conn, client_key)
-    if Permission(type=Permission.GRANT_READ_DATA_ACCESS) in client.permissions and \
-            Permission(type=Permission.GRANT_WRITE_DATA_ACCESS) in client.permissions:
-        LOGGER.debug('has permission: True')
-        await _send(conn, timeout, batches)
-        return
-    else:
-        LOGGER.debug('has permission: False')
-    raise ApiForbidden("Insufficient permission")
+# async def grant_data_processing(conn, timeout, batches, client_key):
+#     client = await get_client(conn, client_key)
+#     if Permission(type=Permission.GRANT_READ_DATA_ACCESS) in client.permissions and \
+#             Permission(type=Permission.GRANT_WRITE_DATA_ACCESS) in client.permissions:
+#         LOGGER.debug('has permission: True')
+#         await _send(conn, timeout, batches)
+#         return
+#     else:
+#         LOGGER.debug('has permission: False')
+#     raise ApiForbidden("Insufficient permission")
+#
+#
+# async def revoke_data_processing(conn, timeout, batches, client_key):
+#     client = await get_client(conn, client_key)
+#     if Permission(type=Permission.REVOKE_READ_DATA_ACCESS) in client.permissions and \
+#             Permission(type=Permission.REVOKE_WRITE_DATA_ACCESS) in client.permissions:
+#         LOGGER.debug('has permission: True')
+#         await _send(conn, timeout, batches)
+#         return
+#     else:
+#         LOGGER.debug('has permission: False')
+#     raise ApiForbidden("Insufficient permission")
+#
+#
+# async def grant_investigator_access(conn, timeout, batches, client_key):
+#     client = await get_client(conn, client_key)
+#     if Permission(type=Permission.GRANT_INVESTIGATOR_ACCESS) in client.permissions:
+#         LOGGER.debug('has permission: True')
+#         await _send(conn, timeout, batches)
+#         return
+#     else:
+#         LOGGER.debug('has permission: False')
+#     raise ApiForbidden("Insufficient permission")
+#
+#
+# async def revoke_investigator_access(conn, timeout, batches, client_key):
+#     client = await get_client(conn, client_key)
+#     if Permission(type=Permission.REVOKE_INVESTIGATOR_ACCESS) in client.permissions:
+#         LOGGER.debug('has permission: True')
+#         await _send(conn, timeout, batches)
+#         return
+#     else:
+#         LOGGER.debug('has permission: False')
+#     raise ApiForbidden("Insufficient permission")
 
-
-async def revoke_data_processing(conn, timeout, batches, client_key):
-    client = await get_client(conn, client_key)
-    if Permission(type=Permission.REVOKE_READ_DATA_ACCESS) in client.permissions and \
-            Permission(type=Permission.REVOKE_WRITE_DATA_ACCESS) in client.permissions:
-        LOGGER.debug('has permission: True')
-        await _send(conn, timeout, batches)
-        return
-    else:
-        LOGGER.debug('has permission: False')
-    raise ApiForbidden("Insufficient permission")
-
-
-async def grant_investigator_access(conn, timeout, batches, client_key):
-    client = await get_client(conn, client_key)
-    if Permission(type=Permission.GRANT_INVESTIGATOR_ACCESS) in client.permissions:
-        LOGGER.debug('has permission: True')
-        await _send(conn, timeout, batches)
-        return
-    else:
-        LOGGER.debug('has permission: False')
-    raise ApiForbidden("Insufficient permission")
-
-
-async def revoke_investigator_access(conn, timeout, batches, client_key):
-    client = await get_client(conn, client_key)
-    if Permission(type=Permission.REVOKE_INVESTIGATOR_ACCESS) in client.permissions:
-        LOGGER.debug('has permission: True')
-        await _send(conn, timeout, batches)
-        return
-    else:
-        LOGGER.debug('has permission: False')
-    raise ApiForbidden("Insufficient permission")
-
-
+# TODO Invalid package?
 async def request_inform_document_consent(conn, timeout, batches, client_key):
     client = await get_client(conn, client_key)
     if Permission(type=Permission.REQUEST_INFORM_CONSENT) in client.permissions:
@@ -342,6 +343,7 @@ async def request_inform_document_consent(conn, timeout, batches, client_key):
     raise ApiForbidden("Insufficient permission")
 
 
+# TODO Invalid package?
 async def sign_inform_document_consent(conn, timeout, batches, client_key):
     client = await get_client(conn, client_key)
     if Permission(type=Permission.SIGN_INFORM_CONSENT) in client.permissions:
@@ -353,6 +355,7 @@ async def sign_inform_document_consent(conn, timeout, batches, client_key):
     raise ApiForbidden("Insufficient permission")
 
 
+# TODO Invalid package?
 async def decline_inform_consent(conn, timeout, batches, client_key):
     client = await get_client(conn, client_key)
     if Permission(type=Permission.DECLINE_INFORM_CONSENT) in client.permissions:
@@ -362,6 +365,7 @@ async def decline_inform_consent(conn, timeout, batches, client_key):
     else:
         LOGGER.debug('has permission: False')
     raise ApiForbidden("Insufficient permission")
+
 
 # async def grant_share_ehr_access(conn, timeout, batches, client_key):
 #     client = await get_client(conn, client_key)
@@ -428,15 +432,14 @@ async def get_client(conn, client_key):
 #             return True
 #     return False
 
-
-async def has_data_processing_access(conn, dest_pkey, src_pkey):  # dest_pkey - doctor, src_pkey - patient
-    access_list = await get_data_processing_access(conn, dest_pkey)
-    for address, data in access_list.items():
-        LOGGER.debug('address: data -> ' + str(data) + '; src_key -> ' + str(src_pkey))
-        if data.src_pkey == src_pkey:
-            LOGGER.debug('has consent!')
-            return True
-    return False
+# async def has_data_processing_access(conn, dest_pkey, src_pkey):  # dest_pkey - doctor, src_pkey - patient
+#     access_list = await get_data_processing_access(conn, dest_pkey)
+#     for address, data in access_list.items():
+#         LOGGER.debug('address: data -> ' + str(data) + '; src_key -> ' + str(src_pkey))
+#         if data.src_pkey == src_pkey:
+#             LOGGER.debug('has consent!')
+#             return True
+#     return False
 
 
 # async def has_share_shared_ehr_consent(conn, dest_pkey, src_pkey):  # dest_pkey - investigator, src_pkey - hospital
@@ -448,6 +451,8 @@ async def has_data_processing_access(conn, dest_pkey, src_pkey):  # dest_pkey - 
 #             return True
 #     return False
 
+
+# TODO invalid package?
 async def get_inform_consent_request(conn, client_key):
     request_inform_consent_list_address = \
         consent_helper.make_request_inform_document_consent_list_address_by_destination_client(client_key)
@@ -464,6 +469,7 @@ async def get_inform_consent_request(conn, client_key):
     return request_inform_consent_list
 
 
+# TODO invalid package?
 async def get_signed_inform_consent(conn, client_key):
     signed_inform_consent_list_address = \
         consent_helper.make_sign_inform_document_consent_list_address_by_destination_client(client_key)
@@ -480,18 +486,18 @@ async def get_signed_inform_consent(conn, client_key):
     return signed_inform_consent_list
 
 
-async def get_data_processing_access(conn, client_key):
-    data_processing_access = consent_helper.make_data_processing_access_list_address_by_destination_client(client_key)
-    LOGGER.debug('data_processing_access: ' + str(data_processing_access))
-    data_processing_access_resources = await messaging.get_state_by_address(conn, data_processing_access)
-    LOGGER.debug('data_processing_access_resources: ' + str(data_processing_access_resources))
-    data_processing_access_list = {}
-    for entity in data_processing_access_resources.entries:
-        aoa = ActionOnAccess()
-        aoa.ParseFromString(entity.data)
-        data_processing_access_list[entity.address] = aoa
-        LOGGER.debug('data processing access: ' + str(aoa))
-    return data_processing_access_list
+# async def get_data_processing_access(conn, client_key):
+#     data_processing_access = consent_helper.make_data_processing_access_list_address_by_destination_client(client_key)
+#     LOGGER.debug('data_processing_access: ' + str(data_processing_access))
+#     data_processing_access_resources = await messaging.get_state_by_address(conn, data_processing_access)
+#     LOGGER.debug('data_processing_access_resources: ' + str(data_processing_access_resources))
+#     data_processing_access_list = {}
+#     for entity in data_processing_access_resources.entries:
+#         aoa = ActionOnAccess()
+#         aoa.ParseFromString(entity.data)
+#         data_processing_access_list[entity.address] = aoa
+#         LOGGER.debug('data processing access: ' + str(aoa))
+#     return data_processing_access_list
 
 
 # async def get_write_ehr_consent(conn, client_key):
@@ -680,7 +686,7 @@ async def get_data_processing_access(conn, client_key):
 #             return claim
 #     return None
 
-
+# TODO invalid package?
 async def get_data_from_investigators(inv_conn, consent_conn, client_key):
     client = await get_client(consent_conn, client_key)
     data_list = {}
@@ -936,8 +942,8 @@ async def get_data_from_investigators(inv_conn, consent_conn, client_key):
 #     raise ApiForbidden("Insufficient permission")
 
 
-def _get_int(value):
-    return int(value)
+# def _get_int(value):
+#     return int(value)
 
 
 # def _match_incl_excl_criteria(data, inc_excl_criteria):
@@ -998,6 +1004,7 @@ async def update_investigator(conn, timeout, batches, client_key):
     raise ApiForbidden("Insufficient permission")
 
 
+# TODO invalid package?
 async def set_eligible(conn, timeout, batches, client_key):
     client = await get_client(conn, client_key)
     if Permission(type=Permission.UPDATE_TRIAL_DATA) in client.permissions:
@@ -1009,6 +1016,7 @@ async def set_eligible(conn, timeout, batches, client_key):
     raise ApiForbidden("Insufficient permission")
 
 
+# TODO invalid package?
 async def has_signed_inform_consent(conn, patient_pkey, investigator_pkey):
     LOGGER.debug('patient_pkey: ' + str(patient_pkey) + '; investigator_pkey: ' + str(investigator_pkey))
     signed_inform_consent_list = await get_signed_inform_consent(conn, investigator_pkey)

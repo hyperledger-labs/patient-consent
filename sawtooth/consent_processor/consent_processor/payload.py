@@ -19,33 +19,33 @@ class ConsentPayload(object):
     # def is_revoke_read_ehr_access(self):
     #     return self._transaction.payload_type == consent_payload_pb2.ConsentTransactionPayload.REVOKE_READ_EHR_ACCESS
 
-    def grant_investigator_access(self):
-        return self._transaction.grant_investigator_access
-
-    def is_grant_investigator_access(self):
-        return self._transaction.payload_type == \
-               consent_payload_pb2.ConsentTransactionPayload.GRANT_INVESTIGATOR_ACCESS
-
-    def revoke_investigator_access(self):
-        return self._transaction.revoke_investigator_access
-
-    def is_revoke_investigator_access(self):
-        return self._transaction.payload_type == \
-               consent_payload_pb2.ConsentTransactionPayload.REVOKE_INVESTIGATOR_ACCESS
-
-    def grant_data_processing_access(self):
-        return self._transaction.grant_data_processing_access
-
-    def is_grant_data_processing_access(self):
-        return self._transaction.payload_type == \
-               consent_payload_pb2.ConsentTransactionPayload.GRANT_DATA_PROCESSING_ACCESS
-
-    def revoke_data_processing_access(self):
-        return self._transaction.revoke_data_processing_access
-
-    def is_revoke_data_processing_access(self):
-        return self._transaction.payload_type == \
-               consent_payload_pb2.ConsentTransactionPayload.REVOKE_DATA_PROCESSING_ACCESS
+    # def grant_investigator_access(self):
+    #     return self._transaction.grant_investigator_access
+    #
+    # def is_grant_investigator_access(self):
+    #     return self._transaction.payload_type == \
+    #            consent_payload_pb2.ConsentTransactionPayload.GRANT_INVESTIGATOR_ACCESS
+    #
+    # def revoke_investigator_access(self):
+    #     return self._transaction.revoke_investigator_access
+    #
+    # def is_revoke_investigator_access(self):
+    #     return self._transaction.payload_type == \
+    #            consent_payload_pb2.ConsentTransactionPayload.REVOKE_INVESTIGATOR_ACCESS
+    #
+    # def grant_data_processing_access(self):
+    #     return self._transaction.grant_data_processing_access
+    #
+    # def is_grant_data_processing_access(self):
+    #     return self._transaction.payload_type == \
+    #            consent_payload_pb2.ConsentTransactionPayload.GRANT_DATA_PROCESSING_ACCESS
+    #
+    # def revoke_data_processing_access(self):
+    #     return self._transaction.revoke_data_processing_access
+    #
+    # def is_revoke_data_processing_access(self):
+    #     return self._transaction.payload_type == \
+    #            consent_payload_pb2.ConsentTransactionPayload.REVOKE_DATA_PROCESSING_ACCESS
 
     def sign_inform_consent(self):
         return self._transaction.sign_inform_document_consent
@@ -68,57 +68,57 @@ class ConsentPayload(object):
         return self._transaction.payload_type == \
                consent_payload_pb2.ConsentTransactionPayload.REQUEST_INFORM_CONSENT
 
-    def grant_share_ehr_access(self):
-        return self._transaction.grant_share_ehr_access
-
-    def revoke_share_ehr_access(self):
-        return self._transaction.revoke_share_ehr_access
-
-    def is_grant_share_ehr_access(self):
-        return self._transaction.payload_type == consent_payload_pb2.ConsentTransactionPayload.GRANT_SHARE_EHR_ACCESS
-
-    def is_revoke_share_ehr_access(self):
-        return self._transaction.payload_type == consent_payload_pb2.ConsentTransactionPayload.REVOKE_SHARE_EHR_ACCESS
-
-    def grant_share_shared_ehr_access(self):
-        return self._transaction.grant_share_shared_ehr_access
-
-    def revoke_share_shared_ehr_access(self):
-        return self._transaction.revoke_share_shared_ehr_access
-
-    def is_grant_share_shared_ehr_access(self):
-        return self._transaction.payload_type == \
-               consent_payload_pb2.ConsentTransactionPayload.GRANT_SHARE_SHARED_EHR_ACCESS
-
-    def is_revoke_share_shared_ehr_access(self):
-        return self._transaction.payload_type == \
-               consent_payload_pb2.ConsentTransactionPayload.REVOKE_SHARE_SHARED_EHR_ACCESS
-
-    def grant_share_ehr_access(self):
-        return self._transaction.grant_share_ehr_access
-
-    def revoke_share_ehr_access(self):
-        return self._transaction.revoke_share_ehr_access
-
-    def is_grant_share_ehr_access(self):
-        return self._transaction.payload_type == consent_payload_pb2.ConsentTransactionPayload.GRANT_SHARE_EHR_ACCESS
-
-    def is_revoke_share_ehr_access(self):
-        return self._transaction.payload_type == consent_payload_pb2.ConsentTransactionPayload.REVOKE_SHARE_EHR_ACCESS
-
-    def grant_share_shared_ehr_access(self):
-        return self._transaction.grant_share_shared_ehr_access
-
-    def revoke_share_shared_ehr_access(self):
-        return self._transaction.revoke_share_shared_ehr_access
-
-    def is_grant_share_shared_ehr_access(self):
-        return self._transaction.payload_type == \
-               consent_payload_pb2.ConsentTransactionPayload.GRANT_SHARE_SHARED_EHR_ACCESS
-
-    def is_revoke_share_shared_ehr_access(self):
-        return self._transaction.payload_type == \
-               consent_payload_pb2.ConsentTransactionPayload.REVOKE_SHARE_SHARED_EHR_ACCESS
+    # def grant_share_ehr_access(self):
+    #     return self._transaction.grant_share_ehr_access
+    #
+    # def revoke_share_ehr_access(self):
+    #     return self._transaction.revoke_share_ehr_access
+    #
+    # def is_grant_share_ehr_access(self):
+    #     return self._transaction.payload_type == consent_payload_pb2.ConsentTransactionPayload.GRANT_SHARE_EHR_ACCESS
+    #
+    # def is_revoke_share_ehr_access(self):
+    #     return self._transaction.payload_type == consent_payload_pb2.ConsentTransactionPayload.REVOKE_SHARE_EHR_ACCESS
+    #
+    # def grant_share_shared_ehr_access(self):
+    #     return self._transaction.grant_share_shared_ehr_access
+    #
+    # def revoke_share_shared_ehr_access(self):
+    #     return self._transaction.revoke_share_shared_ehr_access
+    #
+    # def is_grant_share_shared_ehr_access(self):
+    #     return self._transaction.payload_type == \
+    #            consent_payload_pb2.ConsentTransactionPayload.GRANT_SHARE_SHARED_EHR_ACCESS
+    #
+    # def is_revoke_share_shared_ehr_access(self):
+    #     return self._transaction.payload_type == \
+    #            consent_payload_pb2.ConsentTransactionPayload.REVOKE_SHARE_SHARED_EHR_ACCESS
+    #
+    # def grant_share_ehr_access(self):
+    #     return self._transaction.grant_share_ehr_access
+    #
+    # def revoke_share_ehr_access(self):
+    #     return self._transaction.revoke_share_ehr_access
+    #
+    # def is_grant_share_ehr_access(self):
+    #     return self._transaction.payload_type == consent_payload_pb2.ConsentTransactionPayload.GRANT_SHARE_EHR_ACCESS
+    #
+    # def is_revoke_share_ehr_access(self):
+    #     return self._transaction.payload_type == consent_payload_pb2.ConsentTransactionPayload.REVOKE_SHARE_EHR_ACCESS
+    #
+    # def grant_share_shared_ehr_access(self):
+    #     return self._transaction.grant_share_shared_ehr_access
+    #
+    # def revoke_share_shared_ehr_access(self):
+    #     return self._transaction.revoke_share_shared_ehr_access
+    #
+    # def is_grant_share_shared_ehr_access(self):
+    #     return self._transaction.payload_type == \
+    #            consent_payload_pb2.ConsentTransactionPayload.GRANT_SHARE_SHARED_EHR_ACCESS
+    #
+    # def is_revoke_share_shared_ehr_access(self):
+    #     return self._transaction.payload_type == \
+    #            consent_payload_pb2.ConsentTransactionPayload.REVOKE_SHARE_SHARED_EHR_ACCESS
 
     def transaction_type(self):
         return self._transaction.payload_type

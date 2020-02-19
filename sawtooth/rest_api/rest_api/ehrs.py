@@ -110,6 +110,7 @@ async def add_ehr(request):
 
     await security_messaging.add_ehr(
         request.app.config.EHR_VAL_CONN,
+        request.app.config.CONSENT_VAL_CONN,
         request.app.config.TIMEOUT,
         [batch], hospital_pkey, patient_pkey)
 

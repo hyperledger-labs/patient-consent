@@ -42,16 +42,16 @@ class TrialTransactionHandler(TransactionHandler):
 
             state = TrialState(context)
 
-            if payload.is_create_hospital():
-                hospital = payload.create_hospital()
-
-                hp = state.get_hospital(signer)
-                if hp is not None:
-                    raise InvalidTransaction(
-                        'Invalid action: Hospital already exists: ' + hospital.name)
-
-                state.create_hospital(hospital)
-            elif payload.is_create_investigator():
+            # if payload.is_create_hospital():
+            #     hospital = payload.create_hospital()
+            #
+            #     hp = state.get_hospital(signer)
+            #     if hp is not None:
+            #         raise InvalidTransaction(
+            #             'Invalid action: Hospital already exists: ' + hospital.name)
+            #
+            #     state.create_hospital(hospital)
+            if payload.is_create_investigator():
                 investigator = payload.create_investigator()
 
                 dp = state.get_investigator(investigator.public_key)
@@ -60,15 +60,15 @@ class TrialTransactionHandler(TransactionHandler):
                         'Invalid action: Investigator already exists: ' + investigator.name)
 
                 state.create_investigator(investigator)
-            elif payload.is_create_patient():
-                patient = payload.create_patient()
-
-                pat = state.get_patient(signer)
-                if pat is not None:
-                    raise InvalidTransaction(
-                        'Invalid action: Patient already exists: ' + patient.name)
-
-                state.create_patient(patient)
+            # elif payload.is_create_patient():
+            #     patient = payload.create_patient()
+            #
+            #     pat = state.get_patient(signer)
+            #     if pat is not None:
+            #         raise InvalidTransaction(
+            #             'Invalid action: Patient already exists: ' + patient.name)
+            #
+            #     state.create_patient(patient)
             # elif healthcare_payload.is_create_lab():
             #     lab = healthcare_payload.create_lab()
             #
@@ -214,15 +214,15 @@ class TrialTransactionHandler(TransactionHandler):
             #     #                               lab_test.appearance, lab_test.bilirubin, lab_test.casts,
             #     #                               lab_test.color, lab_test.event_time)
             #     healthcare_state.add_lab_test(lab_test)
-            elif payload.is_create_ehr():
-                ehr = payload.create_ehr()
-
-                # patient = healthcare_state.get_patient(signer)
-                # if patient is None:
-                #     raise InvalidTransaction(
-                #         'Invalid action: Patient does not exist: ' + signer)
-
-                state.create_ehr(signer, ehr)
+            # elif payload.is_create_ehr():
+            #     ehr = payload.create_ehr()
+            #
+            #     # patient = healthcare_state.get_patient(signer)
+            #     # if patient is None:
+            #     #     raise InvalidTransaction(
+            #     #         'Invalid action: Patient does not exist: ' + signer)
+            #
+            #     state.create_ehr(signer, ehr)
             elif payload.is_import_data():
                 data = payload.import_data()
                 state.import_data(signer, data)

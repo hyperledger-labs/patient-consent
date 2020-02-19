@@ -180,88 +180,88 @@ def create_client(txn_signer, batch_signer, permissions):
         batch_signer=batch_signer)
 
 
-def grant_data_processing(txn_signer, batch_signer, dest_pkey):
-    patient_pkey = txn_signer.get_public_key().as_hex()
-    permission_hex = helper.make_data_processing_access_address(dest_pkey=dest_pkey, src_pkey=patient_pkey)
-
-    access = ActionOnAccess(
-        dest_pkey=dest_pkey,
-        src_pkey=patient_pkey
-    )
-
-    payload = ConsentTransactionPayload(
-        payload_type=ConsentTransactionPayload.GRANT_DATA_PROCESSING_ACCESS,
-        grant_data_processing_access=access)
-
-    return _make_transaction(
-        payload=payload,
-        inputs=[permission_hex],
-        outputs=[permission_hex],
-        txn_signer=txn_signer,
-        batch_signer=batch_signer)
-
-
-def revoke_data_processing(txn_signer, batch_signer, dest_pkey):
-    patient_pkey = txn_signer.get_public_key().as_hex()
-    permission_hex = helper.make_data_processing_access_address(dest_pkey=dest_pkey, src_pkey=patient_pkey)
-
-    access = ActionOnAccess(
-        dest_pkey=dest_pkey,
-        src_pkey=patient_pkey
-    )
-
-    payload = ConsentTransactionPayload(
-        payload_type=ConsentTransactionPayload.REVOKE_DATA_PROCESSING_ACCESS,
-        revoke_data_processing_access=access)
-
-    return _make_transaction(
-        payload=payload,
-        inputs=[permission_hex],
-        outputs=[permission_hex],
-        txn_signer=txn_signer,
-        batch_signer=batch_signer)
-
-
-def grant_investigator_access(txn_signer, batch_signer, dest_pkey):
-    hospital_pkey = txn_signer.get_public_key().as_hex()
-    permission_hex = helper.make_investigator_access_address(dest_pkey=dest_pkey, src_pkey=hospital_pkey)
-
-    access = ActionOnAccess(
-        dest_pkey=dest_pkey,
-        src_pkey=hospital_pkey
-    )
-
-    payload = ConsentTransactionPayload(
-        payload_type=ConsentTransactionPayload.GRANT_INVESTIGATOR_ACCESS,
-        grant_investigator_access=access)
-
-    return _make_transaction(
-        payload=payload,
-        inputs=[permission_hex],
-        outputs=[permission_hex],
-        txn_signer=txn_signer,
-        batch_signer=batch_signer)
+# def grant_data_processing(txn_signer, batch_signer, dest_pkey):
+#     patient_pkey = txn_signer.get_public_key().as_hex()
+#     permission_hex = helper.make_data_processing_access_address(dest_pkey=dest_pkey, src_pkey=patient_pkey)
+#
+#     access = ActionOnAccess(
+#         dest_pkey=dest_pkey,
+#         src_pkey=patient_pkey
+#     )
+#
+#     payload = ConsentTransactionPayload(
+#         payload_type=ConsentTransactionPayload.GRANT_DATA_PROCESSING_ACCESS,
+#         grant_data_processing_access=access)
+#
+#     return _make_transaction(
+#         payload=payload,
+#         inputs=[permission_hex],
+#         outputs=[permission_hex],
+#         txn_signer=txn_signer,
+#         batch_signer=batch_signer)
+#
+#
+# def revoke_data_processing(txn_signer, batch_signer, dest_pkey):
+#     patient_pkey = txn_signer.get_public_key().as_hex()
+#     permission_hex = helper.make_data_processing_access_address(dest_pkey=dest_pkey, src_pkey=patient_pkey)
+#
+#     access = ActionOnAccess(
+#         dest_pkey=dest_pkey,
+#         src_pkey=patient_pkey
+#     )
+#
+#     payload = ConsentTransactionPayload(
+#         payload_type=ConsentTransactionPayload.REVOKE_DATA_PROCESSING_ACCESS,
+#         revoke_data_processing_access=access)
+#
+#     return _make_transaction(
+#         payload=payload,
+#         inputs=[permission_hex],
+#         outputs=[permission_hex],
+#         txn_signer=txn_signer,
+#         batch_signer=batch_signer)
 
 
-def revoke_investigator_access(txn_signer, batch_signer, dest_pkey):
-    hospital_pkey = txn_signer.get_public_key().as_hex()
-    permission_hex = helper.make_investigator_access_address(dest_pkey=dest_pkey, src_pkey=hospital_pkey)
-
-    access = ActionOnAccess(
-        dest_pkey=dest_pkey,
-        src_pkey=hospital_pkey
-    )
-
-    payload = ConsentTransactionPayload(
-        payload_type=ConsentTransactionPayload.REVOKE_INVESTIGATOR_ACCESS,
-        revoke_investigator_access=access)
-
-    return _make_transaction(
-        payload=payload,
-        inputs=[permission_hex],
-        outputs=[permission_hex],
-        txn_signer=txn_signer,
-        batch_signer=batch_signer)
+# def grant_investigator_access(txn_signer, batch_signer, dest_pkey):
+#     hospital_pkey = txn_signer.get_public_key().as_hex()
+#     permission_hex = helper.make_investigator_access_address(dest_pkey=dest_pkey, src_pkey=hospital_pkey)
+#
+#     access = ActionOnAccess(
+#         dest_pkey=dest_pkey,
+#         src_pkey=hospital_pkey
+#     )
+#
+#     payload = ConsentTransactionPayload(
+#         payload_type=ConsentTransactionPayload.GRANT_INVESTIGATOR_ACCESS,
+#         grant_investigator_access=access)
+#
+#     return _make_transaction(
+#         payload=payload,
+#         inputs=[permission_hex],
+#         outputs=[permission_hex],
+#         txn_signer=txn_signer,
+#         batch_signer=batch_signer)
+#
+#
+# def revoke_investigator_access(txn_signer, batch_signer, dest_pkey):
+#     hospital_pkey = txn_signer.get_public_key().as_hex()
+#     permission_hex = helper.make_investigator_access_address(dest_pkey=dest_pkey, src_pkey=hospital_pkey)
+#
+#     access = ActionOnAccess(
+#         dest_pkey=dest_pkey,
+#         src_pkey=hospital_pkey
+#     )
+#
+#     payload = ConsentTransactionPayload(
+#         payload_type=ConsentTransactionPayload.REVOKE_INVESTIGATOR_ACCESS,
+#         revoke_investigator_access=access)
+#
+#     return _make_transaction(
+#         payload=payload,
+#         inputs=[permission_hex],
+#         outputs=[permission_hex],
+#         txn_signer=txn_signer,
+#         batch_signer=batch_signer)
 
 
 def request_inform_document_consent(txn_signer, batch_signer, patient_pkey):

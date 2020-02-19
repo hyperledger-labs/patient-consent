@@ -5,7 +5,9 @@ from sawtooth_sdk.protobuf.batch_pb2 import BatchHeader, Batch
 from sawtooth_sdk.protobuf.transaction_pb2 import Transaction, TransactionHeader
 
 from . import helper as helper
-from .protobuf.trial_payload_pb2 import EHR, TrialTransactionPayload, Hospital, Patient, Investigator, Data
+from .protobuf.ehr_payload_pb2 import EHR, EHRTransactionPayload, Hospital, Patient, EHRActionOnAccess
+
+# , Investigator, Data
 
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)
@@ -106,8 +108,8 @@ def create_patient(txn_signer, batch_signer, name, surname):
         name=name,
         surname=surname)
 
-    payload = TrialTransactionPayload(
-        payload_type=TrialTransactionPayload.CREATE_PATIENT,
+    payload = EHRTransactionPayload(
+        payload_type=EHRTransactionPayload.CREATE_PATIENT,
         create_patient=patient)
 
     LOGGER.debug('payload: ' + str(payload))
@@ -129,8 +131,8 @@ def create_hospital(txn_signer, batch_signer, name):
         public_key=hospital_pkey,
         name=name)
 
-    payload = TrialTransactionPayload(
-        payload_type=TrialTransactionPayload.CREATE_HOSPITAL,
+    payload = EHRTransactionPayload(
+        payload_type=EHRTransactionPayload.CREATE_HOSPITAL,
         create_hospital=hospital)
 
     return _make_transaction(
@@ -141,25 +143,25 @@ def create_hospital(txn_signer, batch_signer, name):
         batch_signer=batch_signer)
 
 
-def create_investigator(txn_signer, batch_signer, name):
-    investigator_pkey = txn_signer.get_public_key().as_hex()
-    LOGGER.debug('investigator_pkey: ' + str(investigator_pkey))
-    inputs = outputs = helper.make_investigator_address(investigator_pkey=investigator_pkey)
-    LOGGER.debug('inputs: ' + str(inputs))
-    investigator = Investigator(
-        public_key=investigator_pkey,
-        name=name)
-
-    payload = TrialTransactionPayload(
-        payload_type=TrialTransactionPayload.CREATE_INVESTIGATOR,
-        create_investigator=investigator)
-
-    return _make_transaction(
-        payload=payload,
-        inputs=[inputs],
-        outputs=[outputs],
-        txn_signer=txn_signer,
-        batch_signer=batch_signer)
+# def create_investigator(txn_signer, batch_signer, name):
+#     investigator_pkey = txn_signer.get_public_key().as_hex()
+#     LOGGER.debug('investigator_pkey: ' + str(investigator_pkey))
+#     inputs = outputs = helper.make_investigator_address(investigator_pkey=investigator_pkey)
+#     LOGGER.debug('inputs: ' + str(inputs))
+#     investigator = Investigator(
+#         public_key=investigator_pkey,
+#         name=name)
+#
+#     payload = TrialTransactionPayload(
+#         payload_type=TrialTransactionPayload.CREATE_INVESTIGATOR,
+#         create_investigator=investigator)
+#
+#     return _make_transaction(
+#         payload=payload,
+#         inputs=[inputs],
+#         outputs=[outputs],
+#         txn_signer=txn_signer,
+#         batch_signer=batch_signer)
 
 
 # def create_lab(txn_signer, batch_signer, name):
@@ -215,96 +217,96 @@ def create_investigator(txn_signer, batch_signer, name):
 #         batch_signer=batch_signer)
 
 
-def add_data(txn_signer, batch_signer, uid, height, weight, a1c, fpg, ogtt, rpgt, event_time):
-    # LOGGER.debug('data: ' + str(data))
-    investigator_pkey = txn_signer.get_public_key().as_hex()
-    # patient_pkey = client_pkey
-    # patient_hex = helper.make_patient_address(patient_pkey=client_pkey)
-    data_hex = helper.make_investigator_data_address(data_id=uid)
-    data_investigator_rel_hex = helper.make_data_investigator__relation_address(uid, investigator_pkey)
-    investigator_data_rel_hex = helper.make_investigator_data__relation_address(investigator_pkey, uid)
-
-    # ehr_hospital_rel_hex = helper.make_ehr_hospital__relation_address(uid, hospital_pkey)
-    # hospital_ehr_rel_hex = helper.make_hospital_ehr__relation_address(hospital_pkey, uid)
-
-    # current_times_str = helper.get_current_timestamp()
-    # clinic_hex = helper.make_clinic_address(clinic_pkey=clinic_pkey)
-
-    trial = Data(
-        id=uid,
-        height=height,
-        weight=weight,
-        A1C=a1c,
-        FPG=fpg,
-        OGTT=ogtt,
-        RPGT=rpgt,
-        event_time=event_time
-    )
-
-    LOGGER.debug('trial: ' + str(trial))
-
-    payload = TrialTransactionPayload(
-        payload_type=TrialTransactionPayload.IMPORT_DATA,
-        import_data=trial)
-
-    return _make_transaction(
-        payload=payload,
-        inputs=[data_hex, data_investigator_rel_hex, investigator_data_rel_hex],
-        outputs=[data_hex, data_investigator_rel_hex, investigator_data_rel_hex],
-        txn_signer=txn_signer,
-        batch_signer=batch_signer)
-
-
-def update_data(txn_signer, batch_signer, uid, height, weight, a1c, fpg, ogtt, rpgt):
-    # data_provider_pkey = txn_signer.get_public_key().as_hex()
-    data_hex = helper.make_investigator_data_address(data_id=uid)
-    # data_data_provider_rel_hex = helper.make_data_data_provider__relation_address(uid, data_provider_pkey)
-    # data_provider_data_rel_hex = helper.make_data_provider_data__relation_address(data_provider_pkey, uid)
-
-    trial = Data(
-        id=uid,
-        height=height,
-        weight=weight,
-        A1C=a1c,
-        FPG=fpg,
-        OGTT=ogtt,
-        RPGT=rpgt
-    )
-
-    LOGGER.debug('trial_update: ' + str(trial))
-
-    payload = TrialTransactionPayload(
-        payload_type=TrialTransactionPayload.UPDATE_DATA,
-        update_data=trial)
-
-    return _make_transaction(
-        payload=payload,
-        inputs=[data_hex],
-        outputs=[data_hex],
-        txn_signer=txn_signer,
-        batch_signer=batch_signer)
+# def add_data(txn_signer, batch_signer, uid, height, weight, a1c, fpg, ogtt, rpgt, event_time):
+#     # LOGGER.debug('data: ' + str(data))
+#     investigator_pkey = txn_signer.get_public_key().as_hex()
+#     # patient_pkey = client_pkey
+#     # patient_hex = helper.make_patient_address(patient_pkey=client_pkey)
+#     data_hex = helper.make_investigator_data_address(data_id=uid)
+#     data_investigator_rel_hex = helper.make_data_investigator__relation_address(uid, investigator_pkey)
+#     investigator_data_rel_hex = helper.make_investigator_data__relation_address(investigator_pkey, uid)
+#
+#     # ehr_hospital_rel_hex = helper.make_ehr_hospital__relation_address(uid, hospital_pkey)
+#     # hospital_ehr_rel_hex = helper.make_hospital_ehr__relation_address(hospital_pkey, uid)
+#
+#     # current_times_str = helper.get_current_timestamp()
+#     # clinic_hex = helper.make_clinic_address(clinic_pkey=clinic_pkey)
+#
+#     trial = Data(
+#         id=uid,
+#         height=height,
+#         weight=weight,
+#         A1C=a1c,
+#         FPG=fpg,
+#         OGTT=ogtt,
+#         RPGT=rpgt,
+#         event_time=event_time
+#     )
+#
+#     LOGGER.debug('trial: ' + str(trial))
+#
+#     payload = TrialTransactionPayload(
+#         payload_type=TrialTransactionPayload.IMPORT_DATA,
+#         import_data=trial)
+#
+#     return _make_transaction(
+#         payload=payload,
+#         inputs=[data_hex, data_investigator_rel_hex, investigator_data_rel_hex],
+#         outputs=[data_hex, data_investigator_rel_hex, investigator_data_rel_hex],
+#         txn_signer=txn_signer,
+#         batch_signer=batch_signer)
 
 
-def set_eligible(txn_signer, batch_signer, uid, eligible):
-    data_hex = helper.make_investigator_data_address(data_id=uid)
-
-    trial = Data(
-        id=uid,
-        eligible=eligible
-    )
-
-    LOGGER.debug('set_eligible: ' + str(trial))
-
-    payload = TrialTransactionPayload(
-        payload_type=TrialTransactionPayload.SET_ELIGIBLE,
-        set_eligible=trial)
-
-    return _make_transaction(
-        payload=payload,
-        inputs=[data_hex],
-        outputs=[data_hex],
-        txn_signer=txn_signer,
-        batch_signer=batch_signer)
+# def update_data(txn_signer, batch_signer, uid, height, weight, a1c, fpg, ogtt, rpgt):
+#     # data_provider_pkey = txn_signer.get_public_key().as_hex()
+#     data_hex = helper.make_investigator_data_address(data_id=uid)
+#     # data_data_provider_rel_hex = helper.make_data_data_provider__relation_address(uid, data_provider_pkey)
+#     # data_provider_data_rel_hex = helper.make_data_provider_data__relation_address(data_provider_pkey, uid)
+#
+#     trial = Data(
+#         id=uid,
+#         height=height,
+#         weight=weight,
+#         A1C=a1c,
+#         FPG=fpg,
+#         OGTT=ogtt,
+#         RPGT=rpgt
+#     )
+#
+#     LOGGER.debug('trial_update: ' + str(trial))
+#
+#     payload = TrialTransactionPayload(
+#         payload_type=TrialTransactionPayload.UPDATE_DATA,
+#         update_data=trial)
+#
+#     return _make_transaction(
+#         payload=payload,
+#         inputs=[data_hex],
+#         outputs=[data_hex],
+#         txn_signer=txn_signer,
+#         batch_signer=batch_signer)
+#
+#
+# def set_eligible(txn_signer, batch_signer, uid, eligible):
+#     data_hex = helper.make_investigator_data_address(data_id=uid)
+#
+#     trial = Data(
+#         id=uid,
+#         eligible=eligible
+#     )
+#
+#     LOGGER.debug('set_eligible: ' + str(trial))
+#
+#     payload = TrialTransactionPayload(
+#         payload_type=TrialTransactionPayload.SET_ELIGIBLE,
+#         set_eligible=trial)
+#
+#     return _make_transaction(
+#         payload=payload,
+#         inputs=[data_hex],
+#         outputs=[data_hex],
+#         txn_signer=txn_signer,
+#         batch_signer=batch_signer)
 
 
 def add_ehr(txn_signer, batch_signer, uid, client_pkey, height, weight, a1c, fpg, ogtt, rpgt):
@@ -335,14 +337,98 @@ def add_ehr(txn_signer, batch_signer, uid, client_pkey, height, weight, a1c, fpg
 
     LOGGER.debug('ehr: ' + str(ehr))
 
-    payload = TrialTransactionPayload(
-        payload_type=TrialTransactionPayload.CREATE_EHR,
+    payload = EHRTransactionPayload(
+        payload_type=EHRTransactionPayload.CREATE_EHR,
         create_ehr=ehr)
 
     return _make_transaction(
         payload=payload,
         inputs=[ehr_hex, ehr_patient_rel_hex, patient_ehr_rel_hex, ehr_hospital_rel_hex, hospital_ehr_rel_hex],
         outputs=[ehr_hex, ehr_patient_rel_hex, patient_ehr_rel_hex, ehr_hospital_rel_hex, hospital_ehr_rel_hex],
+        txn_signer=txn_signer,
+        batch_signer=batch_signer)
+
+
+def grant_data_processing(txn_signer, batch_signer, dest_pkey):
+    patient_pkey = txn_signer.get_public_key().as_hex()
+    permission_hex = helper.make_data_processing_access_address(dest_pkey=dest_pkey, src_pkey=patient_pkey)
+
+    access = EHRActionOnAccess(
+        dest_pkey=dest_pkey,
+        src_pkey=patient_pkey
+    )
+
+    payload = EHRTransactionPayload(
+        payload_type=EHRTransactionPayload.GRANT_DATA_PROCESSING_ACCESS,
+        grant_data_processing_access=access)
+
+    return _make_transaction(
+        payload=payload,
+        inputs=[permission_hex],
+        outputs=[permission_hex],
+        txn_signer=txn_signer,
+        batch_signer=batch_signer)
+
+
+def revoke_data_processing(txn_signer, batch_signer, dest_pkey):
+    patient_pkey = txn_signer.get_public_key().as_hex()
+    permission_hex = helper.make_data_processing_access_address(dest_pkey=dest_pkey, src_pkey=patient_pkey)
+
+    access = EHRActionOnAccess(
+        dest_pkey=dest_pkey,
+        src_pkey=patient_pkey
+    )
+
+    payload = EHRTransactionPayload(
+        payload_type=EHRTransactionPayload.REVOKE_DATA_PROCESSING_ACCESS,
+        revoke_data_processing_access=access)
+
+    return _make_transaction(
+        payload=payload,
+        inputs=[permission_hex],
+        outputs=[permission_hex],
+        txn_signer=txn_signer,
+        batch_signer=batch_signer)
+
+
+def grant_investigator_access(txn_signer, batch_signer, dest_pkey):
+    hospital_pkey = txn_signer.get_public_key().as_hex()
+    permission_hex = helper.make_investigator_access_address(dest_pkey=dest_pkey, src_pkey=hospital_pkey)
+
+    access = EHRActionOnAccess(
+        dest_pkey=dest_pkey,
+        src_pkey=hospital_pkey
+    )
+
+    payload = EHRTransactionPayload(
+        payload_type=EHRTransactionPayload.GRANT_INVESTIGATOR_ACCESS,
+        grant_investigator_access=access)
+
+    return _make_transaction(
+        payload=payload,
+        inputs=[permission_hex],
+        outputs=[permission_hex],
+        txn_signer=txn_signer,
+        batch_signer=batch_signer)
+
+
+def revoke_investigator_access(txn_signer, batch_signer, dest_pkey):
+    hospital_pkey = txn_signer.get_public_key().as_hex()
+    permission_hex = helper.make_investigator_access_address(dest_pkey=dest_pkey, src_pkey=hospital_pkey)
+
+    access = EHRActionOnAccess(
+        dest_pkey=dest_pkey,
+        src_pkey=hospital_pkey
+    )
+
+    payload = EHRTransactionPayload(
+        payload_type=EHRTransactionPayload.REVOKE_INVESTIGATOR_ACCESS,
+        revoke_investigator_access=access)
+
+    return _make_transaction(
+        payload=payload,
+        inputs=[permission_hex],
+        outputs=[permission_hex],
         txn_signer=txn_signer,
         batch_signer=batch_signer)
 

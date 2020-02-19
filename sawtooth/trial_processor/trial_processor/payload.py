@@ -7,14 +7,14 @@ class TrialPayload(object):
         self._transaction = TrialTransactionPayload()
         self._transaction.ParseFromString(payload)
 
-    def create_hospital(self):
-        return self._transaction.create_hospital
+    # def create_hospital(self):
+    #     return self._transaction.create_hospital
 
     def create_investigator(self):
         return self._transaction.create_investigator
 
-    def create_patient(self):
-        return self._transaction.create_patient
+    # def create_patient(self):
+    #     return self._transaction.create_patient
 
     # def create_lab(self):
     #     return self._transaction.create_lab
@@ -46,23 +46,23 @@ class TrialPayload(object):
     def update_data(self):
         return self._transaction.update_data
 
-    def create_ehr(self):
-        return self._transaction.create_ehr
+    # def create_ehr(self):
+    #     return self._transaction.create_ehr
 
     def import_data(self):
         return self._transaction.import_data
 
-    def is_create_hospital(self):
-        return self._transaction.payload_type == TrialTransactionPayload.CREATE_HOSPITAL
+    # def is_create_hospital(self):
+    #     return self._transaction.payload_type == TrialTransactionPayload.CREATE_HOSPITAL
 
     def is_create_investigator(self):
         return self._transaction.payload_type == TrialTransactionPayload.CREATE_INVESTIGATOR
 
-    def is_create_patient(self):
-        return self._transaction.payload_type == TrialTransactionPayload.CREATE_PATIENT
+    # def is_create_patient(self):
+    #     return self._transaction.payload_type == TrialTransactionPayload.CREATE_PATIENT
 
-    def is_create_ehr(self):
-        return self._transaction.payload_type == TrialTransactionPayload.CREATE_EHR
+    # def is_create_ehr(self):
+    #     return self._transaction.payload_type == TrialTransactionPayload.CREATE_EHR
 
     def is_import_data(self):
         return self._transaction.payload_type == TrialTransactionPayload.IMPORT_DATA

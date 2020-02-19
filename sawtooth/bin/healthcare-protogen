@@ -68,7 +68,7 @@ def make_consent_protobuf():
 
 
 def make_ehr_protobuf():
-    make_protobuf(path='ehr_common', pkg_name='protobuf', proto_file='trial_payload.proto')
+    make_protobuf(path='ehr_common', pkg_name='protobuf', proto_file='ehr_payload.proto')
 
 
 def make_trial_protobuf():

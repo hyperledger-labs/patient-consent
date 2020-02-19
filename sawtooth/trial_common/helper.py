@@ -1,7 +1,7 @@
 import hashlib
 import time
 
-DISTRIBUTION_NAME = 'clinical-trials'
+# DISTRIBUTION_NAME = 'clinical-trials'
 
 DEFAULT_URL = 'http://127.0.0.1:8008'
 
