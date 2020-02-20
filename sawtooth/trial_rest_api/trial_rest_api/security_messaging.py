@@ -331,12 +331,12 @@ async def get_inform_consent_request_list(conn, client_key):
 #         LOGGER.debug('has permission: False')
 #     raise ApiForbidden("Insufficient permission")
 
-# TODO Invalid package?
-async def request_inform_document_consent(conn, timeout, batches, client_key):
-    client = await get_client(conn, client_key)
+# Used
+async def request_inform_document_consent(consent_conn, timeout, batches, client_key):
+    client = await get_client(consent_conn, client_key)
     if Permission(type=Permission.REQUEST_INFORM_CONSENT) in client.permissions:
         LOGGER.debug('has permission: True')
-        await _send(conn, timeout, batches)
+        await _send(consent_conn, timeout, batches)
         return
     else:
         LOGGER.debug('has permission: False')
@@ -982,34 +982,36 @@ async def get_data_from_investigators(inv_conn, consent_conn, client_key):
 #     raise ApiForbidden("Insufficient permission")
 
 
-async def import_screening_data(conn, timeout, batches, client_key):
-    client = await get_client(conn, client_key)
+# Used
+async def import_screening_data(inv_conn, consent_conn, timeout, batches, client_key):
+    client = await get_client(consent_conn, client_key)
     if Permission(type=Permission.IMPORT_TRIAL_DATA) in client.permissions:
         LOGGER.debug('has IMPORT_TRIAL_DATA permission: True')
-        await _send(conn, timeout, batches)
+        await _send(inv_conn, timeout, batches)
         return
     else:
         LOGGER.debug('has permission: False')
     raise ApiForbidden("Insufficient permission")
 
 
-async def update_investigator(conn, timeout, batches, client_key):
-    client = await get_client(conn, client_key)
+# Used
+async def update_investigator(inv_conn, consent_conn, timeout, batches, client_key):
+    client = await get_client(consent_conn, client_key)
     if Permission(type=Permission.UPDATE_TRIAL_DATA) in client.permissions:
         LOGGER.debug('has UPDATE_TRIAL_DATA permission: True')
-        await _send(conn, timeout, batches)
+        await _send(inv_conn, timeout, batches)
         return
     else:
         LOGGER.debug('has permission: False')
     raise ApiForbidden("Insufficient permission")
 
 
-# TODO invalid package?
-async def set_eligible(conn, timeout, batches, client_key):
-    client = await get_client(conn, client_key)
+# Used
+async def set_eligible(inv_conn, consent_conn, timeout, batches, client_key):
+    client = await get_client(consent_conn, client_key)
     if Permission(type=Permission.UPDATE_TRIAL_DATA) in client.permissions:
         LOGGER.debug('has UPDATE_TRIAL_DATA permission: True')
-        await _send(conn, timeout, batches)
+        await _send(inv_conn, timeout, batches)
         return
     else:
         LOGGER.debug('has permission: False')

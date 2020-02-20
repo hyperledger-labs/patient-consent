@@ -148,6 +148,7 @@ async def register_investigator(request):
 #                          headers=general.get_response_headers())
 
 
+# TODO Deprecated method
 @INVESTIGATORS_BP.get('investigators/import_to_trial_data/<patient_pkey>/<ehr_id>')
 async def import_screening_data(request, patient_pkey, ehr_id):
     """Updates auth information for the authorized account"""

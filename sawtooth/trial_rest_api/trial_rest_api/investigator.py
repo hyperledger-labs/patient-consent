@@ -28,6 +28,7 @@ logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)
 
 
+# Used
 @INVESTIGATORS_BP.get('investigators')
 async def get_all_investigators(request):
     """Fetches complete details of all Accounts in state"""
@@ -45,6 +46,7 @@ async def get_all_investigators(request):
                          headers=general.get_response_headers())
 
 
+# Used
 @INVESTIGATORS_BP.post('investigators')
 async def register_investigator(request):
     """Updates auth information for the authorized account"""
@@ -147,6 +149,7 @@ async def register_investigator(request):
 @INVESTIGATORS_BP.get('investigators/import_to_trial_data/<patient_pkey>/<ehr_id>')
 async def import_screening_data(request, patient_pkey, ehr_id):
     """Updates auth information for the authorized account"""
+    res_json = general.get_response_from_ehr(request, "/ehrs/" + patient_pkey + "/" + ehr_id)
     investigator_pkey = general.get_request_key_header(request)
     client_signer = general.get_signer(request, investigator_pkey)
     # LOGGER.debug('request.json: ' + str(request.json))
@@ -154,40 +157,46 @@ async def import_screening_data(request, patient_pkey, ehr_id):
     # data_txns = []
     # for data in data_list:
 
-    has_signed_inform_consent = \
-        await security_messaging.has_signed_inform_consent(
-            request.app.config.VAL_CONN,
-            patient_pkey,
-            investigator_pkey)
+    # has_signed_inform_consent = \
+    #     await security_messaging.has_signed_inform_consent(
+    #         request.app.config.VAL_CONN,
+    #         patient_pkey,
+    #         investigator_pkey)
 
-    if not has_signed_inform_consent:
-        raise ApiBadRequest("No signed inform consent between patient '" +
-                            patient_pkey + "' and investigator '" + investigator_pkey + "'")
+    # if not has_signed_inform_consent:
+    #     raise ApiBadRequest("No signed inform consent between patient '" +
+    #                         patient_pkey + "' and investigator '" + investigator_pkey + "'")
 
-    ehr = await security_messaging.get_ehr_by_id(request.app.config.VAL_CONN, patient_pkey, ehr_id)
+    # ehr = await security_messaging.get_ehr_by_id(request.app.config.VAL_CONN, patient_pkey, ehr_id)
+
+    data_json = res_json['data']
+
+    if not data_json:
+        raise ApiBadRequest("Can not retrieve '" + ehr_id + "' EHR ' for '" + patient_pkey + "' patient")
 
     data_txn = trial_transaction.add_data(
         txn_signer=client_signer,
         batch_signer=client_signer,
-        uid=ehr.id,
-        height=ehr.height,
-        weight=ehr.weight,
-        a1c=ehr.A1C,
-        fpg=ehr.FPG,
-        ogtt=ehr.OGTT,
-        rpgt=ehr.RPGT,
-        event_time=ehr.event_time)
+        uid=data_json['id'],
+        height=data_json['height'],
+        weight=data_json['weight'],
+        a1c=data_json['A1C'],
+        fpg=data_json['FPG'],
+        ogtt=data_json['OGTT'],
+        rpgt=data_json['RPGT'],
+        event_time=data_json['event_time'])
 
     batch, batch_id = trial_transaction.make_batch_and_id([data_txn], client_signer)
 
     await security_messaging.import_screening_data(
-        request.app.config.VAL_CONN,
+        request.app.config.INVESTIGATOR_VAL_CONN,
+        request.app.config.CONSENT_VAL_CONN,
         request.app.config.TIMEOUT,
         [batch], investigator_pkey)
 
     try:
         await security_messaging.check_batch_status(
-            request.app.config.VAL_CONN, [batch_id])
+            request.app.config.INVESTIGATOR_VAL_CONN, [batch_id])
     except (ApiBadRequest, ApiInternalError) as err:
         # await auth_query.remove_auth_entry(
         #     request.app.config.DB_CONN, request.json.get('email'))
@@ -221,6 +230,7 @@ async def get_all_data_from_investigators(request):
                          headers=general.get_response_headers())
 
 
+# Used
 @INVESTIGATORS_BP.post('investigators/data/update')
 async def update_data(request):
     client_key = general.get_request_key_header(request)
@@ -251,13 +261,14 @@ async def update_data(request):
     batch, batch_id = trial_transaction.make_batch_and_id([client_txn], client_signer)
 
     await security_messaging.update_investigator(
-        request.app.config.VAL_CONN,
+        request.app.config.INVESTIGATOR_VAL_CONN,
+        request.app.config.CONSENT_VAL_CONN,
         request.app.config.TIMEOUT,
         [batch], client_key)
 
     try:
         await security_messaging.check_batch_status(
-            request.app.config.VAL_CONN, [batch_id])
+            request.app.config.INVESTIGATOR_VAL_CONN, [batch_id])
     except (ApiBadRequest, ApiInternalError) as err:
         # await auth_query.remove_auth_entry(
         #     request.app.config.DB_CONN, request.json.get('email'))
@@ -267,6 +278,7 @@ async def update_data(request):
                          headers=general.get_response_headers())
 
 
+# Used
 @INVESTIGATORS_BP.get('investigators/request_inform_consent/<patient_pkey>')
 async def request_inform_consent(request, patient_pkey):
     """Updates auth information for the authorized account"""
@@ -280,13 +292,13 @@ async def request_inform_consent(request, patient_pkey):
     batch, batch_id = trial_transaction.make_batch_and_id([grant_read_ehr_permission_txn], client_signer)
 
     await security_messaging.request_inform_document_consent(
-        request.app.config.VAL_CONN,
+        request.app.config.CONSENT_VAL_CONN,
         request.app.config.TIMEOUT,
         [batch], client_key)
 
     try:
         await security_messaging.check_batch_status(
-            request.app.config.VAL_CONN, [batch_id])
+            request.app.config.CONSENT_VAL_CONN, [batch_id])
     except (ApiBadRequest, ApiInternalError) as err:
         # await auth_query.remove_auth_entry(
         #     request.app.config.DB_CONN, request.json.get('email'))
@@ -296,6 +308,7 @@ async def request_inform_consent(request, patient_pkey):
                          headers=general.get_response_headers())
 
 
+# Used
 @INVESTIGATORS_BP.post('investigators/data/eligible')
 async def set_eligible(request):
     client_key = general.get_request_key_header(request)
@@ -316,13 +329,14 @@ async def set_eligible(request):
     batch, batch_id = trial_transaction.make_batch_and_id([client_txn], client_signer)
 
     await security_messaging.set_eligible(
-        request.app.config.VAL_CONN,
+        request.app.config.INVESTIGATOR_VAL_CONN,
+        request.app.config.CONSENT_VAL_CONN,
         request.app.config.TIMEOUT,
         [batch], client_key)
 
     try:
         await security_messaging.check_batch_status(
-            request.app.config.VAL_CONN, [batch_id])
+            request.app.config.INVESTIGATOR_VAL_CONN, [batch_id])
     except (ApiBadRequest, ApiInternalError) as err:
         # await auth_query.remove_auth_entry(
         #     request.app.config.DB_CONN, request.json.get('email'))
