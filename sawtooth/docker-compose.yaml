@@ -21,7 +21,7 @@ services:
         sleep 1 &&
         echo '--- Building ehr-tp by docker-compose---\n' &&
         init-ehr-tp.sh &&
-        ehr-tp -v -C tcp://validator:4004 &&
+        ehr-tp -v -C tcp://ehr-validator:4004 &&
         tail -f /dev/null
                "
 
@@ -42,7 +42,30 @@ services:
         sleep 1 &&
         echo '--- Building consent-tp by docker-compose---\n' &&
         init-consent-tp.sh &&
-        consent-tp -v -C tcp://validator:4004 &&
+        consent-tp -v -C tcp://consent-validator:4004 &&
+        tail -f /dev/null
+               "
+
+  trial-processor:
+    build:
+      context: .
+      dockerfile: trial_processor/Dockerfile
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    image: trial-tp
+    container_name: trial-processor
+    volumes:
+      - ./:/project/sawtooth_healthcare
+    depends_on:
+      - ehr-processor
+    command: |
+      bash -c "
+        sleep 1 &&
+        echo '--- Building trial-tp by docker-compose---\n' &&
+        init-trial-tp.sh &&
+        trial-tp -v -C tcp://trial-validator:4004 &&
         tail -f /dev/null
                "
 
@@ -108,7 +131,7 @@ services:
 #        tail -f /dev/null
 #      "
 #
-  ehr-rest-api:
+  hospital-rest-api:
     build:
       context: .
       dockerfile: rest_api/Dockerfile
@@ -116,48 +139,74 @@ services:
         - http_proxy
         - https_proxy
         - no_proxy
-    image: ehr-rest-api
-    container_name: ehr-rest-api
+    image: hospital-rest-api
+    container_name: hospital-rest-api
     volumes:
       - .:/project/sawtooth_healthcare
     ports:
       - '8040:8000'
     depends_on:
-      - consent-processor
+      - ehr-validator
       - ehr-processor
     command: |
       bash -c "
         sleep 3 &&
-        echo '--- Building ehr-rest-api by docker-compose---' &&
+        echo '--- Building hospital-rest-api by docker-compose---' &&
         init-ehr-rest-api.sh &&
-        ehr-rest-api --host ehr-rest-api --validator tcp://validator:4004 &&
+        hospital-rest-api --host hospital-rest-api --ehr-validator tcp://ehr-validator:4004 --consent-validator tcp://consent-validator:4004 &&
         tail -f /dev/null
                "
 
-  sawtooth-rest-api:
-    image: hyperledger/sawtooth-rest-api:1.1
-    container_name: sawtooth-rest-api
-    expose:
-      - 8008
+  trial-rest-api:
+    build:
+      context: .
+      dockerfile: trial_rest_api/Dockerfile
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    image: trial-rest-api
+    container_name: trial-rest-api
+    volumes:
+      - .:/project/sawtooth_healthcare
     ports:
-      - '8043:8008'
+      - '8045:8000'
     depends_on:
-      - validator
-    entrypoint: |
-      sawtooth-rest-api -vv
-        --connect tcp://validator:4004
-        --bind sawtooth-rest-api:8008
+      - trial-validator
+      - trial-processor
+    command: |
+      bash -c "
+        sleep 3 &&
+        echo '--- Building trial-rest-api by docker-compose---' &&
+        init-trial-rest-api.sh &&
+        trial-rest-api --host trial-rest-api --trial-validator tcp://trial-validator:4004 --consent-validator tcp://consent-validator:4004 &&
+        tail -f /dev/null
+               "
 
-  settings-tp:
+#  sawtooth-rest-api:
+#    image: hyperledger/sawtooth-rest-api:1.1
+#    container_name: sawtooth-rest-api
+#    expose:
+#      - 8008
+#    ports:
+#      - '8043:8008'
+#    depends_on:
+#      - validator
+#    entrypoint: |
+#      sawtooth-rest-api -vv
+#        --connect tcp://validator:4004
+#        --bind sawtooth-rest-api:8008
+
+  ehr-settings-tp:
     image: hyperledger/sawtooth-settings-tp:1.1
-    container_name: sawtooth-settings-tp
+    container_name: ehr-sawtooth-settings-tp
     depends_on:
-      - validator
-    command: settings-tp -vv --connect tcp://validator:4004
+      - ehr-validator
+    command: settings-tp -vv --connect tcp://ehr-validator:4004
 
-  validator:
+  ehr-validator:
     image: hyperledger/sawtooth-validator:1.1
-    container_name: sawtooth-validator
+    container_name: ehr-sawtooth-validator
     expose:
       - 4004
     ports:
@@ -171,40 +220,137 @@ services:
         sawadm genesis config-genesis.batch
         fi;
         sawtooth-validator -vv \
-          --endpoint tcp://validator:8800 \
+          --endpoint tcp://ehr-validator:8800 \
           --bind component:tcp://eth0:4004 \
           --bind network:tcp://eth0:8800 \
           --bind consensus:tcp://eth0:5050
       "
 
-  devmode-engine:
-    image: hyperledger/sawtooth-devmode-engine-rust:1.1
-    container_name: sawtooth-devmode-engine-rust-default
+  consent-settings-tp:
+    image: hyperledger/sawtooth-settings-tp:1.1
+    container_name: consent-sawtooth-settings-tp
     depends_on:
-      - validator
-    entrypoint: devmode-engine-rust -C tcp://validator:5050
+      - consent-validator
+    command: settings-tp -vv --connect tcp://consent-validator:4004
 
-  ehr-web-app:
+  consent-validator:
+    image: hyperledger/sawtooth-validator:1.1
+    container_name: consent-sawtooth-validator
+    expose:
+      - 4004
+    ports:
+      - '4041:4004'
+    command: |
+      bash -c "
+        if [ ! -f /etc/sawtooth/keys/validator.priv ]; then
+        sawadm keygen &&
+        sawtooth keygen my_key &&
+        sawset genesis -k /root/.sawtooth/keys/my_key.priv &&
+        sawadm genesis config-genesis.batch
+        fi;
+        sawtooth-validator -vv \
+          --endpoint tcp://consent-validator:8800 \
+          --bind component:tcp://eth0:4004 \
+          --bind network:tcp://eth0:8800 \
+          --bind consensus:tcp://eth0:5050
+      "
+
+  trial-settings-tp:
+    image: hyperledger/sawtooth-settings-tp:1.1
+    container_name: trial-sawtooth-settings-tp
+    depends_on:
+      - trial-validator
+    command: settings-tp -vv --connect tcp://trial-validator:4004
+
+  trial-validator:
+    image: hyperledger/sawtooth-validator:1.1
+    container_name: trial-sawtooth-validator
+    expose:
+      - 4004
+    ports:
+      - '4042:4004'
+    command: |
+      bash -c "
+        if [ ! -f /etc/sawtooth/keys/validator.priv ]; then
+        sawadm keygen &&
+        sawtooth keygen my_key &&
+        sawset genesis -k /root/.sawtooth/keys/my_key.priv &&
+        sawadm genesis config-genesis.batch
+        fi;
+        sawtooth-validator -vv \
+          --endpoint tcp://trial-validator:8800 \
+          --bind component:tcp://eth0:4004 \
+          --bind network:tcp://eth0:8800 \
+          --bind consensus:tcp://eth0:5050
+      "
+
+  ehr-devmode-engine:
+    image: hyperledger/sawtooth-devmode-engine-rust:1.1
+    container_name: ehr-sawtooth-devmode-engine-rust-default
+    depends_on:
+      - ehr-validator
+    entrypoint: devmode-engine-rust -C tcp://ehr-validator:5050
+
+  consent-devmode-engine:
+    image: hyperledger/sawtooth-devmode-engine-rust:1.1
+    container_name: consent-sawtooth-devmode-engine-rust-default
+    depends_on:
+      - consent-validator
+    entrypoint: devmode-engine-rust -C tcp://consent-validator:5050
+
+  trial-devmode-engine:
+    image: hyperledger/sawtooth-devmode-engine-rust:1.1
+    container_name: trial-sawtooth-devmode-engine-rust-default
+    depends_on:
+      - trial-validator
+    entrypoint: devmode-engine-rust -C tcp://trial-validator:5050
+
+  hospital-web-app:
     build:
       context: .
-      dockerfile: web/Dockerfile
-    image: ehr-web-app
+      dockerfile: web_ehr/Dockerfile
+    image: hospital-web-app
     user: "node"
-    container_name: ehr-web-app
+    container_name: hospital-web-app
 #    volumes:
 #      - .:/project/sawtooth_healthcare
     volumes:
-      - ./web:/home/node/app
+      - ./web_ehr:/home/node/app
       - /home/node/app/node_modules
     expose:
       - 8080
     ports:
       - '8041:8080'
-#    depends_on:
-#      - ehr-rest-api
+    depends_on:
+      - hospital-rest-api
     command: |
       sh -c "
-        echo '--- Starting ehr-web-app by docker-compose---' &&
+        echo '--- Starting hospital-web-app by docker-compose---' &&
+        npm start
+      "
+#        tail -f /dev/null
+
+  investigator-web-app:
+    build:
+      context: .
+      dockerfile: web_trial/Dockerfile
+    image: investigator-web-app
+    user: "node"
+    container_name: investigator-web-app
+#    volumes:
+#      - .:/project/sawtooth_healthcare
+    volumes:
+      - ./web_trial:/home/node/app
+      - /home/node/app/node_modules
+    expose:
+      - 8080
+    ports:
+      - '8044:8080'
+    depends_on:
+      - trial-rest-api
+    command: |
+      sh -c "
+        echo '--- Starting investigator-web-app by docker-compose---' &&
         npm start
       "
 #        tail -f /dev/null

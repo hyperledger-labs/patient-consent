@@ -17,7 +17,7 @@
 //  }
 //};
 
-module.exports = function({ hra = "http://ehr-rest-api:8000" }) {
+module.exports = function({ hra = "http://hospital-rest-api:8000" }) {
     return {
 
       devServer: {

@@ -1,7 +1,7 @@
 import hashlib
 import time
 
-DISTRIBUTION_NAME = 'patient-consen'
+# DISTRIBUTION_NAME = 'patient-consent'
 
 DEFAULT_URL = 'http://127.0.0.1:8008'
 
@@ -33,6 +33,13 @@ EHR_HOSPITAL__RELATION_CODE = "82"
 
 INVESTIGATOR_DATA__RELATION_CODE = "91"
 DATA_INVESTIGATOR__RELATION_CODE = "92"
+
+PERMISSION_ENTITY_CODE = '11'
+CLIENT_ENTITY_CODE = '12'
+PERMISSION_TYPE = '13'
+
+DATA_PROCESSING_ACCESS = '22'
+INVESTIGATOR_ACCESS = '23'  # Consent by Patient to Hospital
 
 
 def _hash(identifier):
@@ -246,15 +253,34 @@ def get_current_timestamp():
     return int(round(time.time() * 1000))
 
 
-# def get_signer(request, client_key):
-#     if request.app.config.SIGNER_CLINIC.get_public_key().as_hex() == client_key:
-#         client_signer = request.app.config.SIGNER_CLINIC
-#     elif request.app.config.SIGNER_PATIENT.get_public_key().as_hex() == client_key:
-#         client_signer = request.app.config.SIGNER_PATIENT
-#     elif request.app.config.SIGNER_DOCTOR.get_public_key().as_hex() == client_key:
-#         client_signer = request.app.config.SIGNER_DOCTOR
-#     elif request.app.config.SIGNER_LAB.get_public_key().as_hex() == client_key:
-#         client_signer = request.app.config.SIGNER_LAB
-#     else:
-#         client_signer = request.app.config.SIGNER_PATIENT
-#     return client_signer
+def make_data_processing_access_address(dest_pkey, src_pkey):
+    return make_permission_address(DATA_PROCESSING_ACCESS, dest_pkey, src_pkey)
+
+
+def make_permission_address(permission_type, dest_pkey, src_pkey):
+    return TP_PREFFIX_HEX6 + PERMISSION_ENTITY_CODE \
+           + PERMISSION_TYPE + _hash(permission_type)[:4] \
+           + CLIENT_ENTITY_CODE + _hash(dest_pkey)[:26] \
+           + CLIENT_ENTITY_CODE + _hash(src_pkey)[:26]
+
+
+def make_permission_list_address():
+    return TP_PREFFIX_HEX6 + PERMISSION_ENTITY_CODE
+
+
+def make_permission_list_address_by_destination_client(permission_type, dest_pkey):
+    return TP_PREFFIX_HEX6 + PERMISSION_ENTITY_CODE \
+           + PERMISSION_TYPE + _hash(permission_type)[:4] \
+           + CLIENT_ENTITY_CODE + _hash(dest_pkey)[:26]
+
+
+def make_investigator_access_address(dest_pkey, src_pkey):
+    return make_permission_address(INVESTIGATOR_ACCESS, dest_pkey, src_pkey)
+
+
+def make_investigator_access_list_address_by_destination_client(dest_pkey):
+    return make_permission_list_address_by_destination_client(INVESTIGATOR_ACCESS, dest_pkey)
+
+
+def make_data_processing_access_list_address_by_destination_client(dest_pkey):
+    return make_permission_list_address_by_destination_client(DATA_PROCESSING_ACCESS, dest_pkey)

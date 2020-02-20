@@ -31,15 +31,20 @@ LOGGER = logging.getLogger(__name__)
 @INVESTIGATORS_BP.get('investigators')
 async def get_all_investigators(request):
     """Fetches complete details of all Accounts in state"""
-    client_key = general.get_request_key_header(request)
-    investigator_list = await security_messaging.get_investigators(request.app.config.VAL_CONN, client_key)
+    res_json = general.get_response_from_trial(request, "/investigators")
+
+    # client_key = general.get_request_key_header(request)
+    # investigator_list = await security_messaging.get_investigators(request.app.config.INVESTIGATOR_VAL_CONN,
+    #                                                                request.app.config.CONSENT_VAL_CONN, client_key)
 
     investigator_list_json = []
-    for address, dp in investigator_list.items():
-        investigator_list_json.append({
-            'public_key': dp.public_key,
-            'name': dp.name
-        })
+    if res_json['data']:
+        for entity in res_json['data']:
+            investigator_list_json.append({
+                'public_key': entity['public_key'],
+                'name': entity['name']
+            })
+
     return response.json(body={'data': investigator_list_json},
                          headers=general.get_response_headers())
 
@@ -54,25 +59,45 @@ async def register_investigator(request):
 
     clinic_signer = request.app.config.SIGNER_INVESTIGATOR  # .get_public_key().as_hex()
 
+    # Consent network
+
     client_txn = consent_transaction.create_investigator_client(
         txn_signer=clinic_signer,
         batch_signer=clinic_signer
     )
-    clinic_txn = ehr_transaction.create_investigator(
-        txn_signer=clinic_signer,
-        batch_signer=clinic_signer,
-        name=name
-    )
-    batch, batch_id = ehr_transaction.make_batch_and_id([client_txn, clinic_txn], clinic_signer)
+
+    batch, batch_id = consent_transaction.make_batch_and_id([client_txn], clinic_signer)
 
     await security_messaging.add_investigator(
-        request.app.config.VAL_CONN,
+        request.app.config.CONSENT_VAL_CONN,
         request.app.config.TIMEOUT,
         [batch])
 
     try:
         await security_messaging.check_batch_status(
-            request.app.config.VAL_CONN, [batch_id])
+            request.app.config.CONSENT_VAL_CONN, [batch_id])
+    except (ApiBadRequest, ApiInternalError) as err:
+        # await auth_query.remove_auth_entry(
+        #     request.app.config.DB_CONN, request.json.get('email'))
+        raise err
+
+    # EHR network
+
+    clinic_txn = ehr_transaction.create_investigator(
+        txn_signer=clinic_signer,
+        batch_signer=clinic_signer,
+        name=name
+    )
+    batch, batch_id = ehr_transaction.make_batch_and_id([clinic_txn], clinic_signer)
+
+    await security_messaging.add_investigator(
+        request.app.config.INVESTIGATOR_VAL_CONN,
+        request.app.config.TIMEOUT,
+        [batch])
+
+    try:
+        await security_messaging.check_batch_status(
+            request.app.config.INVESTIGATOR_VAL_CONN, [batch_id])
     except (ApiBadRequest, ApiInternalError) as err:
         # await auth_query.remove_auth_entry(
         #     request.app.config.DB_CONN, request.json.get('email'))
@@ -123,6 +148,7 @@ async def register_investigator(request):
 #                          headers=general.get_response_headers())
 
 
+# TODO Deprecated method
 @INVESTIGATORS_BP.get('investigators/import_to_trial_data/<patient_pkey>/<ehr_id>')
 async def import_screening_data(request, patient_pkey, ehr_id):
     """Updates auth information for the authorized account"""

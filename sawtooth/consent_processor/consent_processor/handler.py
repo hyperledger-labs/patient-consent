@@ -48,23 +48,23 @@ class ConsentTransactionHandler(TransactionHandler):
             #     LOGGER.debug("Grant Read EHR Access")
             #     access = consent_payload.grant_read_ehr_access()
             #     consent_state.grant_read_ehr_access(dest_pkey=access.dest_pkey, src_pkey=access.src_pkey)
-            if consent_payload.is_grant_investigator_access():
-                LOGGER.debug("is_grant_investigator_access")
-                access = consent_payload.grant_investigator_access()
-                consent_state.grant_investigator_access(dest_pkey=access.dest_pkey, src_pkey=access.src_pkey)
-            elif consent_payload.is_revoke_investigator_access():
-                LOGGER.debug("is_revoke_investigator_access")
-                access = consent_payload.revoke_investigator_access()
-                consent_state.revoke_investigator_access(dest_pkey=access.dest_pkey, src_pkey=access.src_pkey)
-            elif consent_payload.is_grant_data_processing_access():
-                LOGGER.debug("is_grant_data_processing_access")
-                access = consent_payload.grant_data_processing_access()
-                consent_state.grant_data_processing_access(dest_pkey=access.dest_pkey, src_pkey=access.src_pkey)
-            elif consent_payload.is_revoke_data_processing_access():
-                LOGGER.debug("is_revoke_data_processing_access")
-                access = consent_payload.revoke_data_processing_access()
-                consent_state.revoke_data_processing_access(dest_pkey=access.dest_pkey, src_pkey=access.src_pkey)
-            elif consent_payload.is_sign_inform_consent():
+            # if consent_payload.is_grant_investigator_access():
+            #     LOGGER.debug("is_grant_investigator_access")
+            #     access = consent_payload.grant_investigator_access()
+            #     consent_state.grant_investigator_access(dest_pkey=access.dest_pkey, src_pkey=access.src_pkey)
+            # elif consent_payload.is_revoke_investigator_access():
+            #     LOGGER.debug("is_revoke_investigator_access")
+            #     access = consent_payload.revoke_investigator_access()
+            #     consent_state.revoke_investigator_access(dest_pkey=access.dest_pkey, src_pkey=access.src_pkey)
+            # elif consent_payload.is_grant_data_processing_access():
+            #     LOGGER.debug("is_grant_data_processing_access")
+            #     access = consent_payload.grant_data_processing_access()
+            #     consent_state.grant_data_processing_access(dest_pkey=access.dest_pkey, src_pkey=access.src_pkey)
+            # elif consent_payload.is_revoke_data_processing_access():
+            #     LOGGER.debug("is_revoke_data_processing_access")
+            #     access = consent_payload.revoke_data_processing_access()
+            #     consent_state.revoke_data_processing_access(dest_pkey=access.dest_pkey, src_pkey=access.src_pkey)
+            if consent_payload.is_sign_inform_consent():
                 LOGGER.debug("is_sign_inform_consent")
                 access = consent_payload.sign_inform_consent()
                 consent_state.sign_inform_document_consent(dest_pkey=access.dest_pkey, src_pkey=access.src_pkey)

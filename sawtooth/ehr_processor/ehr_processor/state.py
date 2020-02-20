@@ -1,5 +1,6 @@
 from ehr_processor.ehr_common import helper
-from ehr_processor.ehr_common.protobuf.trial_payload_pb2 import Hospital, Patient, EHR, Investigator, Data
+from ehr_processor.ehr_common.protobuf.ehr_payload_pb2 import Hospital, Patient, EHR, EHRActionOnAccess
+# , Investigator, Data
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
@@ -24,11 +25,11 @@ class EHRState(object):
         if hp is None:
             self._store_hospital(hospital)
 
-    def create_investigator(self, investigator):
-        dp = self._load_investigator(public_key=investigator.public_key)
-
-        if dp is None:
-            self._store_investigator(investigator)
+    # def create_investigator(self, investigator):
+    #     dp = self._load_investigator(public_key=investigator.public_key)
+    #
+    #     if dp is None:
+    #         self._store_investigator(investigator)
 
     def create_patient(self, patient):
         pat = self._load_patient(public_key=patient.public_key)
@@ -36,56 +37,71 @@ class EHRState(object):
         if pat is None:
             self._store_patient(patient)
 
-    # def create_claim(self, claim_id, clinic_pkey, patient_pkey):
-    #     od = self._load_claim(clinic_pkey=clinic_pkey, claim_id=claim_id)
-    #
-    #     if od is None:
-    #         self._store_claim(clinic_pkey=clinic_pkey, claim_id=claim_id,
-    #                           patient_pkey=patient_pkey)
+    def grant_data_processing_access(self, dest_pkey, src_pkey):
+        self._store_data_processing_access(dest_pkey, src_pkey)
 
-    # def assign_doctor(self, claim_id, clinic_pkey, description, event_time):
-    #     self._store_event(claim_id=claim_id, clinic_pkey=clinic_pkey, description=description,
-    #                       event_time=event_time, event=payload_pb2.ActionOnClaim.ASSIGN)
-    #
-    # def first_visit(self, claim_id, clinic_pkey, description, event_time):
-    #     self._store_event(claim_id=claim_id, clinic_pkey=clinic_pkey, description=description,
-    #                       event_time=event_time, event=payload_pb2.ActionOnClaim.FIRST_VISIT)
-    #
-    # def pass_tests(self, claim_id, clinic_pkey, description, event_time):
-    #     self._store_event(claim_id=claim_id, clinic_pkey=clinic_pkey, description=description,
-    #                       event_time=event_time, event=payload_pb2.ActionOnClaim.PASS_TEST)
-    #
-    # def attend_procedures(self, claim_id, clinic_pkey, description, event_time):
-    #     self._store_event(claim_id=claim_id, clinic_pkey=clinic_pkey, description=description,
-    #                       event_time=event_time, event=payload_pb2.ActionOnClaim.PASS_PROCEDURE)
-    #
-    # def eat_pills(self, claim_id, clinic_pkey, description, event_time):
-    #     self._store_event(claim_id=claim_id, clinic_pkey=clinic_pkey, description=description,
-    #                       event_time=event_time, event=payload_pb2.ActionOnClaim.EAT_PILLS)
-    #
-    # def next_visit(self, claim_id, clinic_pkey, description, event_time):
-    #     self._store_event(claim_id=claim_id, clinic_pkey=clinic_pkey, description=description,
-    #                       event_time=event_time, event=payload_pb2.ActionOnClaim.NEXT_VISIT)
+    def revoke_data_processing_access(self, dest_pkey, src_pkey):
+        self._revoke_data_processing_access(dest_pkey, src_pkey)
+
+    def grant_investigator_access(self, dest_pkey, src_pkey):
+        self._store_investigator_access(dest_pkey, src_pkey)
+
+    def revoke_investigator_access(self, dest_pkey, src_pkey):
+        self._revoke_investigator_access(dest_pkey, src_pkey)
+
+    def _store_data_processing_access(self, dest_pkey, src_pkey):
+        address = helper.make_data_processing_access_address(dest_pkey=dest_pkey, src_pkey=src_pkey)
+        access = EHRActionOnAccess()
+        access.dest_pkey = dest_pkey
+        access.src_pkey = src_pkey
+
+        state_data = access.SerializeToString()
+        self._context.set_state(
+            {address: state_data},
+            timeout=self.TIMEOUT)
+
+    def _revoke_investigator_access(self, dest_pkey, src_pkey):
+        address = helper.make_investigator_access_address(dest_pkey=dest_pkey, src_pkey=src_pkey)
+        self._context.delete_state(
+            [address],
+            timeout=self.TIMEOUT)
+
+    def _revoke_data_processing_access(self, dest_pkey, src_pkey):
+        address = helper.make_data_processing_access_address(dest_pkey=dest_pkey, src_pkey=src_pkey)
+        self._context.delete_state(
+            [address],
+            timeout=self.TIMEOUT)
+
+    def _store_investigator_access(self, dest_pkey, src_pkey):
+        address = helper.make_investigator_access_address(dest_pkey=dest_pkey, src_pkey=src_pkey)
+        access = EHRActionOnAccess()
+        access.dest_pkey = dest_pkey
+        access.src_pkey = src_pkey
+
+        state_data = access.SerializeToString()
+        self._context.set_state(
+            {address: state_data},
+            timeout=self.TIMEOUT)
 
     def create_ehr(self, signer, ehr):
         ehr_obj = self._load_ehr(ehr.id)
         if ehr_obj is None:
             self._store_ehr(signer=signer, ehr=ehr)
 
-    def import_data(self, signer, data):
-        self._store_import_data(signer=signer, data=data)
-
-    def update_data(self, data):
-        data_obj = self._load_data(data.id)
-        if data_obj is not None:
-            data.event_time = data_obj.event_time
-            self._store_update_data(data=data)
-
-    def set_eligible(self, data):
-        data_obj = self._load_data(data.id)
-        if data_obj is not None:
-            data_obj.eligible = data.eligible
-            self._store_update_data(data=data_obj)
+    # def import_data(self, signer, data):
+    #     self._store_import_data(signer=signer, data=data)
+    #
+    # def update_data(self, data):
+    #     data_obj = self._load_data(data.id)
+    #     if data_obj is not None:
+    #         data.event_time = data_obj.event_time
+    #         self._store_update_data(data=data)
+    #
+    # def set_eligible(self, data):
+    #     data_obj = self._load_data(data.id)
+    #     if data_obj is not None:
+    #         data_obj.eligible = data.eligible
+    #         self._store_update_data(data=data_obj)
 
     #
     # def close_claim(self, claim):
@@ -95,9 +111,9 @@ class EHRState(object):
         hospital = self._load_hospital(public_key=public_key)
         return hospital
 
-    def get_investigator(self, public_key):
-        investigator = self._load_investigator(public_key=public_key)
-        return investigator
+    # def get_investigator(self, public_key):
+    #     investigator = self._load_investigator(public_key=public_key)
+    #     return investigator
 
     def get_patient(self, public_key):
         patient = self._load_patient(public_key=public_key)
@@ -107,9 +123,9 @@ class EHRState(object):
         lab = self._load_ehr(ehr_id=ehr_id)
         return lab
 
-    def get_data(self, data_id):
-        data = self._load_data(data_id=data_id)
-        return data
+    # def get_data(self, data_id):
+    #     data = self._load_data(data_id=data_id)
+    #     return data
 
     # def get_claim2(self, claim_id):
     #     od = self._load_claim2(claim_id=claim_id)
@@ -158,16 +174,16 @@ class EHRState(object):
             hospital.ParseFromString(state_entries[0].data)
         return hospital
 
-    def _load_investigator(self, public_key):
-        investigator = None
-        investigator_hex = helper.make_investigator_address(public_key)
-        state_entries = self._context.get_state(
-            [investigator_hex],
-            timeout=self.TIMEOUT)
-        if state_entries:
-            investigator = Investigator()
-            investigator.ParseFromString(state_entries[0].data)
-        return investigator
+    # def _load_investigator(self, public_key):
+    #     investigator = None
+    #     investigator_hex = helper.make_investigator_address(public_key)
+    #     state_entries = self._context.get_state(
+    #         [investigator_hex],
+    #         timeout=self.TIMEOUT)
+    #     if state_entries:
+    #         investigator = Investigator()
+    #         investigator.ParseFromString(state_entries[0].data)
+    #     return investigator
 
     # def _load_lab(self, public_key):
     #     lab = None
@@ -212,16 +228,16 @@ class EHRState(object):
             ehr.ParseFromString(state_entries[0].data)
         return ehr
 
-    def _load_data(self, data_id):
-        data = None
-        data_hex = helper.make_investigator_data_address(data_id=data_id)
-        state_entries = self._context.get_state(
-            [data_hex],
-            timeout=self.TIMEOUT)
-        if state_entries:
-            data = Data()
-            data.ParseFromString(state_entries[0].data)
-        return data
+    # def _load_data(self, data_id):
+    #     data = None
+    #     data_hex = helper.make_investigator_data_address(data_id=data_id)
+    #     state_entries = self._context.get_state(
+    #         [data_hex],
+    #         timeout=self.TIMEOUT)
+    #     if state_entries:
+    #         data = Data()
+    #         data.ParseFromString(state_entries[0].data)
+    #     return data
 
     # def _load_lab_tests(self):
     #     lab_test = None
@@ -256,13 +272,13 @@ class EHRState(object):
             {address: state_data},
             timeout=self.TIMEOUT)
 
-    def _store_investigator(self, provider):
-        address = helper.make_investigator_address(provider.public_key)
-
-        state_data = provider.SerializeToString()
-        self._context.set_state(
-            {address: state_data},
-            timeout=self.TIMEOUT)
+    # def _store_investigator(self, provider):
+    #     address = helper.make_investigator_address(provider.public_key)
+    #
+    #     state_data = provider.SerializeToString()
+    #     self._context.set_state(
+    #         {address: state_data},
+    #         timeout=self.TIMEOUT)
 
     def _store_patient(self, patient):
         address = helper.make_patient_address(patient.public_key)
@@ -371,50 +387,50 @@ class EHRState(object):
             states,
             timeout=self.TIMEOUT)
 
-    def _store_import_data(self, signer, data):
-        data_address = helper.make_investigator_data_address(data_id=data.id)
-        data_investigator_relation_address = helper.make_data_investigator__relation_address(data.id,
-                                                                                             signer)
-        investigator_data_relation_address = helper.make_investigator_data__relation_address(signer,
-                                                                                             data.id)
+    # def _store_import_data(self, signer, data):
+    #     data_address = helper.make_investigator_data_address(data_id=data.id)
+    #     data_investigator_relation_address = helper.make_data_investigator__relation_address(data.id,
+    #                                                                                          signer)
+    #     investigator_data_relation_address = helper.make_investigator_data__relation_address(signer,
+    #                                                                                          data.id)
+    #
+    #     # ehr_hospital_relation_address = helper.make_ehr_hospital__relation_address(ehr.id,
+    #     #                                                                            signer)
+    #     # hospital_ehr_relation_address = helper.make_hospital_ehr__relation_address(signer,
+    #     #                                                                            ehr.id)
+    #     import_data = data.SerializeToString()
+    #     states = {
+    #         data_address: import_data,
+    #
+    #         data_investigator_relation_address: str.encode(signer),
+    #         investigator_data_relation_address: str.encode(data.id),
+    #
+    #         # ehr_patient_relation_address: str.encode(ehr.client_pkey),
+    #         # patient_ehr_relation_address: str.encode(ehr.id)
+    #     }
+    #     LOGGER.debug("_store_import_data: " + str(states))
+    #     self._context.set_state(
+    #         states,
+    #         timeout=self.TIMEOUT)
 
-        # ehr_hospital_relation_address = helper.make_ehr_hospital__relation_address(ehr.id,
-        #                                                                            signer)
-        # hospital_ehr_relation_address = helper.make_hospital_ehr__relation_address(signer,
-        #                                                                            ehr.id)
-        import_data = data.SerializeToString()
-        states = {
-            data_address: import_data,
-
-            data_investigator_relation_address: str.encode(signer),
-            investigator_data_relation_address: str.encode(data.id),
-
-            # ehr_patient_relation_address: str.encode(ehr.client_pkey),
-            # patient_ehr_relation_address: str.encode(ehr.id)
-        }
-        LOGGER.debug("_store_import_data: " + str(states))
-        self._context.set_state(
-            states,
-            timeout=self.TIMEOUT)
-
-    def _store_update_data(self, data):
-        data_address = helper.make_investigator_data_address(data_id=data.id)
-        # data_data_provider_relation_address = helper.make_data_data_provider__relation_address(data.id,
-        #                                                                                        signer)
-        # data_provider_data_relation_address = helper.make_data_provider_data__relation_address(signer,
-        #                                                                                        data.id)
-
-        update_data = data.SerializeToString()
-        states = {
-            data_address: update_data,
-
-            # data_data_provider_relation_address: str.encode(signer),
-            # data_provider_data_relation_address: str.encode(data.id),
-        }
-        LOGGER.debug("_store_update_data: " + str(states))
-        self._context.set_state(
-            states,
-            timeout=self.TIMEOUT)
+    # def _store_update_data(self, data):
+    #     data_address = helper.make_investigator_data_address(data_id=data.id)
+    #     # data_data_provider_relation_address = helper.make_data_data_provider__relation_address(data.id,
+    #     #                                                                                        signer)
+    #     # data_provider_data_relation_address = helper.make_data_provider_data__relation_address(signer,
+    #     #                                                                                        data.id)
+    #
+    #     update_data = data.SerializeToString()
+    #     states = {
+    #         data_address: update_data,
+    #
+    #         # data_data_provider_relation_address: str.encode(signer),
+    #         # data_provider_data_relation_address: str.encode(data.id),
+    #     }
+    #     LOGGER.debug("_store_update_data: " + str(states))
+    #     self._context.set_state(
+    #         states,
+    #         timeout=self.TIMEOUT)
 
     # def _store_pulse(self, pulse):
     #     pulse_address = helper.make_pulse_address(pulse.id)

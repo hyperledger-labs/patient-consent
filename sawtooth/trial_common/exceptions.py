@@ -1,0 +1,2 @@
+class TrialException(Exception):
+    pass

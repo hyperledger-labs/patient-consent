@@ -5,10 +5,10 @@ message ConsentTransactionPayload {
     enum PayloadType {
         TYPE_UNSET = 0;
         ADD_CLIENT = 1;
-        GRANT_INVESTIGATOR_ACCESS = 2;
-        REVOKE_INVESTIGATOR_ACCESS = 3;
-        GRANT_DATA_PROCESSING_ACCESS = 4;
-        REVOKE_DATA_PROCESSING_ACCESS = 5;
+//        GRANT_INVESTIGATOR_ACCESS = 2;
+//        REVOKE_INVESTIGATOR_ACCESS = 3;
+//        GRANT_DATA_PROCESSING_ACCESS = 4;
+//        REVOKE_DATA_PROCESSING_ACCESS = 5;
         SIGN_INFORM_CONSENT = 6;
         REQUEST_INFORM_CONSENT = 7;
         DECLINE_INFORM_CONSENT = 8;
@@ -18,10 +18,10 @@ message ConsentTransactionPayload {
     PayloadType payload_type = 1;
 
     Client create_client = 2;
-    ActionOnAccess grant_investigator_access = 3;
-    ActionOnAccess revoke_investigator_access = 4;
-    ActionOnAccess grant_data_processing_access = 5;
-    ActionOnAccess revoke_data_processing_access = 6;
+//    ActionOnAccess grant_investigator_access = 3;
+//    ActionOnAccess revoke_investigator_access = 4;
+//    ActionOnAccess grant_data_processing_access = 5;
+//    ActionOnAccess revoke_data_processing_access = 6;
     ActionOnAccess sign_inform_document_consent = 7;
     ActionOnAccess request_inform_document_consent = 8;
     ActionOnAccess decline_inform_consent = 9;

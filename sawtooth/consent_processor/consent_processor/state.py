@@ -29,26 +29,26 @@ class ConsentState(object):
     def decline_inform_consent(self, dest_pkey, src_pkey):
         self._decline_sign_inform_consent(dest_pkey, src_pkey)
 
-    def grant_data_processing_access(self, dest_pkey, src_pkey):
-        self._store_data_processing_access(dest_pkey, src_pkey)
-
-    def revoke_data_processing_access(self, dest_pkey, src_pkey):
-        self._revoke_data_processing_access(dest_pkey, src_pkey)
-
-    def grant_investigator_access(self, dest_pkey, src_pkey):
-        self._store_investigator_access(dest_pkey, src_pkey)
-
-    def revoke_investigator_access(self, dest_pkey, src_pkey):
-        self._revoke_investigator_access(dest_pkey, src_pkey)
+    # def grant_data_processing_access(self, dest_pkey, src_pkey):
+    #     self._store_data_processing_access(dest_pkey, src_pkey)
+    #
+    # def revoke_data_processing_access(self, dest_pkey, src_pkey):
+    #     self._revoke_data_processing_access(dest_pkey, src_pkey)
+    #
+    # def grant_investigator_access(self, dest_pkey, src_pkey):
+    #     self._store_investigator_access(dest_pkey, src_pkey)
+    #
+    # def revoke_investigator_access(self, dest_pkey, src_pkey):
+    #     self._revoke_investigator_access(dest_pkey, src_pkey)
 
     def has_signed_inform_consent(self, dest_pkey, src_pkey):
         return self._load_inform_consent(dest_pkey=dest_pkey, src_pkey=src_pkey)
 
-    def has_data_processing_access(self, dest_pkey, src_pkey):
-        return self._load_data_processing_access(dest_pkey=dest_pkey, src_pkey=src_pkey)
-
-    def has_investigator_access(self, dest_pkey, src_pkey):
-        return self._load_investigator_access(dest_pkey=dest_pkey, src_pkey=src_pkey)
+    # def has_data_processing_access(self, dest_pkey, src_pkey):
+    #     return self._load_data_processing_access(dest_pkey=dest_pkey, src_pkey=src_pkey)
+    #
+    # def has_investigator_access(self, dest_pkey, src_pkey):
+    #     return self._load_investigator_access(dest_pkey=dest_pkey, src_pkey=src_pkey)
 
     # def has_share_shared_ehr_access(self, dest_pkey, src_pkey):
     #     return self._load_share_shared_ehr_access(dest_pkey=dest_pkey, src_pkey=src_pkey)
@@ -65,16 +65,16 @@ class ConsentState(object):
     # def get_share_shared_ehr_access_by_destination(self, dest_pkey):
     #     return self._load_share_shared_ehr_access_by_destination(dest_pkey=dest_pkey)
 
-    def _load_investigator_access(self, dest_pkey, src_pkey):
-        access_hex = [helper.make_investigator_access_address(dest_pkey=dest_pkey, src_pkey=src_pkey)]
-        state_entries = self._context.get_state(
-            access_hex,
-            timeout=self.TIMEOUT)
-        if state_entries:
-            access = consent_payload_pb2.ActionOnAccess()
-            access.ParseFromString(state_entries[0].data)
-            return access
-        return None
+    # def _load_investigator_access(self, dest_pkey, src_pkey):
+    #     access_hex = [helper.make_investigator_access_address(dest_pkey=dest_pkey, src_pkey=src_pkey)]
+    #     state_entries = self._context.get_state(
+    #         access_hex,
+    #         timeout=self.TIMEOUT)
+    #     if state_entries:
+    #         access = consent_payload_pb2.ActionOnAccess()
+    #         access.ParseFromString(state_entries[0].data)
+    #         return access
+    #     return None
 
     def _load_inform_consent(self, dest_pkey, src_pkey):
         access_hex = [helper.make_sign_inform_document_consent_address(dest_pkey=dest_pkey, src_pkey=src_pkey)]
@@ -87,16 +87,16 @@ class ConsentState(object):
             return access
         return None
 
-    def _load_data_processing_access(self, dest_pkey, src_pkey):
-        access_hex = [helper.make_data_processing_access_address(dest_pkey=dest_pkey, src_pkey=src_pkey)]
-        state_entries = self._context.get_state(
-            access_hex,
-            timeout=self.TIMEOUT)
-        if state_entries:
-            access = consent_payload_pb2.ActionOnAccess()
-            access.ParseFromString(state_entries[0].data)
-            return access
-        return None
+    # def _load_data_processing_access(self, dest_pkey, src_pkey):
+    #     access_hex = [helper.make_data_processing_access_address(dest_pkey=dest_pkey, src_pkey=src_pkey)]
+    #     state_entries = self._context.get_state(
+    #         access_hex,
+    #         timeout=self.TIMEOUT)
+    #     if state_entries:
+    #         access = consent_payload_pb2.ActionOnAccess()
+    #         access.ParseFromString(state_entries[0].data)
+    #         return access
+    #     return None
 
     # def _load_share_shared_ehr_access(self, dest_pkey, src_pkey):
     #     access_hex = [helper.make_consent_share_shared_ehr_address(dest_pkey=dest_pkey, src_pkey=src_pkey)]
@@ -153,16 +153,16 @@ class ConsentState(object):
     #         return access
     #     return None
 
-    def _store_investigator_access(self, dest_pkey, src_pkey):
-        address = helper.make_investigator_access_address(dest_pkey=dest_pkey, src_pkey=src_pkey)
-        access = consent_payload_pb2.ActionOnAccess()
-        access.dest_pkey = dest_pkey
-        access.src_pkey = src_pkey
-
-        state_data = access.SerializeToString()
-        self._context.set_state(
-            {address: state_data},
-            timeout=self.TIMEOUT)
+    # def _store_investigator_access(self, dest_pkey, src_pkey):
+    #     address = helper.make_investigator_access_address(dest_pkey=dest_pkey, src_pkey=src_pkey)
+    #     access = consent_payload_pb2.ActionOnAccess()
+    #     access.dest_pkey = dest_pkey
+    #     access.src_pkey = src_pkey
+    #
+    #     state_data = access.SerializeToString()
+    #     self._context.set_state(
+    #         {address: state_data},
+    #         timeout=self.TIMEOUT)
 
     def _store_request_inform_document_consent(self, dest_pkey, src_pkey):
         address = helper.make_request_inform_document_consent_address(dest_pkey=dest_pkey, src_pkey=src_pkey)
@@ -216,28 +216,28 @@ class ConsentState(object):
              sign_inform_consent_address],
             timeout=self.TIMEOUT)
 
-    def _store_data_processing_access(self, dest_pkey, src_pkey):
-        address = helper.make_data_processing_access_address(dest_pkey=dest_pkey, src_pkey=src_pkey)
-        access = consent_payload_pb2.ActionOnAccess()
-        access.dest_pkey = dest_pkey
-        access.src_pkey = src_pkey
-
-        state_data = access.SerializeToString()
-        self._context.set_state(
-            {address: state_data},
-            timeout=self.TIMEOUT)
-
-    def _revoke_investigator_access(self, dest_pkey, src_pkey):
-        address = helper.make_investigator_access_address(dest_pkey=dest_pkey, src_pkey=src_pkey)
-        self._context.delete_state(
-            [address],
-            timeout=self.TIMEOUT)
-
-    def _revoke_data_processing_access(self, dest_pkey, src_pkey):
-        address = helper.make_data_processing_access_address(dest_pkey=dest_pkey, src_pkey=src_pkey)
-        self._context.delete_state(
-            [address],
-            timeout=self.TIMEOUT)
+    # def _store_data_processing_access(self, dest_pkey, src_pkey):
+    #     address = helper.make_data_processing_access_address(dest_pkey=dest_pkey, src_pkey=src_pkey)
+    #     access = consent_payload_pb2.ActionOnAccess()
+    #     access.dest_pkey = dest_pkey
+    #     access.src_pkey = src_pkey
+    #
+    #     state_data = access.SerializeToString()
+    #     self._context.set_state(
+    #         {address: state_data},
+    #         timeout=self.TIMEOUT)
+    #
+    # def _revoke_investigator_access(self, dest_pkey, src_pkey):
+    #     address = helper.make_investigator_access_address(dest_pkey=dest_pkey, src_pkey=src_pkey)
+    #     self._context.delete_state(
+    #         [address],
+    #         timeout=self.TIMEOUT)
+    #
+    # def _revoke_data_processing_access(self, dest_pkey, src_pkey):
+    #     address = helper.make_data_processing_access_address(dest_pkey=dest_pkey, src_pkey=src_pkey)
+    #     self._context.delete_state(
+    #         [address],
+    #         timeout=self.TIMEOUT)
 
     # def _revoke_share_ehr_access(self, dest_pkey, src_pkey):
     #     address = helper.make_consent_share_ehr_address(dest_pkey=dest_pkey, src_pkey=src_pkey)

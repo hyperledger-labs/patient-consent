@@ -27,7 +27,8 @@ HOSPITALS_BP = Blueprint('hospitals')
 async def get_all_hospitals(request):
     """Fetches complete details of all Accounts in state"""
     client_key = general.get_request_key_header(request)
-    hospital_list = await security_messaging.get_hospitals(request.app.config.VAL_CONN, client_key)
+    hospital_list = await security_messaging.get_hospitals(request.app.config.EHR_VAL_CONN,
+                                                           request.app.config.CONSENT_VAL_CONN, client_key)
 
     hospital_list_json = []
     for address, hp in hospital_list.items():
@@ -53,21 +54,42 @@ async def register_hospital(request):
         txn_signer=clinic_signer,
         batch_signer=clinic_signer
     )
-    clinic_txn = ehr_transaction.create_hospital(
-        txn_signer=clinic_signer,
-        batch_signer=clinic_signer,
-        name=name
-    )
-    batch, batch_id = ehr_transaction.make_batch_and_id([client_txn, clinic_txn], clinic_signer)
+
+    # Consent network
+
+    batch, batch_id = consent_transaction.make_batch_and_id([client_txn], clinic_signer)
 
     await security_messaging.add_hospital(
-        request.app.config.VAL_CONN,
+        request.app.config.CONSENT_VAL_CONN,
         request.app.config.TIMEOUT,
         [batch])
 
     try:
         await security_messaging.check_batch_status(
-            request.app.config.VAL_CONN, [batch_id])
+            request.app.config.CONSENT_VAL_CONN, [batch_id])
+    except (ApiBadRequest, ApiInternalError) as err:
+        # await auth_query.remove_auth_entry(
+        #     request.app.config.DB_CONN, request.json.get('email'))
+        raise err
+
+    # EHR network
+
+    clinic_txn = ehr_transaction.create_hospital(
+        txn_signer=clinic_signer,
+        batch_signer=clinic_signer,
+        name=name
+    )
+
+    batch, batch_id = ehr_transaction.make_batch_and_id([clinic_txn], clinic_signer)
+
+    await security_messaging.add_hospital(
+        request.app.config.EHR_VAL_CONN,
+        request.app.config.TIMEOUT,
+        [batch])
+
+    try:
+        await security_messaging.check_batch_status(
+            request.app.config.EHR_VAL_CONN, [batch_id])
     except (ApiBadRequest, ApiInternalError) as err:
         # await auth_query.remove_auth_entry(
         #     request.app.config.DB_CONN, request.json.get('email'))
@@ -125,12 +147,13 @@ async def register_hospital(request):
 #                          headers=general.get_response_headers())
 
 
+# Used
 @HOSPITALS_BP.get('hospitals/grant_investigator_access/<investigator_pkey>')
 async def grant_investigator_access(request, investigator_pkey):
     """Updates auth information for the authorized account"""
     hospital_key = general.get_request_key_header(request)
     client_signer = general.get_signer(request, hospital_key)
-    grant_investigator_access_txn = consent_transaction.grant_investigator_access(
+    grant_investigator_access_txn = ehr_transaction.grant_investigator_access(
         txn_signer=client_signer,
         batch_signer=client_signer,
         dest_pkey=investigator_pkey)
@@ -138,13 +161,14 @@ async def grant_investigator_access(request, investigator_pkey):
     batch, batch_id = ehr_transaction.make_batch_and_id([grant_investigator_access_txn], client_signer)
 
     await security_messaging.grant_investigator_access(
-        request.app.config.VAL_CONN,
+        request.app.config.EHR_VAL_CONN,
+        request.app.config.CONSENT_VAL_CONN,
         request.app.config.TIMEOUT,
         [batch], hospital_key)
 
     try:
         await security_messaging.check_batch_status(
-            request.app.config.VAL_CONN, [batch_id])
+            request.app.config.EHR_VAL_CONN, [batch_id])
     except (ApiBadRequest, ApiInternalError) as err:
         # await auth_query.remove_auth_entry(
         #     request.app.config.DB_CONN, request.json.get('email'))
@@ -154,12 +178,13 @@ async def grant_investigator_access(request, investigator_pkey):
                          headers=general.get_response_headers())
 
 
+# Used
 @HOSPITALS_BP.get('hospitals/revoke_investigator_access/<investigator_pkey>')
 async def revoke_investigator_access(request, investigator_pkey):
     """Updates auth information for the authorized account"""
     hospital_key = general.get_request_key_header(request)
     client_signer = general.get_signer(request, hospital_key)
-    revoke_access_to_share_data_txn = consent_transaction.revoke_investigator_access(
+    revoke_access_to_share_data_txn = ehr_transaction.revoke_investigator_access(
         txn_signer=client_signer,
         batch_signer=client_signer,
         dest_pkey=investigator_pkey)
@@ -167,13 +192,14 @@ async def revoke_investigator_access(request, investigator_pkey):
     batch, batch_id = ehr_transaction.make_batch_and_id([revoke_access_to_share_data_txn], client_signer)
 
     await security_messaging.revoke_investigator_access(
-        request.app.config.VAL_CONN,
+        request.app.config.EHR_VAL_CONN,
+        request.app.config.CONSENT_VAL_CONN,
         request.app.config.TIMEOUT,
         [batch], hospital_key)
 
     try:
         await security_messaging.check_batch_status(
-            request.app.config.VAL_CONN, [batch_id])
+            request.app.config.EHR_VAL_CONN, [batch_id])
     except (ApiBadRequest, ApiInternalError) as err:
         # await auth_query.remove_auth_entry(
         #     request.app.config.DB_CONN, request.json.get('email'))
