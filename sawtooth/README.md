@@ -46,7 +46,7 @@ This prototype includes two versions developed with Sawtooth and Fabric
 
 ## Architecture
 
-![SawtoothArchitecture](https://github.com/AlexZhovnuvaty/patient-consent/blob/master/SawtoothArchitecture.png)
+![SawtoothArchitecture](https://github.com/hyperledger-labs/patient-consent/blob/master/sawtooth/SawtoothArchitecture.png)
 
 The whole use case is divided on 3 isolated blockchain networks: 
 - The 1st one (green) is dedicated for hospitals. They store there all EHR data related to patient
