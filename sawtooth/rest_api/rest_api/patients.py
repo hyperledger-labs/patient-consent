@@ -197,7 +197,7 @@ async def grant_data_processing(request, dest_pkey):
         await security_messaging.check_batch_status(
             request.app.config.EHR_VAL_CONN, [batch_id])
     except (ApiBadRequest, ApiInternalError) as err:
-        # await auth_query.remove_auth_entry(
+        # await auth_query.remove_auth_entry(sign_inform_consent
         #     request.app.config.DB_CONN, request.json.get('email'))
         raise err
 

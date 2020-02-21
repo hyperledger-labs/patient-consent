@@ -202,75 +202,7 @@ async def import_screening_data(request, patient_pkey, ehr_id):
                          headers=general.get_response_headers())
 
 
-@INVESTIGATORS_BP.get('investigators/data')
-async def get_all_data_from_investigators(request):
-    """Fetches complete details of all Accounts in state"""
-    client_key = general.get_request_key_header(request)
-    data_list = await security_messaging.get_data_from_investigators(request.app.config.VAL_CONN, client_key)
-
-    data_list_json = []
-    for address, data in data_list.items():
-        data_list_json.append({
-            'id': data.id,
-            'height': data.height,
-            'weight': data.weight,
-            'A1C': data.A1C,
-            'FPG': data.FPG,
-            'OGTT': data.OGTT,
-            'RPGT': data.RPGT,
-            'event_time': data.event_time,
-            'eligible': data.eligible
-        })
-    return response.json(body={'data': data_list_json},
-                         headers=general.get_response_headers())
-
-
-@INVESTIGATORS_BP.post('investigators/data/update')
-async def update_data(request):
-    client_key = general.get_request_key_header(request)
-    required_fields = ['id', 'height', 'weight', 'A1C', 'FPG', 'OGTT', 'RPGT']
-    general.validate_fields(required_fields, request.json)
-
-    uid = request.json.get('id')
-    height = request.json.get('height')
-    weight = request.json.get('weight')
-    A1C = request.json.get('A1C')
-    FPG = request.json.get('FPG')
-    OGTT = request.json.get('OGTT')
-    RPGT = request.json.get('RPGT')
-
-    client_signer = request.app.config.SIGNER_INVESTIGATOR  # .get_public_key().as_hex()
-
-    client_txn = ehr_transaction.update_data(
-        txn_signer=client_signer,
-        batch_signer=client_signer,
-        uid=uid,
-        height=height,
-        weight=weight,
-        a1c=A1C,
-        fpg=FPG,
-        ogtt=OGTT,
-        rpgt=RPGT)
-
-    batch, batch_id = ehr_transaction.make_batch_and_id([client_txn], client_signer)
-
-    await security_messaging.update_investigator(
-        request.app.config.VAL_CONN,
-        request.app.config.TIMEOUT,
-        [batch], client_key)
-
-    try:
-        await security_messaging.check_batch_status(
-            request.app.config.VAL_CONN, [batch_id])
-    except (ApiBadRequest, ApiInternalError) as err:
-        # await auth_query.remove_auth_entry(
-        #     request.app.config.DB_CONN, request.json.get('email'))
-        raise err
-
-    return response.json(body={'status': general.DONE},
-                         headers=general.get_response_headers())
-
-
+# Deprecated method?
 @INVESTIGATORS_BP.get('investigators/request_inform_consent/<patient_pkey>')
 async def request_inform_consent(request, patient_pkey):
     """Updates auth information for the authorized account"""

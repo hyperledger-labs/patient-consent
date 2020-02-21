@@ -69,68 +69,6 @@ services:
         tail -f /dev/null
                "
 
-#  payment-processor:
-#    build:
-#      context: .
-#      dockerfile: payment_processor/Dockerfile
-#      args:
-#        - http_proxy
-#        - https_proxy
-#        - no_proxy
-#    image: payment-tp
-#    container_name: payment-processor
-#    volumes:
-#      - ./:/project/sawtooth_healthcare
-#    command: |
-#      bash -c "
-#        sleep 1 &&
-#        echo '--- Building payment-tp by docker-compose---\n' &&
-#        init-payment-tp.sh &&
-#        payment-tp -v -C tcp://validator:4004 &&
-#        tail -f /dev/null
-#               "
-#
-#  insurance-processor:
-#    build:
-#      context: .
-#      dockerfile: insurance_processor/Dockerfile
-#      args:
-#        - http_proxy
-#        - https_proxy
-#        - no_proxy
-#    image: insurance-tp
-#    container_name: insurance-processor
-#    volumes:
-#      - ./:/project/sawtooth_healthcare
-#    command: |
-#      bash -c "
-#        sleep 1 &&
-#        echo '--- Building insurance-tp by docker-compose---\n' &&
-#        init-insurance-tp.sh &&
-#        insurance-tp -v -C tcp://validator:4004 &&
-#        tail -f /dev/null
-#               "
-#
-#  healthcare-cli:
-#    build:
-#      context: .
-#      dockerfile: cli/Dockerfile
-#      args:
-#        - http_proxy
-#        - https_proxy
-#        - no_proxy
-#    image: healthcare-cli
-#    container_name: healthcare-client
-#    volumes:
-#      - ./:/project/sawtooth_healthcare
-#    command: |
-#      bash -c "
-#        sleep 1 &&
-#        echo '--- Building healthcare-cli by docker-compose---\n' &&
-#        init-healthcare-cli.sh &&
-#        tail -f /dev/null
-#      "
-#
   hospital-rest-api:
     build:
       context: .
@@ -182,20 +120,6 @@ services:
         trial-rest-api --host trial-rest-api --trial-validator tcp://trial-validator:4004 --consent-validator tcp://consent-validator:4004 &&
         tail -f /dev/null
                "
-
-#  sawtooth-rest-api:
-#    image: hyperledger/sawtooth-rest-api:1.1
-#    container_name: sawtooth-rest-api
-#    expose:
-#      - 8008
-#    ports:
-#      - '8043:8008'
-#    depends_on:
-#      - validator
-#    entrypoint: |
-#      sawtooth-rest-api -vv
-#        --connect tcp://validator:4004
-#        --bind sawtooth-rest-api:8008
 
   ehr-settings-tp:
     image: hyperledger/sawtooth-settings-tp:1.1
@@ -353,4 +277,3 @@ services:
         echo '--- Starting investigator-web-app by docker-compose---' &&
         npm start
       "
-#        tail -f /dev/null

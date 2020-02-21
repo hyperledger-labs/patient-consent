@@ -14,39 +14,7 @@
 # ------------------------------------------------------------------------------
 
 from __future__ import print_function
-
-# import os
-# import subprocess
-
 from setuptools import setup, find_packages  # , Command
-
-# conf_dir = "/etc/sawtooth"
-#
-# data_files = [
-#     (conf_dir, ['packaging/ehr.toml'])
-# ]
-#
-# if os.path.exists("/etc/default"):
-#     data_files.append(
-#         ('/etc/default', ['packaging/systemd/ehr-rest-api']))
-#
-# if os.path.exists("/lib/systemd/system"):
-#     data_files.append(('/lib/systemd/system',
-#                        ['packaging/systemd/ehr-rest-api.service']))
-
-# class CleanCommand(Command):
-#     """Custom clean command to tidy up the project root."""
-#     user_options = []
-#
-#     def initialize_options(self):
-#         pass
-#
-#     def finalize_options(self):
-#         pass
-#
-#     def run(self):
-#         os.system('rm -vrf ./build ./dist ./*.egg-info')
-
 
 setup(
     name='trial-rest-api',

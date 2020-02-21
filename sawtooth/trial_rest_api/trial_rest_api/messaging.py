@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ------------------------------------------------------------------------------
-# import base64
-
 from sawtooth_sdk.protobuf import client_batch_submit_pb2
 from sawtooth_rest_api.protobuf import client_state_pb2
 from sawtooth_rest_api.protobuf import validator_pb2
@@ -60,12 +58,3 @@ async def get_state_by_address(conn, address_suffix):
     # resp = status_response
 
     return status_response  # resp.entries
-
-    # batch_status = status_response.batch_statuses[0].status
-    # if batch_status == client_batch_submit_pb2.ClientBatchStatus.INVALID:
-    #     invalid = status_response.batch_statuses[0].invalid_transactions[0]
-    #     raise ApiBadRequest(invalid.message)
-    # elif batch_status == client_batch_submit_pb2.ClientBatchStatus.PENDING:
-    #     raise ApiInternalError("Transaction submitted but timed out")
-    # elif batch_status == client_batch_submit_pb2.ClientBatchStatus.UNKNOWN:
-    #     raise ApiInternalError("Something went wrong. Try again later")

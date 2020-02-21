@@ -347,7 +347,7 @@ async def request_inform_document_consent(conn, timeout, batches, client_key):
     raise ApiForbidden("Insufficient permission")
 
 
-# TODO Invalid package?
+# Used
 async def sign_inform_document_consent(conn, timeout, batches, client_key):
     client = await get_client(conn, client_key)
     if Permission(type=Permission.SIGN_INFORM_CONSENT) in client.permissions:
@@ -359,7 +359,7 @@ async def sign_inform_document_consent(conn, timeout, batches, client_key):
     raise ApiForbidden("Insufficient permission")
 
 
-# TODO Invalid package?
+# Used
 async def decline_inform_consent(conn, timeout, batches, client_key):
     client = await get_client(conn, client_key)
     if Permission(type=Permission.DECLINE_INFORM_CONSENT) in client.permissions:
