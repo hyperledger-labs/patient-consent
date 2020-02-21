@@ -19,39 +19,18 @@ import logging
 import os
 from signal import signal, SIGINT
 import sys
-# import rethinkdb as r
-
 from sanic import Sanic
 
 from sawtooth_signing import create_context
 from sawtooth_signing import ParseError
-# from sawtooth_signing.secp256k1 import Secp256k1PrivateKey
 from sawtooth_signing import CryptoFactory
-
-# from sawtooth_signing.secp256k1 import Secp256k1PrivateKey
-
 from zmq.asyncio import ZMQEventLoop
-
 from trial_rest_api.investigator import INVESTIGATORS_BP
 from trial_rest_api.ehrs import EHRS_BP
-from trial_rest_api.hospitals import HOSPITALS_BP
-# from rest_api.workflow.contract import CONTRACT_BP
 from trial_rest_api.general import get_keyfile, get_signer_from_file
-# from rest_api.workflow.doctors import DOCTORS_BP
-# from rest_api.workflow.labs import LABS_BP
-from trial_rest_api.patients import PATIENTS_BP
-# from rest_api.workflow.insurances import INSURANCES_BP
 from trial_rest_api.clients import CLIENTS_BP
-# from rest_api.workflow.claim_details import CLAIM_DETAILS_BP
-# from rest_api.workflow.lab_tests import LAB_TESTS_BP
-# from rest_api.workflow.payment import PAYMENT_BP
-# from rest_api.workflow.pulse import PULSE_BP
 from sawtooth_rest_api.messaging import Connection
 
-# from api.authorization import AUTH_BP
-# from api.errors import ERRORS_BP
-# from api.holdings import HOLDINGS_BP
-# from api.offers import OFFERS_BP
 
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)
@@ -62,30 +41,16 @@ DEFAULT_CONFIG = {
     'TRIAL_VALIDATOR_URL': 'tcp://localhost:6004',
     'CONSENT_VALIDATOR_URL': 'tcp://localhost:5004',
     'EHR_BACKEND_URL': 'http://hospital-rest-api:8000',
-    # 'DB_HOST': 'localhost',
-    # 'DB_PORT': 28015,
-    # 'DB_NAME': 'marketplace',
     'DEBUG': True,
     'KEEP_ALIVE': False,
     'SECRET_KEY': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890',
     'AES_KEY': 'ffffffffffffffffffffffffffffffff',
     'BATCHER_PRIVATE_KEY': '1111111111111111111111111111111111111111111111111111111111111111',
-    # 'BATCHER_PRIVATE_KEY_FILE_NAME_HOSPITAL': None,
-    # 'BATCHER_PRIVATE_KEY_FILE_NAME_PATIENT': None,
     'BATCHER_PRIVATE_KEY_FILE_NAME_INVESTIGATOR': None
-    # 'BATCHER_PRIVATE_KEY_FILE_NAME_LAB': None,
-    # 'BATCHER_PRIVATE_KEY_FILE_NAME_INSURANCE': None
 }
 
 
 async def open_connections(appl):
-    # LOGGER.warning('opening database connection')
-    # r.set_loop_type('asyncio')
-    # app.config.DB_CONN = await r.connect(
-    #     host=app.config.DB_HOST,
-    #     port=app.config.DB_PORT,
-    #     db=app.config.DB_NAME)
-
     appl.config.INVESTIGATOR_VAL_CONN = Connection(appl.config.TRIAL_VALIDATOR_URL)
     appl.config.CONSENT_VAL_CONN = Connection(appl.config.CONSENT_VALIDATOR_URL)
 
@@ -97,9 +62,6 @@ async def open_connections(appl):
 
 
 def close_connections(appl):
-    # LOGGER.warning('closing database connection')
-    # app.config.DB_CONN.close()
-
     LOGGER.warning('closing validator connection Investigator network')
     appl.config.INVESTIGATOR_VAL_CONN.close()
     LOGGER.warning('closing validator connection Consent network')
@@ -130,16 +92,8 @@ def parse_args(args):
                         help='The AES key used for private key encryption')
     parser.add_argument('--batcher-private-key',
                         help='The sawtooth key used for transaction signing')
-    # parser.add_argument('--batcher-private-key-file-name-hospital',
-    #                     help='The sawtooth key used for batch signing having hospital role')
-    # parser.add_argument('--batcher-private-key-file-name-doctor',
-    #                     help='The sawtooth key used for batch signing having doctor role')
-    # parser.add_argument('--batcher-private-key-file-name-patient',
-    #                     help='The sawtooth key used for batch signing having patient role')
     parser.add_argument('--batcher-private-key-file-name-investigator',
                         help='The sawtooth key used for batch signing having investigator role')
-    # parser.add_argument('--batcher-private-key-file-name-insurance',
-    #                     help='The sawtooth key used for batch signing having insurance role')
 
     return parser.parse_args(args)
 
@@ -197,61 +151,21 @@ def load_config(appl):  # pylint: disable=too-many-branches
         LOGGER.exception("Batcher private key was not provided")
         sys.exit(1)
 
-    # if opts.batcher_private_key_file_name_hospital is not None:
-    #     appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_HOSPITAL = opts.batcher_private_key_file_name_hospital
-    # if opts.batcher_private_key_file_name_doctor is not None:
-    #     appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_DOCTOR = opts.batcher_private_key_file_name_doctor
-    # if opts.batcher_private_key_file_name_patient is not None:
-    #     appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_PATIENT = opts.batcher_private_key_file_name_patient
     if opts.batcher_private_key_file_name_investigator is not None:
         appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_INVESTIGATOR = opts.batcher_private_key_file_name_investigator
-    # if opts.batcher_private_key_file_name_insurance is not None:
-    #     appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_INSURANCE = opts.batcher_private_key_file_name_insurance
-
-    # if appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_HOSPITAL is None:
-    #     LOGGER.exception("Batcher private key file name for Hospital entity was not provided")
-    #     sys.exit(1)
-    # if appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_DOCTOR is None:
-    #     LOGGER.exception("Batcher private key file name for Doctor entity was not provided")
-    #     sys.exit(1)
-    # if appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_PATIENT is None:
-    #     LOGGER.exception("Batcher private key file name for Patient entity was not provided")
-    #     sys.exit(1)
     if appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_INVESTIGATOR is None:
         LOGGER.exception("Batcher private key file name for Data Provider entity was not provided")
         sys.exit(1)
-    # if appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_INSURANCE is None:
-    #     LOGGER.exception("Batcher private key file name for Insurance entity was not provided")
-    #     sys.exit(1)
 
     try:
-        # private_key_file_name_hospital = get_keyfile(appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_HOSPITAL)
-        # hospital_private_key = get_signer_from_file(private_key_file_name_hospital)
-        # private_key_file_name_doctor = get_keyfile(appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_DOCTOR)
-        # doctor_private_key = get_signer_from_file(private_key_file_name_doctor)
-        # private_key_file_name_patient = get_keyfile(appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_PATIENT)
-        # patient_private_key = get_signer_from_file(private_key_file_name_patient)
         private_key_file_name_investigator = get_keyfile(appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_INVESTIGATOR)
         investigator_private_key = get_signer_from_file(private_key_file_name_investigator)
-        # private_key_file_name_insurance = get_keyfile(appl.config.BATCHER_PRIVATE_KEY_FILE_NAME_INSURANCE)
-        # insurance_private_key = get_signer_from_file(private_key_file_name_insurance)
-
-        # private_key = Secp256k1PrivateKey.from_hex(
-        #     app.config.BATCHER_PRIVATE_KEY)
     except ParseError as err:
         LOGGER.exception('Unable to load private key: %s', str(err))
         sys.exit(1)
     appl.config.CONTEXT = create_context('secp256k1')
-    # appl.config.SIGNER_HOSPITAL = CryptoFactory(
-    #     appl.config.CONTEXT).new_signer(hospital_private_key)
-    # appl.config.SIGNER_DOCTOR = CryptoFactory(
-    #     appl.config.CONTEXT).new_signer(doctor_private_key)
-    # appl.config.SIGNER_PATIENT = CryptoFactory(
-    #     appl.config.CONTEXT).new_signer(patient_private_key)
     appl.config.SIGNER_INVESTIGATOR = CryptoFactory(
         appl.config.CONTEXT).new_signer(investigator_private_key)
-    # appl.config.SIGNER_INSURANCE = CryptoFactory(
-    #     appl.config.CONTEXT).new_signer(insurance_private_key)
 
 
 app = Sanic(__name__)
@@ -262,19 +176,9 @@ def main():
     LOGGER.info('Starting Hospital Rest API server...')
     # CORS(app)
 
-    app.blueprint(HOSPITALS_BP)
     app.blueprint(INVESTIGATORS_BP)
-    app.blueprint(PATIENTS_BP)
     app.blueprint(EHRS_BP)
-    # app.blueprint(CLAIM_DETAILS_BP)
-    # app.blueprint(LAB_TESTS_BP)
-    # app.blueprint(PULSE_BP)
     app.blueprint(CLIENTS_BP)
-    # app.blueprint(LABS_BP)
-    # app.blueprint(INSURANCES_BP)
-    # app.blueprint(CONTRACT_BP)
-    # app.blueprint(PAYMENT_BP)
-    # app.blueprint(OFFERS_BP)
 
     load_config(app)
     zmq = ZMQEventLoop()

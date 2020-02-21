@@ -69,68 +69,6 @@ services:
         tail -f /dev/null
                "
 
-#  payment-processor:
-#    build:
-#      context: .
-#      dockerfile: payment_processor/Dockerfile
-#      args:
-#        - http_proxy
-#        - https_proxy
-#        - no_proxy
-#    image: payment-tp
-#    container_name: payment-processor
-#    volumes:
-#      - ./:/project/sawtooth_healthcare
-#    command: |
-#      bash -c "
-#        sleep 1 &&
-#        echo '--- Building payment-tp by docker-compose---\n' &&
-#        init-payment-tp.sh &&
-#        payment-tp -v -C tcp://validator:4004 &&
-#        tail -f /dev/null
-#               "
-#
-#  insurance-processor:
-#    build:
-#      context: .
-#      dockerfile: insurance_processor/Dockerfile
-#      args:
-#        - http_proxy
-#        - https_proxy
-#        - no_proxy
-#    image: insurance-tp
-#    container_name: insurance-processor
-#    volumes:
-#      - ./:/project/sawtooth_healthcare
-#    command: |
-#      bash -c "
-#        sleep 1 &&
-#        echo '--- Building insurance-tp by docker-compose---\n' &&
-#        init-insurance-tp.sh &&
-#        insurance-tp -v -C tcp://validator:4004 &&
-#        tail -f /dev/null
-#               "
-#
-#  healthcare-cli:
-#    build:
-#      context: .
-#      dockerfile: cli/Dockerfile
-#      args:
-#        - http_proxy
-#        - https_proxy
-#        - no_proxy
-#    image: healthcare-cli
-#    container_name: healthcare-client
-#    volumes:
-#      - ./:/project/sawtooth_healthcare
-#    command: |
-#      bash -c "
-#        sleep 1 &&
-#        echo '--- Building healthcare-cli by docker-compose---\n' &&
-#        init-healthcare-cli.sh &&
-#        tail -f /dev/null
-#      "
-#
   hospital-rest-api:
     build:
       context: .
@@ -183,29 +121,15 @@ services:
         tail -f /dev/null
                "
 
-#  sawtooth-rest-api:
-#    image: hyperledger/sawtooth-rest-api:1.1
-#    container_name: sawtooth-rest-api
-#    expose:
-#      - 8008
-#    ports:
-#      - '8043:8008'
-#    depends_on:
-#      - validator
-#    entrypoint: |
-#      sawtooth-rest-api -vv
-#        --connect tcp://validator:4004
-#        --bind sawtooth-rest-api:8008
-
   ehr-settings-tp:
-    image: hyperledger/sawtooth-settings-tp:1.1
+    image: hyperledger/sawtooth-settings-tp:1.2.4
     container_name: ehr-sawtooth-settings-tp
     depends_on:
       - ehr-validator
     command: settings-tp -vv --connect tcp://ehr-validator:4004
 
   ehr-validator:
-    image: hyperledger/sawtooth-validator:1.1
+    image: hyperledger/sawtooth-validator:1.2.4
     container_name: ehr-sawtooth-validator
     expose:
       - 4004
@@ -214,10 +138,15 @@ services:
     command: |
       bash -c "
         if [ ! -f /etc/sawtooth/keys/validator.priv ]; then
-        sawadm keygen &&
-        sawtooth keygen my_key &&
-        sawset genesis -k /root/.sawtooth/keys/my_key.priv &&
-        sawadm genesis config-genesis.batch
+          sawadm keygen &&
+          sawtooth keygen my_key &&
+          sawset genesis -k /root/.sawtooth/keys/my_key.priv &&
+          sawset proposal create \
+            -k /root/.sawtooth/keys/my_key.priv \
+            sawtooth.consensus.algorithm.name=Devmode \
+            sawtooth.consensus.algorithm.version=0.1 \
+            -o config.batch &&
+          sawadm genesis config-genesis.batch config.batch
         fi;
         sawtooth-validator -vv \
           --endpoint tcp://ehr-validator:8800 \
@@ -227,14 +156,14 @@ services:
       "
 
   consent-settings-tp:
-    image: hyperledger/sawtooth-settings-tp:1.1
+    image: hyperledger/sawtooth-settings-tp:1.2.4
     container_name: consent-sawtooth-settings-tp
     depends_on:
       - consent-validator
     command: settings-tp -vv --connect tcp://consent-validator:4004
 
   consent-validator:
-    image: hyperledger/sawtooth-validator:1.1
+    image: hyperledger/sawtooth-validator:1.2.4
     container_name: consent-sawtooth-validator
     expose:
       - 4004
@@ -243,10 +172,15 @@ services:
     command: |
       bash -c "
         if [ ! -f /etc/sawtooth/keys/validator.priv ]; then
-        sawadm keygen &&
-        sawtooth keygen my_key &&
-        sawset genesis -k /root/.sawtooth/keys/my_key.priv &&
-        sawadm genesis config-genesis.batch
+          sawadm keygen &&
+          sawtooth keygen my_key &&
+          sawset genesis -k /root/.sawtooth/keys/my_key.priv &&
+          sawset proposal create \
+            -k /root/.sawtooth/keys/my_key.priv \
+            sawtooth.consensus.algorithm.name=Devmode \
+            sawtooth.consensus.algorithm.version=0.1 \
+            -o config.batch &&
+          sawadm genesis config-genesis.batch config.batch
         fi;
         sawtooth-validator -vv \
           --endpoint tcp://consent-validator:8800 \
@@ -256,14 +190,14 @@ services:
       "
 
   trial-settings-tp:
-    image: hyperledger/sawtooth-settings-tp:1.1
+    image: hyperledger/sawtooth-settings-tp:1.2.4
     container_name: trial-sawtooth-settings-tp
     depends_on:
       - trial-validator
     command: settings-tp -vv --connect tcp://trial-validator:4004
 
   trial-validator:
-    image: hyperledger/sawtooth-validator:1.1
+    image: hyperledger/sawtooth-validator:1.2.4
     container_name: trial-sawtooth-validator
     expose:
       - 4004
@@ -272,10 +206,15 @@ services:
     command: |
       bash -c "
         if [ ! -f /etc/sawtooth/keys/validator.priv ]; then
-        sawadm keygen &&
-        sawtooth keygen my_key &&
-        sawset genesis -k /root/.sawtooth/keys/my_key.priv &&
-        sawadm genesis config-genesis.batch
+          sawadm keygen &&
+          sawtooth keygen my_key &&
+          sawset genesis -k /root/.sawtooth/keys/my_key.priv &&
+          sawset proposal create \
+            -k /root/.sawtooth/keys/my_key.priv \
+            sawtooth.consensus.algorithm.name=Devmode \
+            sawtooth.consensus.algorithm.version=0.1 \
+            -o config.batch &&
+          sawadm genesis config-genesis.batch config.batch
         fi;
         sawtooth-validator -vv \
           --endpoint tcp://trial-validator:8800 \
@@ -285,25 +224,25 @@ services:
       "
 
   ehr-devmode-engine:
-    image: hyperledger/sawtooth-devmode-engine-rust:1.1
+    image: hyperledger/sawtooth-devmode-engine-rust:1.2
     container_name: ehr-sawtooth-devmode-engine-rust-default
     depends_on:
       - ehr-validator
-    entrypoint: devmode-engine-rust -C tcp://ehr-validator:5050
+    entrypoint: devmode-engine-rust -v -C tcp://ehr-validator:5050
 
   consent-devmode-engine:
-    image: hyperledger/sawtooth-devmode-engine-rust:1.1
+    image: hyperledger/sawtooth-devmode-engine-rust:1.2
     container_name: consent-sawtooth-devmode-engine-rust-default
     depends_on:
       - consent-validator
-    entrypoint: devmode-engine-rust -C tcp://consent-validator:5050
+    entrypoint: devmode-engine-rust -v -C tcp://consent-validator:5050
 
   trial-devmode-engine:
-    image: hyperledger/sawtooth-devmode-engine-rust:1.1
+    image: hyperledger/sawtooth-devmode-engine-rust:1.2
     container_name: trial-sawtooth-devmode-engine-rust-default
     depends_on:
       - trial-validator
-    entrypoint: devmode-engine-rust -C tcp://trial-validator:5050
+    entrypoint: devmode-engine-rust -v -C tcp://trial-validator:5050
 
   hospital-web-app:
     build:
@@ -353,4 +292,3 @@ services:
         echo '--- Starting investigator-web-app by docker-compose---' &&
         npm start
       "
-#        tail -f /dev/null
