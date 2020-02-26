@@ -23,6 +23,7 @@ module.exports = function({ hra = "http://hospital-rest-api:8000" }) {
       devServer: {
         host: '0.0.0.0',
         port: 8080,
+        disableHostCheck: true,
         proxy: {
           '/api': {
             target: hra,
