@@ -18,7 +18,7 @@ RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app &&
 
 WORKDIR /home/node/app
 
-COPY ./web_hospital/package*.json ./
+COPY ./web_ehr/package*.json ./
 
 #COPY package*.json ./
 
