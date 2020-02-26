@@ -4,6 +4,7 @@ module.exports = function({ hra = "http://trial-rest-api:8000" }) {
       devServer: {
         host: '0.0.0.0',
         port: 8080,
+        disableHostCheck: true,
         proxy: {
           '/api': {
             target: hra,
